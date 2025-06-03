@@ -15,7 +15,7 @@ export default function TabLayout(): JSX.Element {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: "black",
+        tabBarActiveTintColor: "#168a39ac",
         tabBarInactiveTintColor: "lightgrey",
         headerShown: false,
         tabBarStyle: {

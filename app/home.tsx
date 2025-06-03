@@ -1,10 +1,5 @@
-import { JSX } from "react";
-import { Text, View } from "react-native";
+import { Home } from "@/src/Home/Home";
 
-export default function HomeScreen(): JSX.Element {
-  return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>Home Screen</Text>
-    </View>
-  );
+export default function HomeScreen() {
+  return <Home></Home>;
 }
