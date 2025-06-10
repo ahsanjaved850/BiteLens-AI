@@ -7,6 +7,7 @@ export const styles = StyleSheet.create({
     height: "100%",
   },
   heading: {
+    position: "fixed",
     display: "flex",
     flexDirection: "row",
     marginBottom: 10,
@@ -59,5 +60,19 @@ export const styles = StyleSheet.create({
     padding: 8,
     marginInline: 3,
     backgroundColor: "#FAF9F6",
+  },
+  button: {
+    backgroundColor: "black",
+    padding: 8,
+    borderRadius: 25,
+    alignItems: "center",
+    justifyContent: "center",
+    width: 40,
+    height: 40,
+  },
+  plus: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "normal",
   },
 });
