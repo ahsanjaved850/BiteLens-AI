@@ -1,0 +1,78 @@
+import { StyleSheet } from "react-native";
+
+export const styles = StyleSheet.create({
+  body: {
+    padding: 10,
+    backgroundColor: "white",
+    height: "100%",
+  },
+  heading: {
+    position: "fixed",
+    display: "flex",
+    flexDirection: "row",
+    marginBottom: 10,
+  },
+  logo: {
+    width: 42,
+    height: 42,
+    margin: 0,
+  },
+  logoName: {
+    fontWeight: "bold",
+    fontSize: 20,
+    marginTop: 8,
+  },
+  dailyDetails: {
+    marginInline: 7,
+    borderRadius: 10,
+  },
+  userProfile: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    height: 70,
+    justifyContent: "space-between",
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: "#FAF9F6",
+  },
+  caloriesCard: {
+    display: "flex",
+    flexDirection: "row",
+    padding: 10,
+    height: 150,
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "space-around",
+    borderRadius: 10,
+    backgroundColor: "#FAF9F6",
+    marginVertical: 10,
+  },
+  macroNutrients: {
+    display: "flex",
+    flexDirection: "row",
+    width: "100%",
+  },
+  nutrientsCard: {
+    height: 180,
+    width: "31.55%",
+    borderRadius: 10,
+    padding: 8,
+    marginInline: 3,
+    backgroundColor: "#FAF9F6",
+  },
+  button: {
+    backgroundColor: "black",
+    padding: 8,
+    borderRadius: 25,
+    alignItems: "center",
+    justifyContent: "center",
+    width: 40,
+    height: 40,
+  },
+  plus: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "normal",
+  },
+});
