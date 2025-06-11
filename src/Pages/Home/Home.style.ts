@@ -77,4 +77,12 @@ export const homeStyles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "normal",
   },
+  impDetails: {
+    fontSize: 25,
+    fontWeight: "bold",
+    marginRight: 10,
+  },
+  notesDetails: {
+    fontSize: 12,
+  },
 });
