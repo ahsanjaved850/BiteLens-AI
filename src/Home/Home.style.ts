@@ -1,10 +1,11 @@
 import { StyleSheet } from "react-native";
 
-export const styles = StyleSheet.create({
+export const homeStyles = StyleSheet.create({
   body: {
     padding: 10,
     backgroundColor: "white",
     height: "100%",
+    marginInline: 8,
   },
   heading: {
     position: "fixed",
@@ -16,6 +17,7 @@ export const styles = StyleSheet.create({
     width: 42,
     height: 42,
     margin: 0,
+    marginLeft: -7,
   },
   logoName: {
     fontWeight: "bold",
@@ -23,7 +25,7 @@ export const styles = StyleSheet.create({
     marginTop: 8,
   },
   dailyDetails: {
-    marginInline: 7,
+    // marginInline: 7,
     borderRadius: 10,
   },
   userProfile: {
