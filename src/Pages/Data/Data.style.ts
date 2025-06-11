@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 
 export const dataStyles = StyleSheet.create({
-  headings: {
+  sectionHeading: {
     fontSize: 14,
     marginVertical: 5,
     fontWeight: "bold",
@@ -27,5 +27,11 @@ export const dataStyles = StyleSheet.create({
     color: "#fff",
     fontSize: 12,
     fontWeight: "normal",
+  },
+  section: {
+    backgroundColor: "#FAF9F6",
+    borderRadius: 10,
+    padding: 10,
+    marginTop: 10,
   },
 });

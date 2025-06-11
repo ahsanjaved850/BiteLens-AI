@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { dataStyles } from "../Data/Data.style";
 import { homeStyles } from "./Home.style";
 
 export const Home = (): JSX.Element => {
@@ -22,8 +23,8 @@ export const Home = (): JSX.Element => {
       </View>
       <View style={homeStyles.dailyDetails}>
         <View style={homeStyles.userProfile}>
-          <Text style={{ fontWeight: "bold", fontSize: 25 }}>Hi Ahsan,</Text>
-          <Text style={{ fontWeight: "normal", fontSize: 15 }}>30 May</Text>
+          <Text style={homeStyles.impDetails}>Hi Ahsan,</Text>
+          <Text>30 May</Text>
         </View>
 
         <View style={homeStyles.caloriesCard}>
@@ -36,17 +37,9 @@ export const Home = (): JSX.Element => {
           <Text style={homeStyles.nutrientsCard}>Fats</Text>
         </View>
       </View>
-      <View style={{ paddingVertical: 10 }}>
-        <Text style={{ fontWeight: "bold", fontSize: 15 }}>Recently eaten</Text>
-        <Text
-          style={{
-            backgroundColor: "#FAF9F6",
-            marginTop: 5,
-            padding: 10,
-            fontSize: 14,
-            borderRadius: 10,
-          }}
-        >
+      <View style={dataStyles.section}>
+        <Text style={dataStyles.sectionHeading}>Recently eaten</Text>
+        <Text style={homeStyles.notesDetails}>
           Click on + to start tracking todays meal by taking a pictures
         </Text>
       </View>
