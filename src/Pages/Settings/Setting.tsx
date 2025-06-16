@@ -13,49 +13,50 @@ export const Setting = (): JSX.Element => {
       </View>
       <View style={dataStyles.section}>
         <View style={settingStyles.everyitem}>
-          <Text style={dataStyles.sectionHeading}>Physical Details</Text>
-        </View>
-        <View style={settingStyles.everyitem}>
-          <Text style={settingStyles.itemName}>Gender</Text>
-          <Text style={settingStyles.itemName}>Male</Text>
-        </View>
-        <View style={settingStyles.everyitem}>
-          <Text style={settingStyles.itemName}>Age</Text>
-          <Text style={settingStyles.itemName}>25</Text>
-        </View>
-        <View style={settingStyles.everyitem}>
-          <Text style={settingStyles.itemName}>Height</Text>
-          <Text style={settingStyles.itemName}>6ft</Text>
-        </View>
-      </View>
-      <View style={dataStyles.section}>
-        <View style={settingStyles.everyitem}>
           <Text style={dataStyles.sectionHeading}>Personal Details</Text>
         </View>
         <View style={settingStyles.everyitem}>
           <Text style={settingStyles.itemName}>Name</Text>
-          <Text style={settingStyles.itemName}>Ahsan Javed</Text>
+          <Text style={settingStyles.itemDetails}>Ahsan Javed</Text>
         </View>
         <View style={settingStyles.everyitem}>
           <Text style={settingStyles.itemName}>Birthday</Text>
-          <Text style={settingStyles.itemName}>April 05</Text>
+          <Text style={settingStyles.itemDetails}>April 05</Text>
         </View>
       </View>
+      <View style={dataStyles.section}>
+        <View style={settingStyles.everyitem}>
+          <Text style={dataStyles.sectionHeading}>Physical Details</Text>
+        </View>
+        <View style={settingStyles.everyitem}>
+          <Text style={settingStyles.itemName}>Gender</Text>
+          <Text style={settingStyles.itemDetails}>Male</Text>
+        </View>
+        <View style={settingStyles.everyitem}>
+          <Text style={settingStyles.itemName}>Age</Text>
+          <Text style={settingStyles.itemDetails}>25</Text>
+        </View>
+        <View style={settingStyles.everyitem}>
+          <Text style={settingStyles.itemName}>Height</Text>
+          <Text style={settingStyles.itemDetails}>6ft</Text>
+        </View>
+      </View>
+
       <View style={dataStyles.section}>
         <View>
           <Text style={dataStyles.sectionHeading}>Legal</Text>
         </View>
         <View style={settingStyles.everyitem}>
-          <Text style={settingStyles.itemName}>Terms and Conditions</Text>
-          <Ionicons name="chevron-forward" size={14} color="#333" />
+          <Text style={settingStyles.itemDetails}>Terms and Conditions</Text>
+          <Ionicons name="chevron-forward" />
         </View>
         <View style={settingStyles.everyitem}>
-          <Text style={settingStyles.itemName}>Privacy Policy</Text>
-          <Ionicons name="chevron-forward" size={14} color="#333" />
+          <Text style={settingStyles.itemDetails}>Privacy Policy</Text>
+          <Ionicons name="chevron-forward" />
         </View>
         <View style={settingStyles.everyitem}>
-          <Text style={settingStyles.itemName}>Delete Account?</Text>
-          <Ionicons name="chevron-forward" size={14} color="#333" />
+          <Text style={settingStyles.itemDetails}>Delete Account?</Text>
+          <Ionicons name="chevron-forward" />
         </View>
       </View>
     </ScrollView>

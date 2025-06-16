@@ -8,8 +8,14 @@ export const settingStyles = StyleSheet.create({
     alignItems: "center",
   },
   itemName: {
+    color: "darkgray",
     fontSize: 14,
     fontWeight: "normal",
+    marginVertical: 10,
+  },
+  itemDetails: {
+    fontSize: 14,
+    fontWeight: "semibold",
     marginVertical: 10,
   },
 });
