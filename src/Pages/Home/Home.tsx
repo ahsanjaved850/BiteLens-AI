@@ -43,7 +43,7 @@ export const Home = (): JSX.Element => {
           Click on + to start tracking todays meal by taking a pictures
         </Text>
       </View>
-      <View style={{ alignItems: "center" }}>
+      <View style={{ alignItems: "center", marginVertical: 10 }}>
         <TouchableOpacity style={homeStyles.button}>
           <Text style={homeStyles.plus}>+</Text>
         </TouchableOpacity>

@@ -13,6 +13,9 @@ export const Setting = (): JSX.Element => {
       </View>
       <View style={dataStyles.section}>
         <View style={settingStyles.everyitem}>
+          <Text style={dataStyles.sectionHeading}>Physical Details</Text>
+        </View>
+        <View style={settingStyles.everyitem}>
           <Text style={settingStyles.itemName}>Gender</Text>
           <Text style={settingStyles.itemName}>Male</Text>
         </View>
@@ -28,7 +31,14 @@ export const Setting = (): JSX.Element => {
       <View style={dataStyles.section}>
         <View style={settingStyles.everyitem}>
           <Text style={dataStyles.sectionHeading}>Personal Details</Text>
-          <Ionicons name="chevron-forward" size={14} color="#333" />
+        </View>
+        <View style={settingStyles.everyitem}>
+          <Text style={settingStyles.itemName}>Name</Text>
+          <Text style={settingStyles.itemName}>Ahsan Javed</Text>
+        </View>
+        <View style={settingStyles.everyitem}>
+          <Text style={settingStyles.itemName}>Birthday</Text>
+          <Text style={settingStyles.itemName}>April 05</Text>
         </View>
       </View>
       <View style={dataStyles.section}>
