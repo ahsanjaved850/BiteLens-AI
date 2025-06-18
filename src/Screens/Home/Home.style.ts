@@ -8,7 +8,6 @@ export const homeStyles = StyleSheet.create({
     marginInline: 8,
   },
   heading: {
-    position: "fixed",
     display: "flex",
     flexDirection: "row",
     marginBottom: 10,
