@@ -4,6 +4,7 @@ export default {
   expo: {
     name: "calai_vegan",
     slug: "calai_vegan",
+    scheme: "calaivegan",
     version: "1.0.0",
     sdkVersion: "53.0.0",
     extra: {
