@@ -24,7 +24,7 @@ export const homeStyles = StyleSheet.create({
     marginTop: 8,
   },
   dailyDetails: {
-    // marginInline: 7,
+    marginTop: 7,
     borderRadius: 10,
   },
   userProfile: {

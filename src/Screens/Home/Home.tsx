@@ -1,4 +1,4 @@
-import React, { JSX, useState } from "react";
+import React, { JSX, useEffect, useState } from "react";
 
 import {
   Image,
@@ -12,25 +12,36 @@ import {
 import { ImageExamine } from "@/src/components/ImageExamine/ImageExamine";
 import { NutritionData } from "@/src/utils/sendImageToAI";
 import { dataStyles } from "../Data/Data.style";
+import { introstyle } from "../Onboarding/Onboarding.style";
 import { homeStyles } from "./Home.style";
 
 export const Home = (): JSX.Element => {
   const [nutrition, setNutrition] = useState<NutritionData | null>(null);
+  const [dailyNutrition, setDailyNutrition] = useState<NutritionData | null>(
+    null
+  );
+
+  useEffect(() => {
+    const fetchData = async () => {
+      // const result = await dataAnalysis(90, 175, 25);
+      // setDailyNutrition(result);
+    };
+    fetchData();
+  }, []);
 
   const handleNutritionResult = (data: NutritionData) => {
     setNutrition(data);
   };
-
   return (
     <ScrollView style={homeStyles.body}>
       <StatusBar barStyle="dark-content" backgroundColor="white" />
 
-      <View style={homeStyles.heading}>
+      <View style={introstyle.logoContainer}>
         <Image
-          source={require("@/assets/images/Logo.png")}
-          style={homeStyles.logo}
+          style={introstyle.logo}
+          source={require("@/assets/images/app_icon.png")}
         />
-        <Text style={homeStyles.logoName}>VeganCal</Text>
+        <Text style={introstyle.headerName}>GreenBite AI</Text>
       </View>
 
       <View style={homeStyles.dailyDetails}>
@@ -40,7 +51,9 @@ export const Home = (): JSX.Element => {
         </View>
 
         <View style={homeStyles.caloriesCard}>
-          <Text style={homeStyles.impDetails}>Calories</Text>
+          <Text style={homeStyles.impDetails}>
+            Calories {dailyNutrition?.calories}
+          </Text>
           <Text>
             {nutrition?.calories ? nutrition.calories : "No data yet"}
           </Text>
@@ -48,13 +61,13 @@ export const Home = (): JSX.Element => {
 
         <View style={homeStyles.macroNutrients}>
           <Text style={homeStyles.nutrientsCard}>
-            Protein: {nutrition?.protein || "--"}
+            Protein: {dailyNutrition?.protein || "--"}
           </Text>
           <Text style={homeStyles.nutrientsCard}>
-            Carbs: {nutrition?.carbs || "--"}
+            Carbs: {dailyNutrition?.carbs || "--"}
           </Text>
           <Text style={homeStyles.nutrientsCard}>
-            Fats: {nutrition?.fats || "--"}
+            Fats: {dailyNutrition?.fats || "--"}
           </Text>
         </View>
       </View>

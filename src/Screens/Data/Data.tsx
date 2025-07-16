@@ -1,9 +1,20 @@
-import { JSX } from "react";
+import { dataAnalysis } from "@/src/utils/dataAnalysis";
+import { useEffect, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { homeStyles } from "../Home/Home.style";
 import { dataStyles } from "./Data.style";
 
-export const DataOverview = (): JSX.Element => {
+export const DataOverview = () => {
+  const [bmiScored, setBmiScored] = useState<string | undefined>();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const result = await dataAnalysis(90, 175, 25);
+      setBmiScored(result);
+    };
+    fetchData();
+  }, [bmiScored]);
+
   return (
     <ScrollView style={homeStyles.body}>
       <View style={homeStyles.heading}>
@@ -35,8 +46,8 @@ export const DataOverview = (): JSX.Element => {
       </View>
       <View style={dataStyles.section}>
         <Text style={dataStyles.sectionHeading}>Your BMI</Text>
-        <Text>Your BMI score: 26</Text>
-        <Text>BMI Chart will be displayed here</Text>
+        <Text>Your BMI score: {bmiScored?.BMI}</Text>
+        <Text>Category: {bmiScored?.Category}</Text>
       </View>
     </ScrollView>
   );
