@@ -1,10 +1,19 @@
+import { updatePhysique } from "@/backend/sendData";
 import { homeStyles } from "@/src/Screens/Home/Home.style";
 import {
   formstyle,
   introstyle,
 } from "@/src/Screens/Onboarding/Onboarding.style";
-import React, { useState } from "react";
-import { StatusBar, Text, TextInput, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  NativeSyntheticEvent,
+  ScrollView,
+  StatusBar,
+  Text,
+  TextInput,
+  TextInputEndEditingEventData,
+  View,
+} from "react-native";
 
 export const PhysiqueInput: React.FC = () => {
   const [age, setAge] = useState<string>("");
@@ -12,8 +21,32 @@ export const PhysiqueInput: React.FC = () => {
   const [weight, setWeight] = useState<string>("");
   const [targetWeight, setTargetWeight] = useState<string>("");
 
+  useEffect(() => {
+    updatePhysique(age, height, weight, targetWeight);
+  }, [targetWeight]);
+
+  const handleAge = (e: NativeSyntheticEvent<TextInputEndEditingEventData>) => {
+    setAge(e.nativeEvent.text);
+  };
+  const handleHeight = (
+    e: NativeSyntheticEvent<TextInputEndEditingEventData>
+  ) => {
+    setHeight(e.nativeEvent.text);
+  };
+  const handleWeight = (
+    e: NativeSyntheticEvent<TextInputEndEditingEventData>
+  ) => {
+    setWeight(e.nativeEvent.text);
+  };
+  const handleTargetWeight = (
+    e: NativeSyntheticEvent<TextInputEndEditingEventData>
+  ) => {
+    setTargetWeight(e.nativeEvent.text);
+  };
+
+  console.log(age, height, weight, targetWeight);
   return (
-    <View style={formstyle.body}>
+    <ScrollView style={formstyle.body}>
       <StatusBar barStyle="dark-content" backgroundColor="white" />
       <View>
         <Text style={homeStyles.logoName}>Write Age, Height & Weight</Text>
@@ -24,34 +57,34 @@ export const PhysiqueInput: React.FC = () => {
       <View style={formstyle.dataForm}>
         <TextInput
           placeholder="Age (years)"
-          value={age}
-          onChangeText={setAge}
+          defaultValue={age}
+          onEndEditing={handleAge}
           keyboardType="numeric"
           style={formstyle.DataDetails}
         />
         <TextInput
           placeholder="Height (cm)"
-          value={height}
-          onChangeText={setHeight}
+          defaultValue={height}
+          onEndEditing={handleHeight}
           keyboardType="numeric"
           style={formstyle.DataDetails}
         />
 
         <TextInput
           placeholder="Weight (kg)"
-          value={weight}
-          onChangeText={setWeight}
+          defaultValue={weight}
+          onEndEditing={handleWeight}
           keyboardType="numeric"
           style={formstyle.DataDetails}
         />
         <TextInput
           placeholder="Target Weight (kg)"
-          value={targetWeight}
-          onChangeText={setTargetWeight}
+          defaultValue={targetWeight}
+          onEndEditing={handleTargetWeight}
           keyboardType="numeric"
           style={formstyle.DataDetails}
         />
       </View>
-    </View>
+    </ScrollView>
   );
 };

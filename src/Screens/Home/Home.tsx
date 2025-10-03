@@ -9,6 +9,7 @@ import {
   View,
 } from "react-native";
 
+import { getProfile } from "@/backend/getData";
 import { ImageExamine } from "@/src/components/ImageExamine/ImageExamine";
 import { NutritionData } from "@/src/utils/sendImageToAI";
 import { dataStyles } from "../Data/Data.style";
@@ -16,17 +17,22 @@ import { introstyle } from "../Onboarding/Onboarding.style";
 import { homeStyles } from "./Home.style";
 
 export const Home = (): JSX.Element => {
+  const [profile, setProfile] = useState<any>(null);
   const [nutrition, setNutrition] = useState<NutritionData | null>(null);
   const [dailyNutrition, setDailyNutrition] = useState<NutritionData | null>(
     null
   );
-
   useEffect(() => {
-    const fetchData = async () => {
-      // const result = await dataAnalysis(90, 175, 25);
-      // setDailyNutrition(result);
+    const fetchProfile = async () => {
+      try {
+        const data = await getProfile();
+        setProfile(data);
+      } catch (err: any) {
+        console.log(err);
+      }
     };
-    fetchData();
+
+    fetchProfile();
   }, []);
 
   const handleNutritionResult = (data: NutritionData) => {
@@ -46,7 +52,7 @@ export const Home = (): JSX.Element => {
 
       <View style={homeStyles.dailyDetails}>
         <View style={homeStyles.userProfile}>
-          <Text style={homeStyles.impDetails}>Hi Ahsan,</Text>
+          <Text style={homeStyles.impDetails}>Hi {profile?.full_name},</Text>
           <Text>{new Date().toDateString()}</Text>
         </View>
 

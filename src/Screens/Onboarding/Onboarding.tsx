@@ -8,16 +8,24 @@ import { LifeStyle } from "@/src/components/OnboardingFeatures/LifeStyle";
 import { MotivationalSlide } from "@/src/components/OnboardingFeatures/MotivationSlide";
 import { OtherApps } from "@/src/components/OnboardingFeatures/OtherApps";
 import { PhysiqueInput } from "@/src/components/OnboardingFeatures/PhysiqueInput";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
 import React from "react";
 import Onboarding from "react-native-onboarding-swiper";
 
-export const OnboardingScreen: React.FC = () => {
+export default function OnboardingScreen() {
+  const router = useRouter();
+  const handleOnDone = async () => {
+    await AsyncStorage.setItem("onboarding_seen", "true");
+    router.replace("/tabs/home");
+  };
   return (
     <Onboarding
       showSkip={false}
       bottomBarColor="#FAF9F6"
       bottomBarHeight={50}
       bottomBarHighlight={false}
+      onDone={handleOnDone}
       pages={[
         {
           backgroundColor: "white",
@@ -80,6 +88,7 @@ export const OnboardingScreen: React.FC = () => {
           subtitle: "",
         },
       ]}
+      {...({ scrollEnabled: false } as any)}
     />
   );
-};
+}

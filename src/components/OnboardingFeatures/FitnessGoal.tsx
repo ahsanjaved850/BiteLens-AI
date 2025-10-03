@@ -1,13 +1,17 @@
+import { updateGoal } from "@/backend/sendData";
 import { homeStyles } from "@/src/Screens/Home/Home.style";
 import {
   formstyle,
   introstyle,
 } from "@/src/Screens/Onboarding/Onboarding.style";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StatusBar, Text, TouchableOpacity, View } from "react-native";
 
 export const FitnessGoal: React.FC = () => {
   const [goal, setGoal] = useState<string>("");
+  useEffect(() => {
+    updateGoal(goal);
+  }, [goal]);
 
   const handlePress = (selectedGoal: string) => {
     setGoal(selectedGoal);
@@ -50,7 +54,7 @@ export const FitnessGoal: React.FC = () => {
       <View style={formstyle.dataForm}>
         {options("Gain")}
         {options("Maintain")}
-        {options("Maintain")}
+        {options("Loose")}
       </View>
     </View>
   );

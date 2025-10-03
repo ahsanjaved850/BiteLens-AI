@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "GreenBite AI",
+    "name": "calai_vegan",
     "slug": "CalAi_Vegan",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -28,7 +28,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "plugins": ["expo-router"],
+    "plugins": ["expo-font", "expo-router"],
     "experiments": {
       "typedRoutes": true
     }

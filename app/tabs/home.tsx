@@ -1,6 +1,6 @@
-import { OnboardingScreen } from "@/src/Screens/Onboarding/Onboarding";
+import { Home } from "@/src/Screens/Home/Home";
+import { JSX } from "react";
 
-export default function HomeScreen() {
-  return <OnboardingScreen>{/* <Home></Home> */}</OnboardingScreen>;
-  // return <Home></Home>;
+export default function HomeScreen(): JSX.Element {
+  return <Home></Home>;
 }

@@ -1,11 +1,26 @@
+import { getProfile } from "@/backend/getData";
 import { Ionicons } from "@expo/vector-icons";
-import { JSX } from "react";
+import { JSX, useEffect, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { dataStyles } from "../Data/Data.style";
 import { homeStyles } from "../Home/Home.style";
 import { settingStyles } from "./Setting.style";
 
 export const Setting = (): JSX.Element => {
+  const [profile, setProfile] = useState<any>(null);
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const data = await getProfile();
+        setProfile(data);
+      } catch (err: any) {
+        console.log(err);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
   return (
     <ScrollView style={homeStyles.body}>
       <View style={homeStyles.heading}>
@@ -17,11 +32,11 @@ export const Setting = (): JSX.Element => {
         </View>
         <View style={settingStyles.everyitem}>
           <Text style={settingStyles.itemName}>Name</Text>
-          <Text style={settingStyles.itemDetails}>Ahsan Javed</Text>
+          <Text style={settingStyles.itemDetails}>{profile?.full_name}</Text>
         </View>
         <View style={settingStyles.everyitem}>
-          <Text style={settingStyles.itemName}>Birthday</Text>
-          <Text style={settingStyles.itemDetails}>April 05</Text>
+          <Text style={settingStyles.itemName}>Age (years)</Text>
+          <Text style={settingStyles.itemDetails}>{profile?.age}</Text>
         </View>
       </View>
       <View style={dataStyles.section}>
@@ -30,15 +45,15 @@ export const Setting = (): JSX.Element => {
         </View>
         <View style={settingStyles.everyitem}>
           <Text style={settingStyles.itemName}>Gender</Text>
-          <Text style={settingStyles.itemDetails}>Male</Text>
+          <Text style={settingStyles.itemDetails}>{profile?.gender}</Text>
         </View>
         <View style={settingStyles.everyitem}>
-          <Text style={settingStyles.itemName}>Age</Text>
-          <Text style={settingStyles.itemDetails}>25</Text>
+          <Text style={settingStyles.itemName}>Weight (kg)</Text>
+          <Text style={settingStyles.itemDetails}>{profile?.weight}</Text>
         </View>
         <View style={settingStyles.everyitem}>
-          <Text style={settingStyles.itemName}>Height</Text>
-          <Text style={settingStyles.itemDetails}>6ft</Text>
+          <Text style={settingStyles.itemName}>Height (cm)</Text>
+          <Text style={settingStyles.itemDetails}>{profile?.height}</Text>
         </View>
       </View>
 

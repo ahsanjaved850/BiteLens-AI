@@ -11,7 +11,7 @@ export const Completion: React.FC = () => {
     <View style={formstyle.body}>
       <StatusBar barStyle="dark-content" backgroundColor="white" />
       <View>
-        <Text style={homeStyles.logoName}>Do it Together</Text>
+        <Text style={homeStyles.logoName}>Do it Together...!</Text>
         <Text style={introstyle.introLine}>
           Your are all done. Thanks for trusting us.
         </Text>
