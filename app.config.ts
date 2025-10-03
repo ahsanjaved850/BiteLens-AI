@@ -9,6 +9,8 @@ export default {
     sdkVersion: "53.0.0",
     extra: {
       OPENAI_API_KEY: process.env.AI_KEY,
+      DATABASE_URL: process.env.SUPABASE_URL,
+      DATABAE_KEY: process.env.SUPABASE_KEY,
     },
   },
 };

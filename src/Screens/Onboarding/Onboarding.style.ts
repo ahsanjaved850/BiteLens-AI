@@ -72,7 +72,7 @@ export const formstyle = StyleSheet.create({
     width: "70%",
     borderWidth: 1,
     padding: 10,
-    marginVertical: 20,
+    marginVertical: 12,
     borderRadius: 8,
     fontSize: 16,
     textAlign: "center",

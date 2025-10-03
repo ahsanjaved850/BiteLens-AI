@@ -1,18 +1,20 @@
+import { updateGender } from "@/backend/sendData";
 import { homeStyles } from "@/src/Screens/Home/Home.style";
 import {
   formstyle,
   introstyle,
 } from "@/src/Screens/Onboarding/Onboarding.style";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StatusBar, Text, TouchableOpacity, View } from "react-native";
 
 export const GenderSelection: React.FC = () => {
   const [gender, setGender] = useState<string>("");
-
   const handlePress = (selectedGender: string) => {
     setGender(selectedGender);
   };
-
+  useEffect(() => {
+    updateGender(gender);
+  }, [gender]);
   const options = (label: string) => {
     const isSelected = gender === label;
     return (
