@@ -12,19 +12,22 @@ export default function Login(): JSX.Element {
   useEffect(() => {
     const restoreSession = async () => {
       const restoredSession = await session;
-      if (restoredSession && onboarding) {
-        router.replace("/tabs/home");
-      }
-      if (onboarding && !onboarding) {
-        router.replace("auth/onboarding");
+
+      if (restoredSession) {
+        if (onboarding) {
+          router.replace("/tabs/home");
+        } else {
+          router.replace("auth/onboarding");
+        }
       }
     };
 
     restoreSession();
   }, [router, session, onboarding]);
+
   const handleLogin = () => {
     router.replace("auth/onboarding");
   };
 
-  return <>{<LoginScreen onLogin={handleLogin} />}</>;
+  return <LoginScreen onLogin={handleLogin} />;
 }

@@ -4,12 +4,11 @@ import { Alert, Image, StatusBar, Text, TextInput, View } from "react-native";
 import { introstyle } from "../Onboarding/Onboarding.style";
 
 export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
-  const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [newUser, setNewUser] = useState<boolean>(false);
   console.log(newUser, "from user");
-  console.log(`from loginpage ${name}`);
+
   const handleSignInSignUp = async () => {
     if (!newUser) {
       try {
@@ -20,7 +19,7 @@ export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
       }
     } else {
       try {
-        await signUp(email, password, name);
+        await signUp(email, password);
         Alert.alert("Signup successful! Please verify your email.");
       } catch (err: any) {
         Alert.alert("Signup Failed", err.message);
@@ -67,21 +66,6 @@ export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
         >
           {newUser ? "Sign Up" : "Sign In"}
         </Text>
-        {newUser ? (
-          <TextInput
-            placeholder="Full Name"
-            value={name}
-            onChangeText={setName}
-            style={{
-              borderWidth: 0.7,
-              marginBottom: 10,
-              padding: 12,
-              borderRadius: 20,
-            }}
-          />
-        ) : (
-          <View></View>
-        )}
 
         <TextInput
           placeholder="Email"
