@@ -8,7 +8,7 @@ export default function Login(): JSX.Element {
   const router = useRouter();
   const onboarding = useOnboardingDone();
   const session = getSession();
-
+  console.log(onboarding, "from RootLogin");
   useEffect(() => {
     const restoreSession = async () => {
       const restoredSession = await session;
@@ -16,14 +16,14 @@ export default function Login(): JSX.Element {
       if (restoredSession) {
         if (onboarding) {
           router.replace("/tabs/home");
-        } else {
+        } else if (!onboarding) {
           router.replace("auth/onboarding");
         }
       }
     };
 
     restoreSession();
-  }, [router, session, onboarding]);
+  }, [session, onboarding]);
 
   const handleLogin = () => {
     router.replace("auth/onboarding");

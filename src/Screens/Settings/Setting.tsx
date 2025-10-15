@@ -27,8 +27,8 @@ export const Setting = (): JSX.Element => {
   const handleDeleteAccount = async () => {
     try {
       await deleteUserData();
-      router.replace("/auth/login");
       await signOut();
+      router.replace("/auth/login");
     } catch (err) {
       console.log("Error deleting account: ", err);
     }

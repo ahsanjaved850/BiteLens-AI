@@ -1,4 +1,6 @@
+import { getCurrentUser } from "@/backend/auth";
 import Constants from "expo-constants";
+import { supabase } from "./supabase";
 
 const openaiKey = Constants.expoConfig?.extra?.OPENAI_API_KEY;
 
@@ -57,7 +59,29 @@ export const dataAnalysis = async (
 
   try {
     const parsed = JSON.parse(content);
-    return parsed;
+    const userId = await getCurrentUser();
+    const { data, error } = await supabase
+      .from("initial_details")
+      .upsert({
+        id: userId,
+        protein: parsed.protein
+          ? Number(parsed.protein.replace(" g", ""))
+          : null,
+        carbs: parsed.carbs ? Number(parsed.carbs.replace(" g", "")) : null,
+        fats: parsed.fats ? Number(parsed.fats.replace(" g", "")) : null,
+        calories: parsed.calories
+          ? Number(parsed.calories.replace(" kcal", ""))
+          : null,
+        bmi: parsed.BMI,
+        bmi_category: parsed.Category,
+      })
+      .select()
+      .single();
+    if (error) {
+      console.error("Error saving initial details:", error.message);
+      throw error;
+    }
+    return data;
   } catch (error) {
     console.log(error);
     console.error("Failed to parse JSON:", content);

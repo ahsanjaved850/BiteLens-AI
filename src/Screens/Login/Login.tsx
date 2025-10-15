@@ -7,7 +7,7 @@ export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [newUser, setNewUser] = useState<boolean>(false);
-  console.log(newUser, "from user");
+  console.log(newUser, "from login screen");
 
   const handleSignInSignUp = async () => {
     if (!newUser) {

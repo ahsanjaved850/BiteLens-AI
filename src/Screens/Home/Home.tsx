@@ -34,7 +34,32 @@ export const Home = (): JSX.Element => {
 
     fetchProfile();
   }, []);
+  useEffect(() => {
+    if (!profile) return;
+    const fetchNutrition = async () => {
+      try {
+        // const dailyData = await dataAnalysis(
+        //   profile.weight,
+        //   profile.height,
+        //   profile.age,
+        //   profile.targetWeight,
+        //   profile.gender,
+        //   profile.goal
+        // );
+        setDailyNutrition({
+          calories: dailyData.calories,
+          protein: dailyData.protein,
+          carbs: dailyData.carbs,
+          fats: dailyData.fats,
+        });
+      } catch (err: any) {
+        console.log(err);
+      }
+    };
 
+    fetchNutrition();
+  }, [profile]);
+  console.log("homescreen");
   const handleNutritionResult = (data: NutritionData) => {
     setNutrition(data);
   };
@@ -57,24 +82,34 @@ export const Home = (): JSX.Element => {
         </View>
 
         <View style={homeStyles.caloriesCard}>
-          <Text style={homeStyles.impDetails}>
-            Calories {dailyNutrition?.calories}
-          </Text>
-          <Text>
-            {nutrition?.calories ? nutrition.calories : "No data yet"}
+          <Text style={homeStyles.impDetails}>Calories</Text>
+          <Text style={{ fontSize: 24 }}>
+            {dailyNutrition?.calories
+              ? Number(dailyNutrition.calories) - Number(nutrition?.calories)
+              : "2300"}
           </Text>
         </View>
-
         <View style={homeStyles.macroNutrients}>
-          <Text style={homeStyles.nutrientsCard}>
-            Protein: {dailyNutrition?.protein || "--"}
-          </Text>
-          <Text style={homeStyles.nutrientsCard}>
-            Carbs: {dailyNutrition?.carbs || "--"}
-          </Text>
-          <Text style={homeStyles.nutrientsCard}>
-            Fats: {dailyNutrition?.fats || "--"}
-          </Text>
+          <View style={homeStyles.nutrientsCard}>
+            <Text>Protein</Text>
+            <Text style={{ fontSize: 36 }}>
+              {Number(dailyNutrition?.protein) - Number(nutrition?.protein) ||
+                "180"}
+            </Text>
+          </View>
+          <View style={homeStyles.nutrientsCard}>
+            <Text>Carbs</Text>
+            <Text style={{ fontSize: 36 }}>
+              {Number(dailyNutrition?.carbs) - Number(nutrition?.carbs) ||
+                "230"}
+            </Text>
+          </View>
+          <View style={homeStyles.nutrientsCard}>
+            <Text>Fats</Text>
+            <Text style={{ fontSize: 36 }}>
+              {Number(dailyNutrition?.fats) - Number(nutrition?.fats) || "90"}
+            </Text>
+          </View>
         </View>
       </View>
 

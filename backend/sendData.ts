@@ -28,35 +28,35 @@ export const updatePhysique = async (
 
   return data;
 };
-// export const sendInitialDetails = async (
-//   BMI: number,
-//   Category: string,
-//   calories: number,
-//   proteins: number,
-//   carbs: number,
-//   fats: null
-// ) => {
-//   const userId = await getCurrentUser();
+export const sendInitialDetails = async (
+  BMI: number,
+  Category: string,
+  calories: number,
+  proteins: number,
+  carbs: number,
+  fats: null
+) => {
+  const userId = await getCurrentUser();
 
-//   const { data, error } = await supabase
-//     .from("initial-details")
-//     .upsert({
-//       id: userId,
-//       calories: calories ? Number(calories) : null,
-//       carbs: carbs ? Number(carbs) : null,
-//       protein: proteins ? Number(proteins) : null,
-//       fats: fats ? Number(fats) : null,
-//       bmi: BMI,
-//       "bmi-category": Category,
-//     })
-//     .select()
-//     .single();
-//   if (error) {
-//     console.error("Error saving physique:", error.message);
-//     throw error;
-//   }
-//   return data;
-// };
+  const { data, error } = await supabase
+    .from("initial-details")
+    .upsert({
+      id: userId,
+      calories: calories ? Number(calories) : null,
+      carbs: carbs ? Number(carbs) : null,
+      protein: proteins ? Number(proteins) : null,
+      fats: fats ? Number(fats) : null,
+      bmi: BMI,
+      "bmi-category": Category,
+    })
+    .select()
+    .single();
+  if (error) {
+    console.error("Error saving initial details:", error.message);
+    throw error;
+  }
+  return data;
+};
 
 export const updateGender = async (gender: string) => {
   const userId = await getCurrentUser();
