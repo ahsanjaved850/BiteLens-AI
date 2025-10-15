@@ -11,19 +11,13 @@ export const signIn = async (email: string, password: string) => {
   return data.user;
 };
 
-export const signUp = async (email: string, password: string, name: string) => {
+export const signUp = async (email: string, password: string) => {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
   });
 
   if (error) throw error;
-  console.log(name);
-  if (data.user) {
-    await supabase
-      .from("profile")
-      .insert([{ id: data.user.id, full_name: name }]);
-  }
   if (data.session) {
     await AsyncStorage.setItem("session", JSON.stringify(data.session));
   }

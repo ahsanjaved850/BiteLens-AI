@@ -8,23 +8,26 @@ export default function Login(): JSX.Element {
   const router = useRouter();
   const onboarding = useOnboardingDone();
   const session = getSession();
-
+  console.log(onboarding, "from RootLogin");
   useEffect(() => {
     const restoreSession = async () => {
       const restoredSession = await session;
-      if (restoredSession && onboarding) {
-        router.replace("/tabs/home");
-      }
-      if (onboarding && !onboarding) {
-        router.replace("auth/onboarding");
+
+      if (restoredSession) {
+        if (onboarding) {
+          router.replace("/tabs/home");
+        } else if (!onboarding) {
+          router.replace("auth/onboarding");
+        }
       }
     };
 
     restoreSession();
-  }, [router, session, onboarding]);
+  }, [session, onboarding]);
+
   const handleLogin = () => {
     router.replace("auth/onboarding");
   };
 
-  return <>{<LoginScreen onLogin={handleLogin} />}</>;
+  return <LoginScreen onLogin={handleLogin} />;
 }

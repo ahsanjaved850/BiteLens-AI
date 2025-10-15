@@ -1,13 +1,16 @@
-import { getProfile } from "@/backend/getData";
+import { signOut } from "@/backend/auth";
+import { deleteUserData, getProfile } from "@/backend/getData";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { JSX, useEffect, useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { dataStyles } from "../Data/Data.style";
 import { homeStyles } from "../Home/Home.style";
 import { settingStyles } from "./Setting.style";
 
 export const Setting = (): JSX.Element => {
   const [profile, setProfile] = useState<any>(null);
+  const router = useRouter();
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -21,6 +24,29 @@ export const Setting = (): JSX.Element => {
     fetchProfile();
   }, []);
 
+  const handleDeleteAccount = async () => {
+    try {
+      await deleteUserData();
+      await signOut();
+      router.replace("/auth/login");
+    } catch (err) {
+      console.log("Error deleting account: ", err);
+    }
+  };
+  const confirmDelete = () => {
+    Alert.alert(
+      "Delete Account",
+      "Are you sure you want to delete your account? This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Yes, Delete",
+          style: "destructive",
+          onPress: handleDeleteAccount,
+        },
+      ]
+    );
+  };
   return (
     <ScrollView style={homeStyles.body}>
       <View style={homeStyles.heading}>
@@ -69,10 +95,13 @@ export const Setting = (): JSX.Element => {
           <Text style={settingStyles.itemDetails}>Privacy Policy</Text>
           <Ionicons name="chevron-forward" />
         </View>
-        <View style={settingStyles.everyitem}>
+        <TouchableOpacity
+          style={settingStyles.everyitem}
+          onPress={confirmDelete}
+        >
           <Text style={settingStyles.itemDetails}>Delete Account?</Text>
           <Ionicons name="chevron-forward" />
-        </View>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );

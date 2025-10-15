@@ -55,6 +55,8 @@ export const homeStyles = StyleSheet.create({
     width: "100%",
   },
   nutrientsCard: {
+    display: "flex",
+    flexDirection: "column",
     height: 180,
     width: "31.55%",
     borderRadius: 10,

@@ -17,3 +17,19 @@ export const getProfile = async () => {
   if (error) throw error;
   return data;
 };
+
+export const deleteUserData = async () => {
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+  if (userError) throw userError;
+  if (!user) throw new Error("Not authenticated");
+
+  await supabase.from("profile").delete().eq("id", user.id);
+
+  await supabase.from("meals").delete().eq("id", user.id);
+  await supabase.from("daily details").delete().eq("id", user.id);
+
+  return true;
+};

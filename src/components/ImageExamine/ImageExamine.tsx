@@ -2,7 +2,7 @@ import { NutritionData, sendImageToAI } from "@/src/utils/sendImageToAI";
 import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import React, { useEffect, useState } from "react";
-import { Alert, Button, Image, View } from "react-native";
+import { Alert, Image, Text, TouchableOpacity, View } from "react-native";
 
 type Props = {
   onResult: (data: NutritionData) => void;
@@ -67,8 +67,12 @@ export const ImageExamine: React.FC<Props> = ({ onResult }) => {
 
   return (
     <View style={{ marginVertical: 10 }}>
-      <Button title="Pick Image from Gallery" onPress={pickGalleryImage} />
-      <Button title="Take Image from Camera" onPress={takeCameraPhoto} />
+      <TouchableOpacity onPress={pickGalleryImage}>
+        <Text>Pick Image from Gallery</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={takeCameraPhoto}>
+        <Text>Take Image from Camera</Text>
+      </TouchableOpacity>
       {image && (
         <Image
           source={{ uri: image }}
