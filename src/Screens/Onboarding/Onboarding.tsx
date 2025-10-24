@@ -6,6 +6,7 @@ import { GenderSelection } from "@/src/components/OnboardingFeatures/GenderSelec
 import { GraphComparison } from "@/src/components/OnboardingFeatures/GraphComparison";
 import { LifeStyle } from "@/src/components/OnboardingFeatures/LifeStyle";
 import { MotivationalSlide } from "@/src/components/OnboardingFeatures/MotivationSlide";
+import { NameAdding } from "@/src/components/OnboardingFeatures/NameAdding";
 import { OtherApps } from "@/src/components/OnboardingFeatures/OtherApps";
 import { PhysiqueInput } from "@/src/components/OnboardingFeatures/PhysiqueInput";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -36,6 +37,12 @@ export default function OnboardingScreen() {
         {
           backgroundColor: "white",
           image: <Demo />,
+          title: "",
+          subtitle: "",
+        },
+        {
+          backgroundColor: "white",
+          image: <NameAdding />,
           title: "",
           subtitle: "",
         },

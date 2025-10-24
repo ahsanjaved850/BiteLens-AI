@@ -18,6 +18,24 @@ export const getProfile = async () => {
   return data;
 };
 
+export const getInitialDetails = async () => {
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+  if (userError) throw userError;
+  if (!user) throw new Error("Not authenticated");
+
+  const { data, error } = await supabase
+    .from("initial_details")
+    .select("*")
+    .eq("id", user.id)
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
 export const deleteUserData = async () => {
   const {
     data: { user },

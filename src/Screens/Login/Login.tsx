@@ -2,12 +2,12 @@ import { signIn, signUp } from "@/backend/auth";
 import React, { useState } from "react";
 import { Alert, Image, StatusBar, Text, TextInput, View } from "react-native";
 import { introstyle } from "../Onboarding/Onboarding.style";
+import { loginStyles } from "./login.style";
 
 export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [newUser, setNewUser] = useState<boolean>(false);
-  console.log(newUser, "from login screen");
 
   const handleSignInSignUp = async () => {
     if (!newUser) {
@@ -32,14 +32,7 @@ export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
   };
 
   return (
-    <View
-      style={{
-        padding: 20,
-        backgroundColor: "white",
-        width: "100%",
-        height: "100%",
-      }}
-    >
+    <View style={loginStyles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="white" />
       <View style={introstyle.logoContainer}>
         <Image
@@ -48,81 +41,30 @@ export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
         />
         <Text style={introstyle.headerName}>GreenBite AI</Text>
       </View>
-      <View
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          marginTop: 60,
-          padding: 10,
-          borderRadius: 10,
-        }}
-      >
-        <Text
-          style={{
-            fontWeight: "bold",
-            fontSize: 20,
-            marginVertical: 16,
-          }}
-        >
-          {newUser ? "Sign Up" : "Sign In"}
-        </Text>
+      <View style={loginStyles.formContainer}>
+        <Text style={loginStyles.title}>{newUser ? "Sign Up" : "Sign In"}</Text>
 
         <TextInput
           placeholder="Email"
           value={email}
           onChangeText={setEmail}
-          style={{
-            borderWidth: 0.7,
-            marginBottom: 10,
-            padding: 12,
-            borderRadius: 20,
-          }}
+          style={loginStyles.input}
         />
         <TextInput
           placeholder="Password"
           value={password}
           onChangeText={setPassword}
           secureTextEntry
-          style={{
-            borderWidth: 0.7,
-            marginBottom: 10,
-            padding: 12,
-            borderRadius: 20,
-          }}
+          style={loginStyles.input}
         />
-        <Text
-          style={{
-            borderWidth: 0.5,
-            marginBottom: 10,
-            padding: 6,
-            borderRadius: 20,
-            fontWeight: "bold",
-            backgroundColor: "#FAF9F6",
-            textAlign: "center",
-          }}
-          onPress={handleSignInSignUp}
-        >
+        <Text style={loginStyles.submitButton} onPress={handleSignInSignUp}>
           {newUser ? "SignUp" : "Login"}
         </Text>
-        <View
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            padding: 6,
-            alignItems: "center",
-          }}
-        >
-          <Text style={{ marginRight: 3, fontSize: 12 }}>
+        <View style={loginStyles.toggleContainer}>
+          <Text style={loginStyles.toggleText}>
             {newUser ? "Already have an account?" : "New to GreenBite AI?"}
           </Text>
-          <Text
-            style={{
-              fontSize: 13,
-              fontWeight: "bold",
-              textDecorationLine: "underline",
-            }}
-            onPress={toggleSignInForm}
-          >
+          <Text style={loginStyles.toggleLink} onPress={toggleSignInForm}>
             {newUser ? "SignIn" : "SignUp Now"}
           </Text>
         </View>
