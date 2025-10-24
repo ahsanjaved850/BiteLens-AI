@@ -34,4 +34,54 @@ export const dataStyles = StyleSheet.create({
     padding: 10,
     marginTop: 10,
   },
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    borderRadius: 12,
+    padding: 20,
+    width: "85%",
+    maxWidth: 300,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 15,
+  },
+  textInput: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 15,
+    fontSize: 16,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 10,
+  },
+  cancelButtonText: {
+    color: "#666",
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  confirmButton: {
+    backgroundColor: "#000000",
+    padding: 10,
+    borderRadius: 6,
+    minWidth: 80,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  confirmButtonText: {
+    color: "white",
+    fontSize: 14,
+    fontWeight: "600",
+  },
 });

@@ -9,7 +9,6 @@ export const introstyle = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-
     marginTop: 8,
   },
   logo: {
@@ -52,6 +51,7 @@ export const introstyle = StyleSheet.create({
     fontSize: 15,
   },
 });
+
 export const formstyle = StyleSheet.create({
   body: {
     padding: 10,
@@ -68,17 +68,36 @@ export const formstyle = StyleSheet.create({
     marginTop: 60,
   },
   DataDetails: {
-    borderColor: "#ccc",
+    borderColor: "#000000",
     width: "70%",
-    borderWidth: 1,
-    padding: 10,
+    borderWidth: 0.5,
+    padding: 14,
     marginVertical: 12,
-    borderRadius: 8,
+    borderRadius: 12,
     fontSize: 16,
-    textAlign: "center",
+    textAlign: "center" as const,
+    color: "#000000", // Black text
+    backgroundColor: "#FFFFFF",
+    fontWeight: "500" as const,
   },
   formText: {
     fontSize: 16,
-    textAlign: "center",
+    textAlign: "center" as const,
+    color: "#000000", // Black text
+    fontWeight: "400" as const,
+  },
+});
+
+export const onboardingLoadingStyle = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "white",
+  },
+  content: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 20,
   },
 });

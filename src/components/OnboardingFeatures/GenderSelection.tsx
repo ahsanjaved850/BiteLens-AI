@@ -1,30 +1,21 @@
-import { updateGender, updateName } from "@/backend/sendData";
+import { updateGender } from "@/backend/sendData";
 import { homeStyles } from "@/src/Screens/Home/Home.style";
 import {
   formstyle,
   introstyle,
 } from "@/src/Screens/Onboarding/Onboarding.style";
 import React, { useEffect, useState } from "react";
-import {
-  NativeSyntheticEvent,
-  StatusBar,
-  Text,
-  TextInput,
-  TextInputEndEditingEventData,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { StatusBar, Text, TouchableOpacity, View } from "react-native";
 
 export const GenderSelection: React.FC = () => {
   const [gender, setGender] = useState<string>("");
-  const [name, setName] = useState<string>("");
+
   const handlePress = (selectedGender: string) => {
     setGender(selectedGender);
   };
   useEffect(() => {
     updateGender(gender);
-    updateName(name);
-  }, [gender, name]);
+  }, [gender]);
   const options = (label: string) => {
     const isSelected = gender === label;
     return (
@@ -48,11 +39,7 @@ export const GenderSelection: React.FC = () => {
       </TouchableOpacity>
     );
   };
-  const handleName = (
-    e: NativeSyntheticEvent<TextInputEndEditingEventData>
-  ) => {
-    setName(e.nativeEvent.text);
-  };
+
   console.log(gender);
   return (
     <View style={formstyle.body}>
@@ -64,12 +51,6 @@ export const GenderSelection: React.FC = () => {
         </Text>
       </View>
       <View style={formstyle.dataForm}>
-        <TextInput
-          placeholder="Your Name"
-          defaultValue={""}
-          onEndEditing={handleName}
-          style={formstyle.DataDetails}
-        />
         {options("Male")}
         {options("Female")}
         {options("Others")}
