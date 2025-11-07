@@ -45,6 +45,7 @@ export const deleteUserData = async () => {
   if (!user) throw new Error("Not authenticated");
 
   await supabase.from("profile").delete().eq("id", user.id);
+  await supabase.from("initial_details").delete().eq("id", user.id);
 
   await supabase.from("meals").delete().eq("id", user.id);
   await supabase.from("daily details").delete().eq("id", user.id);

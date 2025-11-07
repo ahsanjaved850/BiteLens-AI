@@ -1,56 +1,115 @@
-import { homeStyles } from "@/src/Screens/Home/Home.style";
 import {
-  formstyle,
-  introstyle,
+  COLORS,
+  modernStyles,
+  SPACING,
 } from "@/src/Screens/Onboarding/Onboarding.style";
-import React, { useState } from "react";
-import { StatusBar, Text, TouchableOpacity, View } from "react-native";
+import * as Haptics from "expo-haptics";
+import React, { useEffect, useState } from "react";
+import {
+  ScrollView,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-export const LifeStyle: React.FC = () => {
+interface LifeStyleProps {
+  onValidationChange?: (isValid: boolean) => void;
+}
+
+export const LifeStyle: React.FC<LifeStyleProps> = ({ onValidationChange }) => {
   const [lifeStyle, setLifeStyle] = useState<string>("");
 
-  const handlePress = (selectedOption: string) => {
+  useEffect(() => {
+    const isValid = lifeStyle.length > 0;
+    onValidationChange?.(isValid);
+  }, [lifeStyle]);
+
+  const handlePress = async (selectedOption: string) => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setLifeStyle(selectedOption);
   };
 
-  const options = (label: string) => {
-    const isSelected = lifeStyle === label;
+  const options = [
+    {
+      label: "Eat and live healthier",
+      icon: "🥗",
+      description: "Nutritious daily choices",
+    },
+    {
+      label: "Feel better about my body",
+      icon: "💪",
+      description: "Build confidence",
+    },
+    {
+      label: "Stay consistent and motivated",
+      icon: "🎯",
+      description: "Maintain healthy habits",
+    },
+  ];
 
-    return (
-      <TouchableOpacity
-        style={[
-          formstyle.DataDetails,
-          {
-            backgroundColor: isSelected ? "black" : "white",
-          },
-        ]}
-        onPress={() => handlePress(label)}
-      >
-        <Text
-          style={[
-            formstyle.formText,
-            { color: isSelected ? "white" : "black" },
-          ]}
-        >
-          {label}
-        </Text>
-      </TouchableOpacity>
-    );
-  };
-  console.log(lifeStyle);
   return (
-    <View style={formstyle.body}>
-      <StatusBar barStyle="dark-content" backgroundColor="white" />
-      <View>
-        <Text style={homeStyles.logoName}>Choose Target Life Style?</Text>
-        <Text style={introstyle.introLine}>
-          What would you like to accomplish?
-        </Text>
-      </View>
-      <View style={formstyle.dataForm}>
-        {options("Eat and live healthier")}
-        {options("Feel better about my body")}
-        {options("Stay consisted and motivated")}
+    <View style={modernStyles.safeArea}>
+      <View style={modernStyles.screenContainer}>
+        <StatusBar
+          barStyle="dark-content"
+          backgroundColor={COLORS.background}
+        />
+        <ScrollView
+          contentContainerStyle={modernStyles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Header */}
+          <View style={{ alignItems: "center" }}>
+            <Text style={modernStyles.headerTitle}>Your Motivation</Text>
+            <View style={modernStyles.spacerSmall} />
+            <Text style={modernStyles.subtitleLight}>
+              What matters most to you?
+            </Text>
+          </View>
+
+          {/* Options */}
+          <View
+            style={[modernStyles.optionsContainer, { marginTop: SPACING.xxl }]}
+          >
+            {options.map((option) => {
+              const isSelected = lifeStyle === option.label;
+              return (
+                <TouchableOpacity
+                  key={option.label}
+                  onPress={() => handlePress(option.label)}
+                  style={[
+                    modernStyles.optionButton,
+                    isSelected && modernStyles.optionButtonSelected,
+                  ]}
+                  activeOpacity={0.7}
+                >
+                  <Text style={modernStyles.optionIconLarge}>
+                    {option.icon}
+                  </Text>
+                  <View style={modernStyles.optionContent}>
+                    <Text
+                      style={[
+                        modernStyles.optionText,
+                        isSelected && modernStyles.optionTextSelected,
+                      ]}
+                    >
+                      {option.label}
+                    </Text>
+                    <Text style={modernStyles.optionDescription}>
+                      {option.description}
+                    </Text>
+                  </View>
+                  {isSelected && (
+                    <View style={modernStyles.optionCheckmark}>
+                      <Text style={modernStyles.checkmarkText}>✓</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </ScrollView>
       </View>
     </View>
   );

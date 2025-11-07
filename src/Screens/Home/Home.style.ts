@@ -1,200 +1,310 @@
 import { StyleSheet } from "react-native";
 
 export const homeStyles = StyleSheet.create({
-  body: {
-    padding: 10,
-    backgroundColor: "white",
-    height: "100%",
-    marginInline: 8,
+  container: {
+    flex: 1,
+    backgroundColor: "#FAFAFA",
   },
-  heading: {
-    display: "flex",
+  body: {
+    flex: 1,
+    backgroundColor: "#FAFAFA",
+  },
+  contentContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 100,
+  },
+  // Header Styles
+  headerContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 16,
+  },
+  headerRow: {
     flexDirection: "row",
-    marginBottom: 10,
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  logoContainer: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   logo: {
-    width: 42,
-    height: 42,
-    margin: 0,
-    marginLeft: -7,
+    width: 36,
+    height: 36,
+    borderRadius: 8,
   },
   logoName: {
-    fontWeight: "bold",
-    fontSize: 20,
-    marginTop: 8,
+    fontWeight: "700",
+    fontSize: 28,
+    marginLeft: 10,
+    color: "#1A1A1A",
+    letterSpacing: -0.5,
   },
-  dailyDetails: {
-    marginTop: 7,
-    borderRadius: 10,
-  },
-  userProfile: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    height: 70,
-    justifyContent: "space-between",
-    padding: 10,
-    borderRadius: 10,
-    backgroundColor: "#FAF9F6",
-  },
-  progressContainer: {
-    display: "flex",
-    flexDirection: "column",
+  notificationButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#F5F5F5",
     alignItems: "center",
     justifyContent: "center",
-    height: 200,
-    marginVertical: 10,
-    backgroundColor: "#FAF9F6",
-    borderRadius: 10,
-    padding: 10,
+  },
+  greetingContainer: {
+    marginTop: 4,
+  },
+  greeting: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: "#1A1A1A",
+    marginBottom: 4,
+    letterSpacing: -0.5,
+  },
+  dateText: {
+    fontSize: 14,
+    color: "#666666",
+    fontWeight: "500",
+  },
+
+  // Daily Summary Card
+  dailySummaryCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    marginTop: 16,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  summaryHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  summaryTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1A1A1A",
+  },
+  streakBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFF4E6",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  streakText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#F59E0B",
+    marginLeft: 4,
+  },
+
+  // Progress Circle Container
+  progressContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 24,
   },
   progressLabel: {
-    marginTop: 10,
-    fontSize: 14,
+    marginTop: 16,
+    fontSize: 15,
     color: "#666",
+    fontWeight: "500",
+  },
+  calorieCount: {
+    marginTop: 4,
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#1A1A1A",
+  },
+  calorieTarget: {
+    fontSize: 14,
+    color: "#999",
+    fontWeight: "500",
+  },
+
+  // Macro Nutrients Section
+  macroSection: {
+    marginTop: 0,
+  },
+  macroHeader: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1A1A1A",
+    marginBottom: 12,
   },
   macroNutrients: {
-    display: "flex",
     flexDirection: "row",
-    width: "100%",
-    marginVertical: 10,
-    gap: 8,
+    gap: 10,
+    flexWrap: "wrap", // ADDED: Allow wrapping to next row
   },
   nutrientsCard: {
-    display: "flex",
-    flexDirection: "column",
-    height: 180,
     flex: 1,
-    borderRadius: 10,
-    padding: 8,
-    backgroundColor: "#FAF9F6",
-    justifyContent: "center",
+    minWidth: "30%", // ADDED: Ensure 3 cards per row
+    backgroundColor: "#F8F9FA",
+    borderRadius: 16,
+    padding: 16,
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#F0F0F0",
   },
+  nutrientIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 8,
+  },
+  proteinIcon: {
+    backgroundColor: "#FEE2E2",
+  },
+  carbsIcon: {
+    backgroundColor: "#DBEAFE",
+  },
+  fatsIcon: {
+    backgroundColor: "#FEF3C7",
+  },
+  // ============ ADDED: 3 new nutrient icon styles ============
+  sugarIcon: {
+    backgroundColor: "#FDE2E4",
+  },
+  sodiumIcon: {
+    backgroundColor: "#E9D5FF",
+  },
+  fiberIcon: {
+    backgroundColor: "#D1FAE5",
+  },
+  // ==========================================================
   nutrientsLabel: {
     fontSize: 12,
     color: "#666",
-    marginBottom: 8,
+    fontWeight: "600",
+    marginBottom: 6,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   nutrientsValue: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "#333",
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#1A1A1A",
+    marginBottom: 4,
   },
-  nutrientsRemaining: {
+  nutrientsTotal: {
     fontSize: 11,
     color: "#999",
-    marginTop: 4,
+    fontWeight: "500",
   },
-  button: {
-    backgroundColor: "black",
-    padding: 8,
-    borderRadius: 25,
-    alignItems: "center",
-    justifyContent: "center",
-    width: 40,
-    height: 40,
-  },
-  plus: {
-    color: "#fff",
-    fontSize: 20,
-    fontWeight: "normal",
-  },
-  impDetails: {
-    fontSize: 25,
-    fontWeight: "bold",
-    marginRight: 10,
-  },
-  notesDetails: {
-    fontSize: 12,
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: "flex-end",
-    backgroundColor: "rgba(0,0,0,0.5)",
-  },
-  modalContent: {
-    backgroundColor: "white",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingTop: 20,
-    paddingBottom: 30,
-    paddingHorizontal: 20,
-  },
-  modalHandle: {
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  modalHandleBar: {
-    width: 40,
+  nutrientsProgress: {
+    marginTop: 8,
+    width: "100%",
     height: 4,
-    backgroundColor: "#ccc",
+    backgroundColor: "#E5E7EB",
+    borderRadius: 2,
+    overflow: "hidden",
+  },
+  nutrientsProgressBar: {
+    height: "100%",
     borderRadius: 2,
   },
-  modalTitle: {
+
+  // Add Meal Button
+  addMealContainer: {
+    alignItems: "center",
+    marginVertical: 24,
+  },
+  addMealButton: {
+    backgroundColor: "#000000",
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  addMealButtonPressed: {
+    backgroundColor: "#333333",
+    transform: [{ scale: 0.95 }],
+  },
+  addMealIcon: {
+    color: "#FFFFFF",
+    fontSize: 28,
+    fontWeight: "300",
+  },
+  addMealText: {
+    marginTop: 8,
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#666",
+  },
+
+  // Meal History Section
+  mealHistorySection: {
+    marginTop: 8,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+    paddingHorizontal: 4,
+  },
+  sectionTitle: {
     fontSize: 20,
     fontWeight: "700",
-    marginBottom: 20,
-    textAlign: "center",
+    color: "#1A1A1A",
+    letterSpacing: -0.5,
   },
-  cancelButton: {
-    marginTop: 20,
-    paddingVertical: 12,
-    borderRadius: 8,
-    backgroundColor: "#f0f0f0",
-  },
-  cancelButtonText: {
-    textAlign: "center",
-    fontSize: 16,
+  viewAllButton: {
+    fontSize: 14,
     fontWeight: "600",
-    color: "#333",
+    color: "#3B82F6",
   },
-  loadingOverlay: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.7)",
-  },
-  loadingContainer: {
-    backgroundColor: "white",
-    padding: 30,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-  loadingText: {
-    marginTop: 15,
-    fontSize: 16,
-    color: "#333",
-  },
-  // Meal History Styles
-  mealHistorySection: {
-    marginTop: 15,
-    marginBottom: 20,
-  },
+
+  // Meal Item Card
   mealItem: {
-    backgroundColor: "#FAF9F6",
-    borderRadius: 12,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
     marginBottom: 12,
     overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   mealItemHeader: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 12,
-    justifyContent: "space-between",
+    padding: 14,
   },
   mealImageContainer: {
-    width: 70,
-    height: 70,
-    borderRadius: 8,
-    marginRight: 12,
+    width: 72,
+    height: 72,
+    borderRadius: 12,
+    marginRight: 14,
     overflow: "hidden",
-    backgroundColor: "#E0E0E0",
+    backgroundColor: "#F5F5F5",
   },
   mealImage: {
     width: "100%",
     height: "100%",
     resizeMode: "cover",
+  },
+  mealPlaceholder: {
+    width: "100%",
+    height: "100%",
+    backgroundColor: "#E5E7EB",
+    alignItems: "center",
+    justifyContent: "center",
   },
   mealHeaderInfo: {
     flex: 1,
@@ -203,46 +313,177 @@ export const homeStyles = StyleSheet.create({
   mealTime: {
     fontSize: 13,
     color: "#999",
+    fontWeight: "500",
     marginBottom: 4,
   },
   mealCalories: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#333",
-  },
-  mealArrow: {
     fontSize: 20,
-    color: "#2ecc71",
-    fontWeight: "bold",
+    fontWeight: "700",
+    color: "#1A1A1A",
+    marginBottom: 2,
   },
-  mealDetailsContainer: {
-    backgroundColor: "white",
-    paddingHorizontal: 12,
-    paddingBottom: 12,
-    borderTopWidth: 1,
-    borderTopColor: "#E0E0E0",
-  },
-  mealDetailRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 8,
-    borderBottomWidth: 0.5,
-    borderBottomColor: "#E0E0E0",
-  },
-  mealDetailLabel: {
+  mealCalorieLabel: {
     fontSize: 12,
     color: "#666",
     fontWeight: "500",
   },
-  mealDetailValue: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#333",
+  expandButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#F5F5F5",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  emptyMealText: {
+  mealArrow: {
+    fontSize: 16,
+    color: "#666",
+    fontWeight: "600",
+  },
+
+  // Meal Details
+  mealDetailsContainer: {
+    backgroundColor: "#FAFAFA",
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#F0F0F0",
+  },
+  macroGrid: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  macroDetailCard: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 10,
+    padding: 10,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#F0F0F0",
+  },
+  macroDetailLabel: {
+    fontSize: 11,
+    color: "#999",
+    fontWeight: "600",
+    marginBottom: 4,
+    textTransform: "uppercase",
+  },
+  macroDetailValue: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#1A1A1A",
+  },
+  macroDetailUnit: {
+    fontSize: 11,
+    color: "#666",
+    fontWeight: "500",
+  },
+
+  // Empty State
+  emptyStateContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 48,
+    paddingHorizontal: 32,
+  },
+  emptyStateIcon: {
+    fontSize: 64,
+    marginBottom: 16,
+  },
+  emptyStateTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#1A1A1A",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  emptyStateText: {
     fontSize: 14,
     color: "#999",
     textAlign: "center",
-    paddingVertical: 20,
+    lineHeight: 20,
+  },
+
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingTop: 12,
+    paddingBottom: 34,
+    paddingHorizontal: 20,
+    maxHeight: "90%",
+  },
+  modalHandle: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  modalHandleBar: {
+    width: 36,
+    height: 4,
+    backgroundColor: "#E5E7EB",
+    borderRadius: 2,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: "700",
+    marginBottom: 20,
+    textAlign: "center",
+    color: "#1A1A1A",
+    letterSpacing: -0.5,
+  },
+  modalButtonContainer: {
+    marginTop: 16,
+  },
+  cancelButton: {
+    paddingVertical: 16,
+    borderRadius: 12,
+    backgroundColor: "#F5F5F5",
+    alignItems: "center",
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#666",
+  },
+
+  // Loading States
+  loadingOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
+  },
+  loadingContainer: {
+    backgroundColor: "#FFFFFF",
+    padding: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    minWidth: 200,
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: "#1A1A1A",
+    fontWeight: "600",
+  },
+  loadingSubtext: {
+    marginTop: 6,
+    fontSize: 13,
+    color: "#999",
+    textAlign: "center",
+  },
+
+  // Refresh Control
+  refreshText: {
+    fontSize: 13,
+    color: "#999",
+    marginTop: 8,
   },
 });

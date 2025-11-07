@@ -1,9 +1,27 @@
 import { supabase } from "@/src/utils/supabase";
 import { getCurrentUser } from "./auth";
 
-export const updatePhysique = async (
-  age: string,
-  height: string,
+export const updateBodyStats = async (age: string, height: string) => {
+  const userId = await getCurrentUser();
+
+  const { data, error } = await supabase
+    .from("profile")
+    .upsert({
+      id: userId,
+      age: age ? Number(age) : null,
+      height: height ? Number(height) : null,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Error saving physique:", error.message);
+    throw error;
+  }
+
+  return data;
+};
+export const updateWeightStats = async (
   weight: string,
   targetWeight: string
 ) => {
@@ -13,8 +31,6 @@ export const updatePhysique = async (
     .from("profile")
     .upsert({
       id: userId,
-      age: age ? Number(age) : null,
-      height: height ? Number(height) : null,
       weight: weight ? Number(weight) : null,
       target_weight: targetWeight ? Number(targetWeight) : null,
     })

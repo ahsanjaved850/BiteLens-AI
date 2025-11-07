@@ -1,17 +1,21 @@
 import { getInitialDetails, getProfile } from "@/backend/getData";
-import { updatePhysique } from "@/backend/sendData";
+import { updateWeightStats } from "@/backend/sendData";
 import { LoadingState } from "@/src/components/LoadingState/LoadingState";
 import { dataAnalysis } from "@/src/utils/dataAnalysis";
+import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Modal,
+  RefreshControl,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
+  Vibration,
   View,
 } from "react-native";
-import { homeStyles } from "../Home/Home.style";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { dataStyles } from "./Data.style";
 
 export const DataOverview = () => {
@@ -21,15 +25,21 @@ export const DataOverview = () => {
   const [modalType, setModalType] = useState<"current" | "goal" | null>(null);
   const [inputValue, setInputValue] = useState("");
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [inputFocused, setInputFocused] = useState(false);
 
-  const fetchData = async () => {
+  const fetchData = async (showRefreshing = false) => {
     try {
+      if (showRefreshing) setRefreshing(true);
+
       const data = await getProfile();
       const initialDetails = await getInitialDetails();
       setProfile(data);
       setDetails(initialDetails);
     } catch (err: any) {
       console.log(err);
+    } finally {
+      if (showRefreshing) setRefreshing(false);
     }
   };
 
@@ -37,7 +47,12 @@ export const DataOverview = () => {
     fetchData();
   }, []);
 
+  const onRefresh = () => {
+    fetchData(true);
+  };
+
   const handleOpenModal = (type: "current" | "goal") => {
+    Vibration.vibrate(10);
     setModalType(type);
     setInputValue("");
     setModalVisible(true);
@@ -45,6 +60,7 @@ export const DataOverview = () => {
 
   const handleConfirmWeight = async () => {
     if (!inputValue.trim()) {
+      Vibration.vibrate([0, 50, 50, 50]);
       alert("Please enter a valid weight");
       return;
     }
@@ -53,17 +69,21 @@ export const DataOverview = () => {
     try {
       const newWeight = parseFloat(inputValue);
 
+      if (isNaN(newWeight) || newWeight <= 0) {
+        alert("Please enter a valid number");
+        setLoading(false);
+        return;
+      }
+
+      Vibration.vibrate(50); // Success feedback
+
       if (modalType === "current") {
-        await updatePhysique(
-          profile?.age?.toString() || "",
-          profile?.height?.toString() || "",
+        await updateWeightStats(
           newWeight.toString(),
           profile?.target_weight?.toString() || ""
         );
       } else if (modalType === "goal") {
-        await updatePhysique(
-          profile?.age?.toString() || "",
-          profile?.height?.toString() || "",
+        await updateWeightStats(
           profile?.weight?.toString() || "",
           newWeight.toString()
         );
@@ -87,66 +107,228 @@ export const DataOverview = () => {
       setInputValue("");
     } catch (err: any) {
       console.log("Error updating weight:", err);
+      Vibration.vibrate([0, 50, 50, 50]);
       alert("Failed to update weight. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) {
+  // Calculate progress percentage
+  const calculateProgress = () => {
+    if (!profile?.weight || !profile?.target_weight) return 0;
+
+    const current = parseFloat(profile.weight);
+    const target = parseFloat(profile.target_weight);
+    const initial = current; // You might want to store initial weight separately
+
+    if (current === target) return 100;
+
+    const totalChange = Math.abs(initial - target);
+    const currentChange = Math.abs(initial - current);
+
+    return Math.min((currentChange / totalChange) * 100, 100);
+  };
+
+  const progress = calculateProgress();
+  const weightDifference =
+    profile?.weight && profile?.target_weight
+      ? Math.abs(
+          parseFloat(profile.weight) - parseFloat(profile.target_weight)
+        ).toFixed(1)
+      : 0;
+
+  // Get BMI category color
+  const getBMICategoryColor = (category: string) => {
+    switch (category?.toLowerCase()) {
+      case "underweight":
+        return "#3B82F6";
+      case "normal":
+        return "#10B981";
+      case "overweight":
+        return "#F59E0B";
+      case "obese":
+        return "#EF4444";
+      default:
+        return "#6B7280";
+    }
+  };
+
+  if (loading && !modalVisible) {
     return <LoadingState type="setup" message="Updating your profile..." />;
   }
 
   return (
-    <ScrollView style={homeStyles.body}>
-      <View style={homeStyles.heading}>
-        <Text style={homeStyles.logoName}>Overview</Text>
+    <SafeAreaView style={dataStyles.container}>
+      {/* Header */}
+      <View style={dataStyles.headerContainer}>
+        <Text style={dataStyles.headerTitle}>Overview</Text>
       </View>
 
-      <View style={dataStyles.section}>
-        <Text style={dataStyles.sectionHeading}>Goal Weight</Text>
-        <View style={dataStyles.cardStyle}>
-          <Text style={homeStyles.impDetails}>{profile?.target_weight}kg</Text>
-          <TouchableOpacity
-            style={dataStyles.updateButton}
-            onPress={() => handleOpenModal("goal")}
-          >
-            <Text style={dataStyles.update}>Update</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      <ScrollView
+        style={dataStyles.body}
+        contentContainerStyle={dataStyles.contentContainer}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#3B82F6"
+            colors={["#3B82F6"]}
+          />
+        }
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Weight Management Section */}
+        <View style={dataStyles.section}>
+          <View style={dataStyles.sectionHeader}>
+            <View>
+              <Text style={dataStyles.sectionTitle}>Weight Management</Text>
+            </View>
+          </View>
 
-      <View style={dataStyles.section}>
-        <Text style={dataStyles.sectionHeading}>Current Weight</Text>
-        <View>
-          <View style={dataStyles.cardStyle}>
-            <Text style={homeStyles.impDetails}>{profile?.weight}kg</Text>
+          <View style={dataStyles.dataCard}>
+            <View style={dataStyles.dataCardLeft}>
+              <Text style={dataStyles.dataCardLabel}>Current Weight</Text>
+              <Text style={dataStyles.dataCardValue}>
+                {profile?.weight || "--"}
+                <Text style={dataStyles.dataCardUnit}> kg</Text>
+              </Text>
+            </View>
             <TouchableOpacity
               style={dataStyles.updateButton}
               onPress={() => handleOpenModal("current")}
+              activeOpacity={0.7}
             >
-              <Text style={dataStyles.update}>Log Weight</Text>
+              <Text style={dataStyles.updateButtonText}>Log</Text>
             </TouchableOpacity>
           </View>
-          <Text style={homeStyles.notesDetails}>
-            Try to update once a week so we can adjust your plan to ensure you
-            hit goal!
-          </Text>
+
+          <View style={dataStyles.dataCard}>
+            <View style={dataStyles.dataCardLeft}>
+              <Text style={dataStyles.dataCardLabel}>Goal Weight</Text>
+              <Text style={dataStyles.dataCardValue}>
+                {profile?.target_weight || "--"}
+                <Text style={dataStyles.dataCardUnit}> kg</Text>
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={dataStyles.updateButton}
+              onPress={() => handleOpenModal("goal")}
+              activeOpacity={0.7}
+            >
+              <Text style={dataStyles.updateButtonText}>Update</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
 
-      <View style={dataStyles.section}>
-        <Text style={dataStyles.sectionHeading}>BMI</Text>
-        <Text>
-          Your BMI score:{" "}
-          <Text style={dataStyles.sectionHeading}>{details?.bmi}</Text>
-        </Text>
-        <Text>
-          Category:{" "}
-          <Text style={dataStyles.sectionHeading}>{details?.bmi_category}</Text>
-        </Text>
-      </View>
+        {/* BMI Section */}
+        <View style={dataStyles.section}>
+          <View style={dataStyles.sectionHeader}>
+            <View>
+              <Text style={dataStyles.sectionTitle}>Body Mass Index (BMI)</Text>
+            </View>
+          </View>
 
+          <View style={dataStyles.bmiCard}>
+            <View style={dataStyles.bmiHeader}>
+              <Text style={dataStyles.bmiScore}>{details?.bmi || "--"}</Text>
+              <Text
+                style={[
+                  dataStyles.bmiCategory,
+                  {
+                    backgroundColor: `${getBMICategoryColor(
+                      details?.bmi_category
+                    )}15`,
+                    color: getBMICategoryColor(details?.bmi_category),
+                  },
+                ]}
+              >
+                {details?.bmi_category || "Calculating..."}
+              </Text>
+            </View>
+
+            <View style={dataStyles.bmiScale}>
+              <View
+                style={[
+                  dataStyles.bmiScaleSegment,
+                  { backgroundColor: "#3B82F6" },
+                ]}
+              />
+              <View
+                style={[
+                  dataStyles.bmiScaleSegment,
+                  { backgroundColor: "#10B981" },
+                ]}
+              />
+              <View
+                style={[
+                  dataStyles.bmiScaleSegment,
+                  { backgroundColor: "#F59E0B" },
+                ]}
+              />
+              <View
+                style={[
+                  dataStyles.bmiScaleSegment,
+                  { backgroundColor: "#EF4444" },
+                ]}
+              />
+            </View>
+          </View>
+        </View>
+
+        {/* Weight Progress Card - Moved to Bottom */}
+        <View style={dataStyles.weightProgressCard}>
+          <View style={dataStyles.progressHeader}>
+            <Text style={dataStyles.progressTitle}>Weight Progress</Text>
+            {progress > 0 && (
+              <View style={dataStyles.trendBadge}>
+                <Ionicons name="trending-down" size={14} color="#16A34A" />
+                <Text style={dataStyles.trendText}>On Track</Text>
+              </View>
+            )}
+          </View>
+
+          <View style={dataStyles.weightVisualization}>
+            <View style={dataStyles.weightBox}>
+              <Text style={dataStyles.weightLabel}>Current</Text>
+              <Text style={dataStyles.weightValue}>
+                {profile?.weight || "--"}
+                <Text style={dataStyles.weightUnit}> kg</Text>
+              </Text>
+            </View>
+
+            <View style={dataStyles.progressBarContainer}>
+              <View style={dataStyles.progressBar}>
+                <View
+                  style={[
+                    dataStyles.progressBarFill,
+                    { width: `${progress}%` },
+                  ]}
+                />
+              </View>
+              <Text style={dataStyles.progressPercentage}>
+                {weightDifference} kg to go
+              </Text>
+            </View>
+
+            <View style={dataStyles.weightBox}>
+              <Text style={dataStyles.weightLabel}>Goal</Text>
+              <Text style={dataStyles.weightValue}>
+                {profile?.target_weight || "--"}
+                <Text style={dataStyles.weightUnit}> kg</Text>
+              </Text>
+            </View>
+          </View>
+
+          <View style={dataStyles.noteCard}>
+            <Text style={dataStyles.noteText}>
+              Update your weight weekly to keep your nutrition plan accurate
+            </Text>
+          </View>
+        </View>
+      </ScrollView>
+
+      {/* Update Weight Modal */}
       <Modal
         animationType="fade"
         transparent={true}
@@ -160,35 +342,58 @@ export const DataOverview = () => {
                 ? "Log Current Weight"
                 : "Update Goal Weight"}
             </Text>
+            <Text style={dataStyles.modalSubtitle}>
+              {modalType === "current"
+                ? "Enter your current weight to track your progress"
+                : "Set a new target weight for your fitness journey"}
+            </Text>
 
-            <TextInput
-              style={dataStyles.textInput}
-              placeholder="Enter weight in kg"
-              keyboardType="decimal-pad"
-              value={inputValue}
-              onChangeText={setInputValue}
-              editable={!loading}
-            />
-
-            <View style={dataStyles.buttonContainer}>
-              <TouchableOpacity
-                onPress={() => setModalVisible(false)}
-                disabled={loading}
-              >
-                <Text style={dataStyles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={handleConfirmWeight}
-                disabled={loading}
-                style={dataStyles.confirmButton}
-              >
-                <Text style={dataStyles.confirmButtonText}>Confirm</Text>
-              </TouchableOpacity>
+            <View style={dataStyles.inputContainer}>
+              <Text style={dataStyles.inputLabel}>Weight (kg)</Text>
+              <TextInput
+                style={[
+                  dataStyles.textInput,
+                  inputFocused && dataStyles.textInputFocused,
+                ]}
+                placeholder="Enter weight"
+                placeholderTextColor="#999"
+                keyboardType="decimal-pad"
+                value={inputValue}
+                onChangeText={setInputValue}
+                editable={!loading}
+                onFocus={() => setInputFocused(true)}
+                onBlur={() => setInputFocused(false)}
+                autoFocus
+              />
             </View>
+
+            {loading ? (
+              <View style={dataStyles.loadingContainer}>
+                <ActivityIndicator size="large" color="#000000" />
+                <Text style={dataStyles.loadingText}>Updating...</Text>
+              </View>
+            ) : (
+              <View style={dataStyles.buttonContainer}>
+                <TouchableOpacity
+                  onPress={() => setModalVisible(false)}
+                  style={dataStyles.cancelButton}
+                  activeOpacity={0.7}
+                >
+                  <Text style={dataStyles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={handleConfirmWeight}
+                  style={dataStyles.confirmButton}
+                  activeOpacity={0.7}
+                >
+                  <Text style={dataStyles.confirmButtonText}>Confirm</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
         </View>
       </Modal>
-    </ScrollView>
+    </SafeAreaView>
   );
 };

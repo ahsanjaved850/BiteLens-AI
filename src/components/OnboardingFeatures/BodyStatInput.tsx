@@ -1,4 +1,4 @@
-import { updateWeightStats } from "@/backend/sendData";
+import { updateBodyStats } from "@/backend/sendData";
 import {
   COLORS,
   modernStyles,
@@ -18,24 +18,24 @@ interface PhysiqueInputProps {
   onValidationChange?: (isValid: boolean) => void;
 }
 
-export const PhysiqueInput: React.FC<PhysiqueInputProps> = ({
+export const BodyStatInput: React.FC<PhysiqueInputProps> = ({
   onValidationChange,
 }) => {
-  const [weight, setWeight] = useState<string>("");
-  const [targetWeight, setTargetWeight] = useState<string>("");
+  const [age, setAge] = useState<string>("");
+  const [height, setHeight] = useState<string>("");
   const [focusedField, setFocusedField] = useState<string>("");
 
   // Refs for focusing next input
-  const weightRef = useRef<TextInput>(null);
-  const targetWeightRef = useRef<TextInput>(null);
+  const heightRef = useRef<TextInput>(null);
+  const ageRef = useRef<TextInput>(null);
 
   // Ref to track if we've shown success haptic
   const hasShownSuccessRef = useRef(false);
 
   // Calculate validation status - memoized
   const isValid = useMemo(() => {
-    return weight.trim().length > 0 && targetWeight.trim().length > 0;
-  }, [weight, targetWeight]);
+    return age.trim().length > 0 && height.trim().length > 0;
+  }, [age, height]);
 
   // Validation effect - ONLY updates parent, no other side effects
   useEffect(() => {
@@ -51,7 +51,7 @@ export const PhysiqueInput: React.FC<PhysiqueInputProps> = ({
 
     const saveTimer = setTimeout(() => {
       try {
-        updateWeightStats(weight, targetWeight);
+        updateBodyStats(age, height);
 
         // Only show success haptic once
         if (!hasShownSuccessRef.current) {
@@ -64,7 +64,7 @@ export const PhysiqueInput: React.FC<PhysiqueInputProps> = ({
     }, 1000);
 
     return () => clearTimeout(saveTimer);
-  }, [weight, targetWeight, isValid]);
+  }, [age, height, isValid]);
 
   // Memoized handlers to prevent re-creation
   const handleFocus = useCallback((fieldName: string) => {
@@ -76,8 +76,8 @@ export const PhysiqueInput: React.FC<PhysiqueInputProps> = ({
     setFocusedField("");
   }, []);
 
-  const handleWeightSubmit = useCallback(() => {
-    targetWeightRef.current?.focus();
+  const handleAgeSubmit = useCallback(() => {
+    heightRef.current?.focus();
   }, []);
 
   return (
@@ -94,7 +94,7 @@ export const PhysiqueInput: React.FC<PhysiqueInputProps> = ({
         >
           {/* Header */}
           <View style={{ alignItems: "center" }}>
-            <Text style={modernStyles.headerTitle}>Your Weight Stats</Text>
+            <Text style={modernStyles.headerTitle}>Your Body Stats</Text>
             <Text style={modernStyles.subtitleLight}>
               Help us create your personalized plan
             </Text>
@@ -102,21 +102,21 @@ export const PhysiqueInput: React.FC<PhysiqueInputProps> = ({
 
           {/* Form */}
           <View style={[modernStyles.formContainer, { marginTop: SPACING.xl }]}>
-            {/* Weight Input */}
+            {/* Age Input */}
             <View style={modernStyles.formGroup}>
-              <Text style={modernStyles.formLabel}>CURRENT WEIGHT</Text>
+              <Text style={modernStyles.formLabel}>AGE</Text>
               <TextInput
-                ref={weightRef}
-                placeholder="70 kg"
-                value={weight}
-                onChangeText={setWeight}
-                onFocus={() => handleFocus("weight")}
+                ref={ageRef}
+                placeholder="25 years"
+                value={age}
+                onChangeText={setAge}
+                onFocus={() => handleFocus("age")}
                 onBlur={handleBlur}
-                onSubmitEditing={handleWeightSubmit}
+                onSubmitEditing={handleAgeSubmit}
                 keyboardType="numeric"
                 style={[
                   modernStyles.formInput,
-                  focusedField === "weight" && modernStyles.formInputFocused,
+                  focusedField === "age" && modernStyles.formInputFocused,
                 ]}
                 placeholderTextColor={COLORS.textLight}
                 returnKeyType="next"
@@ -124,25 +124,24 @@ export const PhysiqueInput: React.FC<PhysiqueInputProps> = ({
               />
             </View>
 
-            {/* Target Weight Input */}
+            {/* Height Input */}
             <View style={modernStyles.formGroup}>
-              <Text style={modernStyles.formLabel}>TARGET WEIGHT</Text>
+              <Text style={modernStyles.formLabel}>HEIGHT</Text>
               <TextInput
-                ref={targetWeightRef}
-                placeholder="65 kg"
-                value={targetWeight}
-                onChangeText={setTargetWeight}
-                onFocus={() => handleFocus("targetWeight")}
+                ref={heightRef}
+                placeholder="170 cm"
+                value={height}
+                onChangeText={setHeight}
+                onFocus={() => handleFocus("height")}
                 onBlur={handleBlur}
                 keyboardType="numeric"
                 style={[
                   modernStyles.formInput,
-                  focusedField === "targetWeight" &&
-                    modernStyles.formInputFocused,
+                  focusedField === "height" && modernStyles.formInputFocused,
                 ]}
                 placeholderTextColor={COLORS.textLight}
                 returnKeyType="done"
-                blurOnSubmit={true}
+                blurOnSubmit={false}
               />
             </View>
           </View>
