@@ -50,7 +50,10 @@ export const sendInitialDetails = async (
   calories: number,
   proteins: number,
   carbs: number,
-  fats: null
+  fat: number,
+  sugar: number,
+  sodium: number,
+  fiber: number
 ) => {
   const userId = await getCurrentUser();
 
@@ -61,7 +64,10 @@ export const sendInitialDetails = async (
       calories: calories ? Number(calories) : null,
       carbs: carbs ? Number(carbs) : null,
       protein: proteins ? Number(proteins) : null,
-      fats: fats ? Number(fats) : null,
+      fat: fat ? Number(fat) : null,
+      sugar: sugar ? Number(sugar) : null,
+      sodium: sodium ? Number(sodium) : null,
+      fiber: fiber ? Number(fiber) : null,
       bmi: BMI,
       "bmi-category": Category,
     })
@@ -106,5 +112,64 @@ export const updateGoal = async (goal: string) => {
     .eq("id", userId);
 
   if (error) throw error;
+  return data;
+};
+export const updateDailyIntake = async (
+  mealCalories: number,
+  mealProtein: number,
+  mealCarbs: number,
+  mealFat: number,
+  mealSugar: number,
+  mealSodium: number,
+  mealFiber: number
+) => {
+  const userId = await getCurrentUser();
+  const today = new Date().toISOString().split("T")[0];
+
+  // First, get today's existing intake
+  const { data: existingData, error: fetchError } = await supabase
+    .from("daily_intake")
+    .select("*")
+    .eq("id", userId)
+    .gte("created_at", `${today}T00:00:00`)
+    .lte("created_at", `${today}T23:59:59`)
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  if (fetchError) {
+    console.error("Error fetching existing intake:", fetchError);
+  }
+
+  // Calculate new totals
+  const currentIntake =
+    existingData && existingData.length > 0 ? existingData[0] : null;
+
+  const newTotals = {
+    id: userId,
+    total_calories: (currentIntake?.total_calories || 0) + mealCalories,
+    total_carbs: (currentIntake?.total_carbs || 0) + mealCarbs,
+    total_protien: (currentIntake?.total_protien || 0) + mealProtein,
+    total_fat: (currentIntake?.total_fat || 0) + mealFat,
+    total_sugar: (currentIntake?.total_sugar || 0) + mealSugar,
+    total_sodium: (currentIntake?.total_sodium || 0) + mealSodium,
+    total_fiber: (currentIntake?.total_fiber || 0) + mealFiber,
+    created_at: new Date().toISOString(),
+  };
+
+  // Insert or update today's intake
+  const { data, error } = await supabase
+    .from("daily_intake")
+    .upsert(newTotals, {
+      onConflict: "id",
+      ignoreDuplicates: false,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Error updating daily intake:", error.message);
+    throw error;
+  }
+
   return data;
 };

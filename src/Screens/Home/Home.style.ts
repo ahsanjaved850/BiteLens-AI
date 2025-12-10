@@ -22,22 +22,22 @@ export const homeStyles = StyleSheet.create({
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
     marginBottom: 8,
   },
   logoContainer: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
   },
   logo: {
-    width: 36,
-    height: 36,
+    width: 26,
+    height: 26,
     borderRadius: 8,
   },
   logoName: {
     fontWeight: "700",
     fontSize: 28,
-    marginLeft: 10,
+    marginLeft: 4,
     color: "#1A1A1A",
     letterSpacing: -0.5,
   },
@@ -107,13 +107,13 @@ export const homeStyles = StyleSheet.create({
   progressContainer: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 24,
+    paddingBottom: 14,
   },
   progressLabel: {
     marginTop: 16,
     fontSize: 15,
     color: "#666",
-    fontWeight: "500",
+    fontWeight: "700",
   },
   calorieCount: {
     marginTop: 4,
@@ -215,7 +215,7 @@ export const homeStyles = StyleSheet.create({
   // Add Meal Button
   addMealContainer: {
     alignItems: "center",
-    marginVertical: 24,
+    marginVertical: 12,
   },
   addMealButton: {
     backgroundColor: "#000000",
@@ -311,10 +311,16 @@ export const homeStyles = StyleSheet.create({
     justifyContent: "center",
   },
   mealTime: {
-    fontSize: 13,
+    fontSize: 10,
     color: "#999",
     fontWeight: "500",
     marginBottom: 4,
+  },
+  mealName: {
+    fontSize: 14,
+    color: "#181818ff",
+    fontWeight: "700",
+    marginTop: 4,
   },
   mealCalories: {
     fontSize: 20,
@@ -415,7 +421,7 @@ export const homeStyles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    paddingTop: 12,
+    paddingTop: 4,
     paddingBottom: 34,
     paddingHorizontal: 20,
     maxHeight: "90%",

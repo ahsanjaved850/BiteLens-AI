@@ -41,7 +41,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   plugins: ["expo-router"],
 
   extra: {
-    OPENAI_API_KEY: process.env.EXPO_PUBLIC_AI_KEY,
     DATABASE_URL: process.env.EXPO_PUBLIC_SUPABASE_URL,
     DATABASE_KEY: process.env.EXPO_PUBLIC_SUPABASE_KEY,
     eas: {

@@ -1,51 +1,28 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation, useRoute } from "@react-navigation/native";
-import {
-  Image,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  Vibration,
-  View,
-} from "react-native";
+import React from "react";
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useMealDetails } from "./MealDetails.logic";
+import { MACROS_CONFIG, SECTION_TITLES, UI_TEXT } from "./MealDetails.static";
 import { mealDetailStyles } from "./mealDetails.style";
 
-interface MealEntry {
-  id: string;
-  name: string;
-  image: string;
-  time: string;
-  calories: string;
-  protein: string;
-  carbs: string;
-  fats: string;
-  sugar: string;
-  sodium: string;
-  fiber: string;
-  ingredients: string[];
-  expanded: boolean;
-}
-
-export const MealDetail = () => {
-  const navigation = useNavigation();
-  const route = useRoute();
-  const meal = route.params?.meal as MealEntry;
-
-  const handleBack = () => {
-    Vibration.vibrate(10);
-    navigation.goBack();
-  };
+export const MealDetails = () => {
+  const { meal, deleting, handleBack, handleDelete, formatTime, getNutrients } =
+    useMealDetails();
 
   if (!meal) {
     return (
       <SafeAreaView style={mealDetailStyles.container}>
         <View style={mealDetailStyles.errorContainer}>
-          <Text style={mealDetailStyles.errorText}>Meal not found</Text>
+          <Text style={mealDetailStyles.errorText}>
+            {UI_TEXT.ERROR_NOT_FOUND}
+          </Text>
         </View>
       </SafeAreaView>
     );
   }
+
+  const nutrients = getNutrients();
 
   return (
     <SafeAreaView style={mealDetailStyles.container}>
@@ -55,17 +32,18 @@ export const MealDetail = () => {
           style={mealDetailStyles.backButton}
           onPress={handleBack}
           activeOpacity={0.7}
+          disabled={deleting}
         >
           <Ionicons name="arrow-back" size={24} color="#1E293B" />
         </TouchableOpacity>
-        <Text style={mealDetailStyles.headerTitle}>Meal Details</Text>
+        <Text style={mealDetailStyles.headerTitle}>
+          {SECTION_TITLES.MEAL_DETAILS}
+        </Text>
         <TouchableOpacity
           style={mealDetailStyles.deleteButton}
-          onPress={() => {
-            Vibration.vibrate(10);
-            // Add delete functionality here
-          }}
+          onPress={handleDelete}
           activeOpacity={0.7}
+          disabled={deleting}
         >
           <Ionicons name="trash-outline" size={22} color="#EF4444" />
         </TouchableOpacity>
@@ -78,9 +56,9 @@ export const MealDetail = () => {
       >
         {/* Meal Image */}
         <View style={mealDetailStyles.imageContainer}>
-          {meal.image ? (
+          {meal.meal_image ? (
             <Image
-              source={{ uri: meal.image }}
+              source={{ uri: meal.meal_image }}
               style={mealDetailStyles.mealImage}
             />
           ) : (
@@ -95,7 +73,9 @@ export const MealDetail = () => {
           <Text style={mealDetailStyles.mealName}>{meal.name}</Text>
           <View style={mealDetailStyles.timeContainer}>
             <Ionicons name="time-outline" size={16} color="#64748B" />
-            <Text style={mealDetailStyles.timeText}>{meal.time}</Text>
+            <Text style={mealDetailStyles.timeText}>
+              {formatTime(meal.created_at)}
+            </Text>
           </View>
         </View>
 
@@ -105,108 +85,80 @@ export const MealDetail = () => {
             <Ionicons name="flame" size={32} color="#6366F1" />
           </View>
           <View style={mealDetailStyles.caloriesInfo}>
-            <Text style={mealDetailStyles.caloriesLabel}>Total Calories</Text>
-            <Text style={mealDetailStyles.caloriesValue}>{meal.calories}</Text>
+            <Text style={mealDetailStyles.caloriesLabel}>
+              {UI_TEXT.TOTAL_CALORIES}
+            </Text>
+            <Text style={mealDetailStyles.caloriesValue}>
+              {Math.round(meal.calories)}
+            </Text>
           </View>
         </View>
 
         {/* Macronutrients Section */}
         <View style={mealDetailStyles.section}>
-          <Text style={mealDetailStyles.sectionTitle}>Macronutrients</Text>
+          <Text style={mealDetailStyles.sectionTitle}>
+            {SECTION_TITLES.MACRONUTRIENTS}
+          </Text>
           <View style={mealDetailStyles.macroGrid}>
-            <View style={mealDetailStyles.macroCard}>
-              <View
-                style={[
-                  mealDetailStyles.macroIcon,
-                  { backgroundColor: "#FEE2E2" },
-                ]}
-              >
-                <Ionicons name="fitness" size={24} color="#EF4444" />
+            {MACROS_CONFIG.map((macro) => (
+              <View key={macro.key} style={mealDetailStyles.macroCard}>
+                <View
+                  style={[
+                    mealDetailStyles.macroIcon,
+                    { backgroundColor: macro.iconBgColor },
+                  ]}
+                >
+                  <Ionicons
+                    name={macro.icon as any}
+                    size={24}
+                    color={macro.iconColor}
+                  />
+                </View>
+                <Text style={mealDetailStyles.macroLabel}>{macro.label}</Text>
+                <Text style={mealDetailStyles.macroValue}>
+                  {Math.round(meal[macro.key])}g
+                </Text>
               </View>
-              <Text style={mealDetailStyles.macroLabel}>Protein</Text>
-              <Text style={mealDetailStyles.macroValue}>{meal.protein}g</Text>
-            </View>
-
-            <View style={mealDetailStyles.macroCard}>
-              <View
-                style={[
-                  mealDetailStyles.macroIcon,
-                  { backgroundColor: "#DBEAFE" },
-                ]}
-              >
-                <Ionicons name="flame" size={24} color="#3B82F6" />
-              </View>
-              <Text style={mealDetailStyles.macroLabel}>Carbs</Text>
-              <Text style={mealDetailStyles.macroValue}>{meal.carbs}g</Text>
-            </View>
-
-            <View style={mealDetailStyles.macroCard}>
-              <View
-                style={[
-                  mealDetailStyles.macroIcon,
-                  { backgroundColor: "#FEF3C7" },
-                ]}
-              >
-                <Ionicons name="water" size={24} color="#F59E0B" />
-              </View>
-              <Text style={mealDetailStyles.macroLabel}>Fats</Text>
-              <Text style={mealDetailStyles.macroValue}>{meal.fats}g</Text>
-            </View>
+            ))}
           </View>
         </View>
 
         {/* Additional Nutrients Section */}
         <View style={mealDetailStyles.section}>
           <Text style={mealDetailStyles.sectionTitle}>
-            Additional Nutrients
+            {SECTION_TITLES.ADDITIONAL_NUTRIENTS}
           </Text>
           <View style={mealDetailStyles.nutrientsList}>
-            <View style={mealDetailStyles.nutrientRow}>
-              <View style={mealDetailStyles.nutrientLeft}>
-                <View
-                  style={[
-                    mealDetailStyles.nutrientIconSmall,
-                    { backgroundColor: "#FDE2E4" },
-                  ]}
-                >
-                  <Ionicons name="sparkles" size={18} color="#E11D48" />
+            {nutrients.map((nutrient, index) => (
+              <View
+                key={index}
+                style={[
+                  mealDetailStyles.nutrientRow,
+                  index === nutrients.length - 1 && { borderBottomWidth: 0 },
+                ]}
+              >
+                <View style={mealDetailStyles.nutrientLeft}>
+                  <View
+                    style={[
+                      mealDetailStyles.nutrientIconSmall,
+                      { backgroundColor: nutrient.iconBgColor },
+                    ]}
+                  >
+                    <Ionicons
+                      name={nutrient.icon as any}
+                      size={18}
+                      color={nutrient.iconColor}
+                    />
+                  </View>
+                  <Text style={mealDetailStyles.nutrientLabel}>
+                    {nutrient.label}
+                  </Text>
                 </View>
-                <Text style={mealDetailStyles.nutrientLabel}>Sugar</Text>
+                <Text style={mealDetailStyles.nutrientValue}>
+                  {nutrient.value}
+                </Text>
               </View>
-              <Text style={mealDetailStyles.nutrientValue}>{meal.sugar}g</Text>
-            </View>
-
-            <View style={mealDetailStyles.nutrientRow}>
-              <View style={mealDetailStyles.nutrientLeft}>
-                <View
-                  style={[
-                    mealDetailStyles.nutrientIconSmall,
-                    { backgroundColor: "#E0E7FF" },
-                  ]}
-                >
-                  <Ionicons name="diamond" size={18} color="#4F46E5" />
-                </View>
-                <Text style={mealDetailStyles.nutrientLabel}>Sodium</Text>
-              </View>
-              <Text style={mealDetailStyles.nutrientValue}>
-                {meal.sodium}mg
-              </Text>
-            </View>
-
-            <View style={mealDetailStyles.nutrientRow}>
-              <View style={mealDetailStyles.nutrientLeft}>
-                <View
-                  style={[
-                    mealDetailStyles.nutrientIconSmall,
-                    { backgroundColor: "#D1FAE5" },
-                  ]}
-                >
-                  <Ionicons name="leaf" size={18} color="#059669" />
-                </View>
-                <Text style={mealDetailStyles.nutrientLabel}>Fiber</Text>
-              </View>
-              <Text style={mealDetailStyles.nutrientValue}>{meal.fiber}g</Text>
-            </View>
+            ))}
           </View>
         </View>
 
@@ -214,7 +166,9 @@ export const MealDetail = () => {
         <View style={mealDetailStyles.section}>
           <View style={mealDetailStyles.ingredientsHeader}>
             <Ionicons name="list" size={22} color="#6366F1" />
-            <Text style={mealDetailStyles.sectionTitle}>Ingredients</Text>
+            <Text style={mealDetailStyles.sectionTitle}>
+              {SECTION_TITLES.INGREDIENTS}
+            </Text>
           </View>
           <View style={mealDetailStyles.ingredientsContainer}>
             {meal.ingredients && meal.ingredients.length > 0 ? (
@@ -228,7 +182,7 @@ export const MealDetail = () => {
               ))
             ) : (
               <Text style={mealDetailStyles.noIngredientsText}>
-                No ingredients available
+                {UI_TEXT.NO_INGREDIENTS}
               </Text>
             )}
           </View>
@@ -241,9 +195,7 @@ export const MealDetail = () => {
             size={18}
             color="#6366F1"
           />
-          <Text style={mealDetailStyles.aiNoticeText}>
-            Nutritional information and ingredients are AI-generated estimates
-          </Text>
+          <Text style={mealDetailStyles.aiNoticeText}>{UI_TEXT.AI_NOTICE}</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

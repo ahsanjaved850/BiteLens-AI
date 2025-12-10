@@ -1,119 +1,36 @@
-import { signOut } from "@/backend/auth";
-import { deleteUserData, getProfile } from "@/backend/getData";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import { JSX, useEffect, useState } from "react";
+import { JSX } from "react";
 import {
-  Alert,
   Image,
   RefreshControl,
   ScrollView,
   Text,
   TouchableOpacity,
-  Vibration,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useSetting } from "./Setting.logic";
+import {
+  APP_VERSION,
+  HEIGHT_UNIT,
+  SECTION_TITLES,
+  SETTINGS_ITEMS,
+  WEIGHT_UNIT,
+} from "./Setting.static";
 import { settingStyles } from "./Setting.style";
 
 export const Setting = (): JSX.Element => {
-  const [profile, setProfile] = useState<any>(null);
-  const [refreshing, setRefreshing] = useState(false);
-  const router = useRouter();
-
-  const fetchProfile = async (showRefreshing = false) => {
-    try {
-      if (showRefreshing) setRefreshing(true);
-
-      const data = await getProfile();
-      setProfile(data);
-    } catch (err: any) {
-      console.log(err);
-    } finally {
-      if (showRefreshing) setRefreshing(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  const onRefresh = () => {
-    fetchProfile(true);
-  };
-
-  const handleDeleteAccount = async () => {
-    try {
-      await deleteUserData();
-      await signOut();
-      router.replace("/auth/login");
-    } catch (err) {
-      console.log("Error deleting account: ", err);
-      Alert.alert("Error", "Failed to delete account. Please try again.");
-    }
-  };
-
-  const confirmDelete = () => {
-    Vibration.vibrate(10);
-    Alert.alert(
-      "Delete Account",
-      "Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-          onPress: () => Vibration.vibrate(10),
-        },
-        {
-          text: "Yes, Delete",
-          style: "destructive",
-          onPress: () => {
-            Vibration.vibrate([0, 50, 50, 50]);
-            handleDeleteAccount();
-          },
-        },
-      ]
-    );
-  };
-
-  // const handleLogout = () => {
-  //   Vibration.vibrate(10);
-  //   Alert.alert("Sign Out", "Are you sure you want to sign out?", [
-  //     {
-  //       text: "Cancel",
-  //       style: "cancel",
-  //       onPress: () => Vibration.vibrate(10),
-  //     },
-  //     {
-  //       text: "Sign Out",
-  //       style: "default",
-  //       onPress: async () => {
-  //         Vibration.vibrate(50);
-  //         try {
-  //           await signOut();
-  //           router.replace("/auth/login");
-  //         } catch (err) {
-  //           console.log("Error signing out: ", err);
-  //           Alert.alert("Error", "Failed to sign out. Please try again.");
-  //         }
-  //       },
-  //     },
-  //   ]);
-  // };
-
-  // Get initials for profile avatar
-  const getInitials = (name: string) => {
-    if (!name) return "U";
-    const parts = name.split(" ");
-    if (parts.length >= 2) {
-      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-    }
-    return name[0].toUpperCase();
-  };
+  const {
+    profile,
+    refreshing,
+    handleRefresh,
+    handleConfirmDelete,
+    handleSettingItemPress,
+    getInitials,
+  } = useSetting();
 
   return (
     <SafeAreaView style={settingStyles.container}>
-      {/* Header */}
       <View style={settingStyles.headerContainer}>
         <Text style={settingStyles.headerTitle}>Settings</Text>
       </View>
@@ -124,7 +41,7 @@ export const Setting = (): JSX.Element => {
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            onRefresh={onRefresh}
+            onRefresh={handleRefresh}
             tintColor="#3B82F6"
             colors={["#3B82F6"]}
           />
@@ -146,18 +63,26 @@ export const Setting = (): JSX.Element => {
         {/* Personal Information Section */}
         <View style={settingStyles.section}>
           <View style={settingStyles.sectionHeader}>
-            <Text style={settingStyles.sectionTitle}>Personal Information</Text>
+            <Text style={settingStyles.sectionTitle}>
+              {SECTION_TITLES.PERSONAL_INFO}
+            </Text>
           </View>
 
           <View style={settingStyles.settingItem}>
             <View style={settingStyles.settingItemLeft}>
               <View style={settingStyles.settingIconContainer}>
-                <Ionicons name="person-outline" size={18} color="#666" />
+                <Ionicons
+                  name={SETTINGS_ITEMS.FULL_NAME.icon as any}
+                  size={18}
+                  color="#666"
+                />
               </View>
               <View style={settingStyles.settingItemContent}>
-                <Text style={settingStyles.settingItemLabel}>Full Name</Text>
+                <Text style={settingStyles.settingItemLabel}>
+                  {SETTINGS_ITEMS.FULL_NAME.label}
+                </Text>
                 <Text style={settingStyles.settingItemValue}>
-                  {profile?.full_name || "Not set"}
+                  {profile?.full_name || SETTINGS_ITEMS.FULL_NAME.placeholder}
                 </Text>
               </View>
             </View>
@@ -166,12 +91,20 @@ export const Setting = (): JSX.Element => {
           <View style={settingStyles.settingItem}>
             <View style={settingStyles.settingItemLeft}>
               <View style={settingStyles.settingIconContainer}>
-                <Ionicons name="calendar-outline" size={18} color="#666" />
+                <Ionicons
+                  name={SETTINGS_ITEMS.AGE.icon as any}
+                  size={18}
+                  color="#666"
+                />
               </View>
               <View style={settingStyles.settingItemContent}>
-                <Text style={settingStyles.settingItemLabel}>Age</Text>
+                <Text style={settingStyles.settingItemLabel}>
+                  {SETTINGS_ITEMS.AGE.label}
+                </Text>
                 <Text style={settingStyles.settingItemValue}>
-                  {profile?.age ? `${profile.age} years` : "Not set"}
+                  {profile?.age
+                    ? `${profile.age} ${SETTINGS_ITEMS.AGE.suffix}`
+                    : SETTINGS_ITEMS.AGE.placeholder}
                 </Text>
               </View>
             </View>
@@ -182,12 +115,18 @@ export const Setting = (): JSX.Element => {
           >
             <View style={settingStyles.settingItemLeft}>
               <View style={settingStyles.settingIconContainer}>
-                <Ionicons name="male-female-outline" size={18} color="#666" />
+                <Ionicons
+                  name={SETTINGS_ITEMS.GENDER.icon as any}
+                  size={18}
+                  color="#666"
+                />
               </View>
               <View style={settingStyles.settingItemContent}>
-                <Text style={settingStyles.settingItemLabel}>Gender</Text>
+                <Text style={settingStyles.settingItemLabel}>
+                  {SETTINGS_ITEMS.GENDER.label}
+                </Text>
                 <Text style={settingStyles.settingItemValue}>
-                  {profile?.gender || "Not set"}
+                  {profile?.gender || SETTINGS_ITEMS.GENDER.placeholder}
                 </Text>
               </View>
             </View>
@@ -197,21 +136,31 @@ export const Setting = (): JSX.Element => {
         {/* Physical Details Section */}
         <View style={settingStyles.section}>
           <View style={settingStyles.sectionHeader}>
-            <Text style={settingStyles.sectionTitle}>Physical Details</Text>
+            <Text style={settingStyles.sectionTitle}>
+              {SECTION_TITLES.PHYSICAL_DETAILS}
+            </Text>
           </View>
 
           <View style={settingStyles.settingItem}>
             <View style={settingStyles.settingItemLeft}>
               <View style={settingStyles.settingIconContainer}>
-                <Ionicons name="scale-outline" size={18} color="#666" />
+                <Ionicons
+                  name={SETTINGS_ITEMS.WEIGHT.icon as any}
+                  size={18}
+                  color="#666"
+                />
               </View>
               <View style={settingStyles.settingItemContent}>
-                <Text style={settingStyles.settingItemLabel}>Weight</Text>
+                <Text style={settingStyles.settingItemLabel}>
+                  {SETTINGS_ITEMS.WEIGHT.label}
+                </Text>
               </View>
             </View>
             <View style={settingStyles.settingItemRight}>
               <Text style={settingStyles.settingItemValueRight}>
-                {profile?.weight ? `${profile.weight} kg` : "--"}
+                {profile?.weight
+                  ? `${profile.weight} ${WEIGHT_UNIT}`
+                  : SETTINGS_ITEMS.WEIGHT.placeholder}
               </Text>
             </View>
           </View>
@@ -219,15 +168,23 @@ export const Setting = (): JSX.Element => {
           <View style={settingStyles.settingItem}>
             <View style={settingStyles.settingItemLeft}>
               <View style={settingStyles.settingIconContainer}>
-                <Ionicons name="resize-outline" size={18} color="#666" />
+                <Ionicons
+                  name={SETTINGS_ITEMS.HEIGHT.icon as any}
+                  size={18}
+                  color="#666"
+                />
               </View>
               <View style={settingStyles.settingItemContent}>
-                <Text style={settingStyles.settingItemLabel}>Height</Text>
+                <Text style={settingStyles.settingItemLabel}>
+                  {SETTINGS_ITEMS.HEIGHT.label}
+                </Text>
               </View>
             </View>
             <View style={settingStyles.settingItemRight}>
               <Text style={settingStyles.settingItemValueRight}>
-                {profile?.height ? `${profile.height} cm` : "--"}
+                {profile?.height
+                  ? `${profile.height} ${HEIGHT_UNIT}`
+                  : SETTINGS_ITEMS.HEIGHT.placeholder}
               </Text>
             </View>
           </View>
@@ -237,15 +194,23 @@ export const Setting = (): JSX.Element => {
           >
             <View style={settingStyles.settingItemLeft}>
               <View style={settingStyles.settingIconContainer}>
-                <Ionicons name="flag-outline" size={18} color="#666" />
+                <Ionicons
+                  name={SETTINGS_ITEMS.GOAL_WEIGHT.icon as any}
+                  size={18}
+                  color="#666"
+                />
               </View>
               <View style={settingStyles.settingItemContent}>
-                <Text style={settingStyles.settingItemLabel}>Goal Weight</Text>
+                <Text style={settingStyles.settingItemLabel}>
+                  {SETTINGS_ITEMS.GOAL_WEIGHT.label}
+                </Text>
               </View>
             </View>
             <View style={settingStyles.settingItemRight}>
               <Text style={settingStyles.settingItemValueRight}>
-                {profile?.target_weight ? `${profile.target_weight} kg` : "--"}
+                {profile?.target_weight
+                  ? `${profile.target_weight} ${WEIGHT_UNIT}`
+                  : SETTINGS_ITEMS.GOAL_WEIGHT.placeholder}
               </Text>
             </View>
           </View>
@@ -254,22 +219,30 @@ export const Setting = (): JSX.Element => {
         {/* Support & Legal Section */}
         <View style={settingStyles.section}>
           <View style={settingStyles.sectionHeader}>
-            <Text style={settingStyles.sectionTitle}>Support & Legal</Text>
+            <Text style={settingStyles.sectionTitle}>
+              {SECTION_TITLES.SUPPORT_LEGAL}
+            </Text>
           </View>
 
           <TouchableOpacity
             style={settingStyles.settingItem}
             activeOpacity={0.7}
-            onPress={() => Vibration.vibrate(10)}
+            onPress={handleSettingItemPress}
           >
             <View style={settingStyles.settingItemLeft}>
               <View style={settingStyles.settingIconContainer}>
-                <Ionicons name="help-circle-outline" size={18} color="#666" />
+                <Ionicons
+                  name={SETTINGS_ITEMS.HELP_CENTER.icon as any}
+                  size={18}
+                  color="#666"
+                />
               </View>
               <View style={settingStyles.settingItemContent}>
-                <Text style={settingStyles.settingItemLabel}>Help Center</Text>
+                <Text style={settingStyles.settingItemLabel}>
+                  {SETTINGS_ITEMS.HELP_CENTER.label}
+                </Text>
                 <Text style={settingStyles.settingItemValue}>
-                  Get support and FAQs
+                  {SETTINGS_ITEMS.HELP_CENTER.description}
                 </Text>
               </View>
             </View>
@@ -283,18 +256,22 @@ export const Setting = (): JSX.Element => {
           <TouchableOpacity
             style={settingStyles.settingItem}
             activeOpacity={0.7}
-            onPress={() => Vibration.vibrate(10)}
+            onPress={handleSettingItemPress}
           >
             <View style={settingStyles.settingItemLeft}>
               <View style={settingStyles.settingIconContainer}>
-                <Ionicons name="document-text-outline" size={18} color="#666" />
+                <Ionicons
+                  name={SETTINGS_ITEMS.TERMS.icon as any}
+                  size={18}
+                  color="#666"
+                />
               </View>
               <View style={settingStyles.settingItemContent}>
                 <Text style={settingStyles.settingItemLabel}>
-                  Terms & Conditions
+                  {SETTINGS_ITEMS.TERMS.label}
                 </Text>
                 <Text style={settingStyles.settingItemValue}>
-                  Legal agreements
+                  {SETTINGS_ITEMS.TERMS.description}
                 </Text>
               </View>
             </View>
@@ -309,19 +286,27 @@ export const Setting = (): JSX.Element => {
         {/* Danger Zone */}
         <View style={settingStyles.dangerSection}>
           <View style={settingStyles.dangerSectionHeader}>
-            <Text style={settingStyles.dangerSectionTitle}>Danger Zone</Text>
+            <Text style={settingStyles.dangerSectionTitle}>
+              {SECTION_TITLES.DANGER_ZONE}
+            </Text>
           </View>
 
           <TouchableOpacity
             style={settingStyles.dangerItem}
-            onPress={confirmDelete}
+            onPress={handleConfirmDelete}
             activeOpacity={0.7}
           >
             <View style={settingStyles.dangerItemLeft}>
               <View style={settingStyles.dangerIconContainer}>
-                <Ionicons name="trash-outline" size={18} color="#DC2626" />
+                <Ionicons
+                  name={SETTINGS_ITEMS.DELETE_ACCOUNT.icon as any}
+                  size={18}
+                  color="#DC2626"
+                />
               </View>
-              <Text style={settingStyles.dangerItemLabel}>Delete Account</Text>
+              <Text style={settingStyles.dangerItemLabel}>
+                {SETTINGS_ITEMS.DELETE_ACCOUNT.label}
+              </Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#DC2626" />
           </TouchableOpacity>
@@ -333,7 +318,7 @@ export const Setting = (): JSX.Element => {
             style={settingStyles.appLogo}
             source={require("@/assets/images/app_icon.png")}
           />
-          <Text style={settingStyles.appVersion}>GreenBite AI v1.0.0</Text>
+          <Text style={settingStyles.appVersion}>{APP_VERSION}</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

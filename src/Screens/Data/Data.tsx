@@ -1,9 +1,6 @@
-import { getInitialDetails, getProfile } from "@/backend/getData";
-import { updateWeightStats } from "@/backend/sendData";
 import { LoadingState } from "@/src/components/LoadingState/LoadingState";
-import { dataAnalysis } from "@/src/utils/dataAnalysis";
 import { Ionicons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
+import React from "react";
 import {
   ActivityIndicator,
   Modal,
@@ -12,147 +9,33 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  Vibration,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useData } from "./Data.logic";
+import { MODAL_SUBTITLES, MODAL_TITLES, WEIGHT_UNIT } from "./Data.static";
 import { dataStyles } from "./Data.style";
 
 export const DataOverview = () => {
-  const [details, setDetails] = useState<any>(null);
-  const [profile, setProfile] = useState<any>(null);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [modalType, setModalType] = useState<"current" | "goal" | null>(null);
-  const [inputValue, setInputValue] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-  const [inputFocused, setInputFocused] = useState(false);
-
-  const fetchData = async (showRefreshing = false) => {
-    try {
-      if (showRefreshing) setRefreshing(true);
-
-      const data = await getProfile();
-      const initialDetails = await getInitialDetails();
-      setProfile(data);
-      setDetails(initialDetails);
-    } catch (err: any) {
-      console.log(err);
-    } finally {
-      if (showRefreshing) setRefreshing(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const onRefresh = () => {
-    fetchData(true);
-  };
-
-  const handleOpenModal = (type: "current" | "goal") => {
-    Vibration.vibrate(10);
-    setModalType(type);
-    setInputValue("");
-    setModalVisible(true);
-  };
-
-  const handleConfirmWeight = async () => {
-    if (!inputValue.trim()) {
-      Vibration.vibrate([0, 50, 50, 50]);
-      alert("Please enter a valid weight");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const newWeight = parseFloat(inputValue);
-
-      if (isNaN(newWeight) || newWeight <= 0) {
-        alert("Please enter a valid number");
-        setLoading(false);
-        return;
-      }
-
-      Vibration.vibrate(50); // Success feedback
-
-      if (modalType === "current") {
-        await updateWeightStats(
-          newWeight.toString(),
-          profile?.target_weight?.toString() || ""
-        );
-      } else if (modalType === "goal") {
-        await updateWeightStats(
-          profile?.weight?.toString() || "",
-          newWeight.toString()
-        );
-      }
-
-      // Recalculate BMI and macros with new data
-      const updatedProfile = await getProfile();
-      await dataAnalysis(
-        modalType === "current" ? newWeight : updatedProfile.weight,
-        updatedProfile.height,
-        updatedProfile.age,
-        modalType === "goal" ? newWeight : updatedProfile.target_weight,
-        updatedProfile.gender,
-        updatedProfile.goal
-      );
-
-      // Refresh all data
-      await fetchData();
-
-      setModalVisible(false);
-      setInputValue("");
-    } catch (err: any) {
-      console.log("Error updating weight:", err);
-      Vibration.vibrate([0, 50, 50, 50]);
-      alert("Failed to update weight. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Calculate progress percentage
-  const calculateProgress = () => {
-    if (!profile?.weight || !profile?.target_weight) return 0;
-
-    const current = parseFloat(profile.weight);
-    const target = parseFloat(profile.target_weight);
-    const initial = current; // You might want to store initial weight separately
-
-    if (current === target) return 100;
-
-    const totalChange = Math.abs(initial - target);
-    const currentChange = Math.abs(initial - current);
-
-    return Math.min((currentChange / totalChange) * 100, 100);
-  };
-
-  const progress = calculateProgress();
-  const weightDifference =
-    profile?.weight && profile?.target_weight
-      ? Math.abs(
-          parseFloat(profile.weight) - parseFloat(profile.target_weight)
-        ).toFixed(1)
-      : 0;
-
-  // Get BMI category color
-  const getBMICategoryColor = (category: string) => {
-    switch (category?.toLowerCase()) {
-      case "underweight":
-        return "#3B82F6";
-      case "normal":
-        return "#10B981";
-      case "overweight":
-        return "#F59E0B";
-      case "obese":
-        return "#EF4444";
-      default:
-        return "#6B7280";
-    }
-  };
+  const {
+    details,
+    profile,
+    modalVisible,
+    modalType,
+    inputValue,
+    loading,
+    refreshing,
+    inputFocused,
+    progress,
+    weightDifference,
+    handleRefresh,
+    handleOpenModal,
+    handleCloseModal,
+    handleConfirmWeight,
+    getBMICategoryColor,
+    setInputValue,
+    setInputFocused,
+  } = useData();
 
   if (loading && !modalVisible) {
     return <LoadingState type="setup" message="Updating your profile..." />;
@@ -160,7 +43,6 @@ export const DataOverview = () => {
 
   return (
     <SafeAreaView style={dataStyles.container}>
-      {/* Header */}
       <View style={dataStyles.headerContainer}>
         <Text style={dataStyles.headerTitle}>Overview</Text>
       </View>
@@ -171,7 +53,7 @@ export const DataOverview = () => {
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            onRefresh={onRefresh}
+            onRefresh={handleRefresh}
             tintColor="#3B82F6"
             colors={["#3B82F6"]}
           />
@@ -191,7 +73,7 @@ export const DataOverview = () => {
               <Text style={dataStyles.dataCardLabel}>Current Weight</Text>
               <Text style={dataStyles.dataCardValue}>
                 {profile?.weight || "--"}
-                <Text style={dataStyles.dataCardUnit}> kg</Text>
+                <Text style={dataStyles.dataCardUnit}> {WEIGHT_UNIT}</Text>
               </Text>
             </View>
             <TouchableOpacity
@@ -208,7 +90,7 @@ export const DataOverview = () => {
               <Text style={dataStyles.dataCardLabel}>Goal Weight</Text>
               <Text style={dataStyles.dataCardValue}>
                 {profile?.target_weight || "--"}
-                <Text style={dataStyles.dataCardUnit}> kg</Text>
+                <Text style={dataStyles.dataCardUnit}> {WEIGHT_UNIT}</Text>
               </Text>
             </View>
             <TouchableOpacity
@@ -237,9 +119,9 @@ export const DataOverview = () => {
                   dataStyles.bmiCategory,
                   {
                     backgroundColor: `${getBMICategoryColor(
-                      details?.bmi_category
+                      details?.bmi_category || ""
                     )}15`,
-                    color: getBMICategoryColor(details?.bmi_category),
+                    color: getBMICategoryColor(details?.bmi_category || ""),
                   },
                 ]}
               >
@@ -276,7 +158,7 @@ export const DataOverview = () => {
           </View>
         </View>
 
-        {/* Weight Progress Card - Moved to Bottom */}
+        {/* Weight Progress Card */}
         <View style={dataStyles.weightProgressCard}>
           <View style={dataStyles.progressHeader}>
             <Text style={dataStyles.progressTitle}>Weight Progress</Text>
@@ -293,7 +175,7 @@ export const DataOverview = () => {
               <Text style={dataStyles.weightLabel}>Current</Text>
               <Text style={dataStyles.weightValue}>
                 {profile?.weight || "--"}
-                <Text style={dataStyles.weightUnit}> kg</Text>
+                <Text style={dataStyles.weightUnit}> {WEIGHT_UNIT}</Text>
               </Text>
             </View>
 
@@ -307,7 +189,7 @@ export const DataOverview = () => {
                 />
               </View>
               <Text style={dataStyles.progressPercentage}>
-                {weightDifference} kg to go
+                {weightDifference} {WEIGHT_UNIT} to go
               </Text>
             </View>
 
@@ -315,7 +197,7 @@ export const DataOverview = () => {
               <Text style={dataStyles.weightLabel}>Goal</Text>
               <Text style={dataStyles.weightValue}>
                 {profile?.target_weight || "--"}
-                <Text style={dataStyles.weightUnit}> kg</Text>
+                <Text style={dataStyles.weightUnit}> {WEIGHT_UNIT}</Text>
               </Text>
             </View>
           </View>
@@ -333,23 +215,23 @@ export const DataOverview = () => {
         animationType="fade"
         transparent={true}
         visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
+        onRequestClose={handleCloseModal}
       >
         <View style={dataStyles.modalOverlay}>
           <View style={dataStyles.modalContent}>
             <Text style={dataStyles.modalTitle}>
               {modalType === "current"
-                ? "Log Current Weight"
-                : "Update Goal Weight"}
+                ? MODAL_TITLES.CURRENT
+                : MODAL_TITLES.GOAL}
             </Text>
             <Text style={dataStyles.modalSubtitle}>
               {modalType === "current"
-                ? "Enter your current weight to track your progress"
-                : "Set a new target weight for your fitness journey"}
+                ? MODAL_SUBTITLES.CURRENT
+                : MODAL_SUBTITLES.GOAL}
             </Text>
 
             <View style={dataStyles.inputContainer}>
-              <Text style={dataStyles.inputLabel}>Weight (kg)</Text>
+              <Text style={dataStyles.inputLabel}>Weight ({WEIGHT_UNIT})</Text>
               <TextInput
                 style={[
                   dataStyles.textInput,
@@ -375,7 +257,7 @@ export const DataOverview = () => {
             ) : (
               <View style={dataStyles.buttonContainer}>
                 <TouchableOpacity
-                  onPress={() => setModalVisible(false)}
+                  onPress={handleCloseModal}
                   style={dataStyles.cancelButton}
                   activeOpacity={0.7}
                 >
