@@ -1,60 +1,123 @@
 import { updateGoal } from "@/backend/sendData";
-import { homeStyles } from "@/src/Screens/Home/Home.style";
 import {
-  formstyle,
-  introstyle,
+  COLORS,
+  modernStyles,
+  SPACING,
 } from "@/src/Screens/Onboarding/Onboarding.style";
+import * as Haptics from "expo-haptics";
 import React, { useEffect, useState } from "react";
-import { StatusBar, Text, TouchableOpacity, View } from "react-native";
+import {
+  ScrollView,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-export const FitnessGoal: React.FC = () => {
+interface FitnessGoalProps {
+  onValidationChange?: (isValid: boolean) => void;
+}
+
+export const FitnessGoal: React.FC<FitnessGoalProps> = ({
+  onValidationChange,
+}) => {
   const [goal, setGoal] = useState<string>("");
+
   useEffect(() => {
-    updateGoal(goal);
+    const isValid = goal.length > 0;
+    onValidationChange?.(isValid);
+
+    if (isValid) {
+      updateGoal(goal);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
   }, [goal]);
 
-  const handlePress = (selectedGoal: string) => {
+  const handlePress = async (selectedGoal: string) => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setGoal(selectedGoal);
   };
-  const options = (label: string) => {
-    const isSelected = goal === label;
-    return (
-      <TouchableOpacity
-        style={[
-          formstyle.DataDetails,
-          {
-            backgroundColor: isSelected ? "black" : "white",
-          },
-        ]}
-        onPress={() => handlePress(label)}
-      >
-        <Text
-          style={[
-            formstyle.formText,
-            { color: isSelected ? "white" : "black" },
-          ]}
-        >
-          {label}
-        </Text>
-      </TouchableOpacity>
-    );
-  };
-  console.log(goal);
+
+  const options = [
+    {
+      label: "Gain",
+      icon: "💪",
+      description: "Build muscle mass",
+    },
+    {
+      label: "Maintain",
+      icon: "⚖️",
+      description: "Stay at current weight",
+    },
+    {
+      label: "Lose",
+      icon: "🎯",
+      description: "Healthy weight loss",
+    },
+  ];
+
   return (
-    <View style={formstyle.body}>
-      <StatusBar barStyle="dark-content" backgroundColor="white" />
-      <View>
-        <Text style={homeStyles.logoName}>
-          Choose What is your fitness goal?
-        </Text>
-        <Text style={introstyle.introLine}>
-          This helps us generate a personalize plan for your calories intake.
-        </Text>
-      </View>
-      <View style={formstyle.dataForm}>
-        {options("Gain")}
-        {options("Maintain")}
-        {options("Loose")}
+    <View style={modernStyles.safeArea}>
+      <View style={modernStyles.screenContainer}>
+        <StatusBar
+          barStyle="dark-content"
+          backgroundColor={COLORS.background}
+        />
+        <ScrollView
+          contentContainerStyle={modernStyles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Header */}
+          <View style={{ alignItems: "center" }}>
+            <Text style={modernStyles.headerTitle}>Your Goal</Text>
+            <View style={modernStyles.spacerSmall} />
+            <Text style={modernStyles.subtitleLight}>
+              What would you like to achieve?
+            </Text>
+          </View>
+
+          {/* Options */}
+          <View
+            style={[modernStyles.optionsContainer, { marginTop: SPACING.xxl }]}
+          >
+            {options.map((option) => {
+              const isSelected = goal === option.label;
+              return (
+                <TouchableOpacity
+                  key={option.label}
+                  onPress={() => handlePress(option.label)}
+                  style={[
+                    modernStyles.optionButton,
+                    isSelected && modernStyles.optionButtonSelected,
+                  ]}
+                  activeOpacity={0.7}
+                >
+                  <Text style={modernStyles.optionIconLarge}>
+                    {option.icon}
+                  </Text>
+                  <View style={modernStyles.optionContent}>
+                    <Text
+                      style={[
+                        modernStyles.optionText,
+                        isSelected && modernStyles.optionTextSelected,
+                      ]}
+                    >
+                      {option.label}
+                    </Text>
+                    <Text style={modernStyles.optionDescription}>
+                      {option.description}
+                    </Text>
+                  </View>
+                  {isSelected && (
+                    <View style={modernStyles.optionCheckmark}>
+                      <Text style={modernStyles.checkmarkText}>✓</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </ScrollView>
       </View>
     </View>
   );

@@ -1,147 +1,157 @@
-import { NutritionData, sendImageToAI } from "@/src/utils/sendImageToAI";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import * as FileSystem from "expo-file-system/legacy";
-import * as ImagePicker from "expo-image-picker";
-import React, { useEffect, useState } from "react";
-import { Alert, Image, Text, TouchableOpacity, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import React from "react";
+import {
+  ActivityIndicator,
+  Image,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useImageExamine } from "./ImageExamine.logic";
+import {
+  ImageExamineProps,
+  OPTION_CONFIGS,
+  UI_TEXT,
+} from "./ImageExamine.static";
 import { imageExamineStyles } from "./imageExamine.style";
 
-type Props = {
-  onResult: (data: NutritionData, imageUri: string) => void;
-  onLoading?: (loading: boolean) => void;
-  onClose?: () => void;
-};
-
-export const ImageExamine: React.FC<Props> = ({
-  onResult,
+export const ImageExamine: React.FC<ImageExamineProps> = ({
+  onSuccess,
   onLoading,
   onClose,
 }) => {
-  const [image, setImage] = useState<string | null>(null);
-
-  useEffect(() => {
-    (async () => {
-      const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
-      const mediaStatus =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-      if (!cameraStatus.granted || !mediaStatus.granted) {
-        Alert.alert(
-          "Permission Denied",
-          "Camera and media permission are required"
-        );
-      }
-    })();
-  }, []);
-
-  const handleImage = async (uri: string) => {
-    try {
-      setImage(uri);
-      onLoading?.(true);
-
-      // Read the image file as base64 using the legacy FileSystem API
-      const base64 = await FileSystem.readAsStringAsync(uri, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
-
-      if (!base64) {
-        throw new Error("Failed to read image file");
-      }
-
-      const nutritionData = await sendImageToAI(base64);
-      console.log("AI Nutrition Data:", nutritionData);
-
-      onResult(nutritionData, uri);
-    } catch (err: any) {
-      console.error("Error in handleImage:", err);
-      onLoading?.(false);
-      Alert.alert("Error", err.message || "Failed to process image");
-    }
-  };
-
-  const pickGalleryImage = async () => {
-    try {
-      let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: false,
-        quality: 1,
-      });
-
-      if (!result.canceled && result.assets.length > 0) {
-        await handleImage(result.assets[0].uri);
-      }
-    } catch (err: any) {
-      console.error("Gallery error:", err);
-      Alert.alert("Error", "Failed to pick image from gallery");
-    }
-  };
-
-  const takeCameraPhoto = async () => {
-    try {
-      let result = await ImagePicker.launchCameraAsync({
-        allowsEditing: false,
-        quality: 1,
-      });
-
-      if (!result.canceled && result.assets.length > 0) {
-        await handleImage(result.assets[0].uri);
-      }
-    } catch (err: any) {
-      console.error("Camera error:", err);
-      Alert.alert("Error", "Failed to take photo");
-    }
-  };
+  const {
+    image,
+    processing,
+    cameraPressed,
+    galleryPressed,
+    setCameraPressed,
+    setGalleryPressed,
+    handlePickGalleryImage,
+    handleTakeCameraPhoto,
+    handleRemoveImage,
+  } = useImageExamine({ onSuccess, onLoading, onClose });
 
   return (
     <View style={imageExamineStyles.container}>
+      {/* Camera Option */}
       <TouchableOpacity
-        style={imageExamineStyles.optionButton}
-        onPress={takeCameraPhoto}
+        style={[
+          imageExamineStyles.optionButton,
+          cameraPressed && imageExamineStyles.optionButtonPressed,
+        ]}
+        onPress={handleTakeCameraPhoto}
+        onPressIn={() => setCameraPressed(true)}
+        onPressOut={() => setCameraPressed(false)}
+        activeOpacity={0.7}
+        disabled={processing}
       >
-        <MaterialCommunityIcons
-          name="camera"
-          size={24}
-          color="#007AFF"
-          style={imageExamineStyles.iconSpacing}
-        />
-        <View style={imageExamineStyles.optionTextContainer}>
-          <Text style={imageExamineStyles.optionTitle}>Take a Photo</Text>
-          <Text style={imageExamineStyles.optionSubtitle}>
-            Use your camera to capture the meal
-          </Text>
+        <View
+          style={[
+            imageExamineStyles.iconContainer,
+            imageExamineStyles.cameraIconContainer,
+          ]}
+        >
+          <Ionicons
+            name={OPTION_CONFIGS.CAMERA.icon as any}
+            size={24}
+            color={OPTION_CONFIGS.CAMERA.iconColor}
+          />
         </View>
-        <MaterialCommunityIcons name="chevron-right" size={24} color="#999" />
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={imageExamineStyles.optionButton}
-        onPress={pickGalleryImage}
-      >
-        <MaterialCommunityIcons
-          name="image"
-          size={24}
-          color="#34C759"
-          style={imageExamineStyles.iconSpacing}
-        />
         <View style={imageExamineStyles.optionTextContainer}>
           <Text style={imageExamineStyles.optionTitle}>
-            Upload from Gallery
+            {OPTION_CONFIGS.CAMERA.title}
           </Text>
           <Text style={imageExamineStyles.optionSubtitle}>
-            Choose an existing photo from your device
+            {OPTION_CONFIGS.CAMERA.subtitle}
           </Text>
         </View>
-        <MaterialCommunityIcons name="chevron-right" size={24} color="#999" />
+        <View style={imageExamineStyles.chevronContainer}>
+          <Ionicons
+            name="chevron-forward"
+            size={20}
+            style={imageExamineStyles.chevronIcon}
+          />
+        </View>
       </TouchableOpacity>
 
+      {/* Gallery Option */}
+      <TouchableOpacity
+        style={[
+          imageExamineStyles.optionButton,
+          galleryPressed && imageExamineStyles.optionButtonPressed,
+        ]}
+        onPress={handlePickGalleryImage}
+        onPressIn={() => setGalleryPressed(true)}
+        onPressOut={() => setGalleryPressed(false)}
+        activeOpacity={0.7}
+        disabled={processing}
+      >
+        <View
+          style={[
+            imageExamineStyles.iconContainer,
+            imageExamineStyles.galleryIconContainer,
+          ]}
+        >
+          <Ionicons
+            name={OPTION_CONFIGS.GALLERY.icon as any}
+            size={24}
+            color={OPTION_CONFIGS.GALLERY.iconColor}
+          />
+        </View>
+        <View style={imageExamineStyles.optionTextContainer}>
+          <Text style={imageExamineStyles.optionTitle}>
+            {OPTION_CONFIGS.GALLERY.title}
+          </Text>
+          <Text style={imageExamineStyles.optionSubtitle}>
+            {OPTION_CONFIGS.GALLERY.subtitle}
+          </Text>
+        </View>
+        <View style={imageExamineStyles.chevronContainer}>
+          <Ionicons
+            name="chevron-forward"
+            size={20}
+            style={imageExamineStyles.chevronIcon}
+          />
+        </View>
+      </TouchableOpacity>
+
+      {/* Image Preview */}
       {image && (
         <View style={imageExamineStyles.imagePreviewContainer}>
-          <Text style={imageExamineStyles.previewLabel}>Selected Image</Text>
-          <Image
-            source={{ uri: image }}
-            style={imageExamineStyles.previewImage}
-            resizeMode="cover"
-          />
+          <View style={imageExamineStyles.previewHeader}>
+            <Ionicons name="checkmark-circle" size={20} color="#10B981" />
+            <Text style={imageExamineStyles.previewLabel}>
+              {processing ? UI_TEXT.ANALYZING : UI_TEXT.IMAGE_SELECTED}
+            </Text>
+          </View>
+
+          <View style={imageExamineStyles.previewImageWrapper}>
+            <Image
+              source={{ uri: image }}
+              style={imageExamineStyles.previewImage}
+              resizeMode="cover"
+            />
+
+            {!processing && (
+              <TouchableOpacity
+                style={imageExamineStyles.removeButton}
+                onPress={handleRemoveImage}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="close" size={18} color="#FFFFFF" />
+              </TouchableOpacity>
+            )}
+
+            {processing && (
+              <View style={imageExamineStyles.processingOverlay}>
+                <ActivityIndicator size="large" color="#3B82F6" />
+                <Text style={imageExamineStyles.processingText}>
+                  {UI_TEXT.ANALYZING_NUTRITION}
+                </Text>
+              </View>
+            )}
+          </View>
         </View>
       )}
     </View>

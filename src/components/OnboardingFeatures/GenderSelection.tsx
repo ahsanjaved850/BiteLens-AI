@@ -1,59 +1,94 @@
 import { updateGender } from "@/backend/sendData";
-import { homeStyles } from "@/src/Screens/Home/Home.style";
 import {
-  formstyle,
-  introstyle,
+  COLORS,
+  modernStyles,
+  SPACING,
 } from "@/src/Screens/Onboarding/Onboarding.style";
+import * as Haptics from "expo-haptics";
 import React, { useEffect, useState } from "react";
-import { StatusBar, Text, TouchableOpacity, View } from "react-native";
+import {
+  ScrollView,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-export const GenderSelection: React.FC = () => {
+interface GenderSelectionProps {
+  onValidationChange?: (isValid: boolean) => void;
+}
+
+export const GenderSelection: React.FC<GenderSelectionProps> = ({
+  onValidationChange,
+}) => {
   const [gender, setGender] = useState<string>("");
 
-  const handlePress = (selectedGender: string) => {
+  const handlePress = async (selectedGender: string) => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setGender(selectedGender);
   };
-  useEffect(() => {
-    updateGender(gender);
-  }, [gender]);
-  const options = (label: string) => {
-    const isSelected = gender === label;
-    return (
-      <TouchableOpacity
-        style={[
-          formstyle.DataDetails,
-          {
-            backgroundColor: isSelected ? "black" : "white",
-          },
-        ]}
-        onPress={() => handlePress(label)}
-      >
-        <Text
-          style={[
-            formstyle.formText,
-            { color: isSelected ? "white" : "black" },
-          ]}
-        >
-          {label}
-        </Text>
-      </TouchableOpacity>
-    );
-  };
 
-  console.log(gender);
+  useEffect(() => {
+    const isValid = gender.length > 0;
+    onValidationChange?.(isValid);
+
+    if (isValid) {
+      updateGender(gender);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
+  }, [gender]);
+
+  const options = [{ label: "Male" }, { label: "Female" }, { label: "Other" }];
+
   return (
-    <View style={formstyle.body}>
-      <StatusBar barStyle="dark-content" backgroundColor="white" />
-      <View>
-        <Text style={homeStyles.logoName}>Choose your Gender</Text>
-        <Text style={introstyle.introLine}>
-          This will help us develop the customize plan for you.
-        </Text>
-      </View>
-      <View style={formstyle.dataForm}>
-        {options("Male")}
-        {options("Female")}
-        {options("Others")}
+    <View style={modernStyles.safeArea}>
+      <View style={modernStyles.screenContainer}>
+        <StatusBar
+          barStyle="dark-content"
+          backgroundColor={COLORS.background}
+        />
+        <ScrollView
+          contentContainerStyle={modernStyles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Header */}
+          <View style={{ alignItems: "center" }}>
+            <Text style={modernStyles.headerTitle}>About You</Text>
+            <View style={modernStyles.spacerSmall} />
+            <Text style={modernStyles.subtitleLight}>
+              Help us personalize your experience
+            </Text>
+          </View>
+
+          {/* Options */}
+          <View
+            style={[modernStyles.optionsContainer, { marginTop: SPACING.xxl }]}
+          >
+            {options.map((option) => {
+              const isSelected = gender === option.label;
+              return (
+                <TouchableOpacity
+                  key={option.label}
+                  onPress={() => handlePress(option.label)}
+                  style={[
+                    modernStyles.optionButton,
+                    isSelected && modernStyles.optionButtonSelected,
+                  ]}
+                  activeOpacity={0.7}
+                >
+                  <Text
+                    style={[
+                      modernStyles.optionText,
+                      isSelected && modernStyles.optionTextSelected,
+                    ]}
+                  >
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </ScrollView>
       </View>
     </View>
   );

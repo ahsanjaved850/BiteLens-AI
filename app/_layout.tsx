@@ -1,12 +1,10 @@
-import { getSession } from "@/backend/auth";
 import { useOnboardingDone } from "@/src/utils/onboardingDone";
 import { Stack } from "expo-router";
 import { ActivityIndicator, View } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export default function RootLayout() {
   const onboardingDone = useOnboardingDone();
-  const session = getSession();
-  console.log(session);
 
   console.log(onboardingDone, "from main layout");
 
@@ -20,12 +18,12 @@ export default function RootLayout() {
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      {onboardingDone ? (
-        <Stack.Screen name="tabs" />
-      ) : (
+    <SafeAreaProvider>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
         <Stack.Screen name="auth" />
-      )}
-    </Stack>
+        <Stack.Screen name="tabs" />
+      </Stack>
+    </SafeAreaProvider>
   );
 }

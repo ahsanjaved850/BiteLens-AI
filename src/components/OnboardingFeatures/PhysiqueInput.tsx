@@ -1,90 +1,153 @@
-import { updatePhysique } from "@/backend/sendData";
-import { homeStyles } from "@/src/Screens/Home/Home.style";
+import { updateWeightStats } from "@/backend/sendData";
 import {
-  formstyle,
-  introstyle,
+  COLORS,
+  modernStyles,
+  SPACING,
 } from "@/src/Screens/Onboarding/Onboarding.style";
-import React, { useEffect, useState } from "react";
-import {
-  NativeSyntheticEvent,
-  ScrollView,
-  StatusBar,
-  Text,
-  TextInput,
-  TextInputEndEditingEventData,
-  View,
-} from "react-native";
+import * as Haptics from "expo-haptics";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { ScrollView, StatusBar, Text, TextInput, View } from "react-native";
 
-export const PhysiqueInput: React.FC = () => {
-  const [age, setAge] = useState<string>("");
-  const [height, setHeight] = useState<string>("");
+interface PhysiqueInputProps {
+  onValidationChange?: (isValid: boolean) => void;
+}
+
+export const PhysiqueInput: React.FC<PhysiqueInputProps> = ({
+  onValidationChange,
+}) => {
   const [weight, setWeight] = useState<string>("");
   const [targetWeight, setTargetWeight] = useState<string>("");
+  const [focusedField, setFocusedField] = useState<string>("");
 
+  // Refs for focusing next input
+  const weightRef = useRef<TextInput>(null);
+  const targetWeightRef = useRef<TextInput>(null);
+
+  // Ref to track if we've shown success haptic
+  const hasShownSuccessRef = useRef(false);
+
+  // Calculate validation status - memoized
+  const isValid = useMemo(() => {
+    return weight.trim().length > 0 && targetWeight.trim().length > 0;
+  }, [weight, targetWeight]);
+
+  // Validation effect - ONLY updates parent, no other side effects
   useEffect(() => {
-    updatePhysique(age, height, weight, targetWeight);
-  }, [targetWeight]);
+    onValidationChange?.(isValid);
+  }, [isValid]); // Only depend on isValid, not individual fields
 
-  const handleAge = (e: NativeSyntheticEvent<TextInputEndEditingEventData>) => {
-    setAge(e.nativeEvent.text);
-  };
-  const handleHeight = (
-    e: NativeSyntheticEvent<TextInputEndEditingEventData>
-  ) => {
-    setHeight(e.nativeEvent.text);
-  };
-  const handleWeight = (
-    e: NativeSyntheticEvent<TextInputEndEditingEventData>
-  ) => {
-    setWeight(e.nativeEvent.text);
-  };
-  const handleTargetWeight = (
-    e: NativeSyntheticEvent<TextInputEndEditingEventData>
-  ) => {
-    setTargetWeight(e.nativeEvent.text);
-  };
+  // Save effect - debounced, only when valid
+  useEffect(() => {
+    if (!isValid) {
+      hasShownSuccessRef.current = false;
+      return;
+    }
 
-  console.log(age, height, weight, targetWeight);
+    const saveTimer = setTimeout(() => {
+      try {
+        updateWeightStats(weight, targetWeight);
+
+        // Only show success haptic once
+        if (!hasShownSuccessRef.current) {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          hasShownSuccessRef.current = true;
+        }
+      } catch (error) {
+        console.error("Error saving physique:", error);
+      }
+    }, 1000);
+
+    return () => clearTimeout(saveTimer);
+  }, [weight, targetWeight, isValid]);
+
+  // Memoized handlers to prevent re-creation
+  const handleFocus = useCallback((fieldName: string) => {
+    setFocusedField(fieldName);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  }, []);
+
+  const handleBlur = useCallback(() => {
+    setFocusedField("");
+  }, []);
+
+  const handleWeightSubmit = useCallback(() => {
+    targetWeightRef.current?.focus();
+  }, []);
+
   return (
-    <ScrollView style={formstyle.body}>
-      <StatusBar barStyle="dark-content" backgroundColor="white" />
-      <View>
-        <Text style={homeStyles.logoName}>Write Age, Height & Weight</Text>
-        <Text style={introstyle.introLine}>
-          This will help us to understand about you physique.
-        </Text>
-      </View>
-      <View style={formstyle.dataForm}>
-        <TextInput
-          placeholder="Age (years)"
-          defaultValue={age}
-          onEndEditing={handleAge}
-          keyboardType="numeric"
-          style={formstyle.DataDetails}
+    <View style={modernStyles.safeArea}>
+      <View style={modernStyles.screenContainer}>
+        <StatusBar
+          barStyle="dark-content"
+          backgroundColor={COLORS.background}
         />
-        <TextInput
-          placeholder="Height (cm)"
-          defaultValue={height}
-          onEndEditing={handleHeight}
-          keyboardType="numeric"
-          style={formstyle.DataDetails}
-        />
+        <ScrollView
+          contentContainerStyle={modernStyles.contentContainer}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Header */}
+          <View style={{ alignItems: "center" }}>
+            <Text style={modernStyles.headerTitle}>Your Weight Stats</Text>
+            <Text style={modernStyles.subtitleLight}>
+              Help us create your personalized plan
+            </Text>
+          </View>
 
-        <TextInput
-          placeholder="Weight (kg)"
-          defaultValue={weight}
-          onEndEditing={handleWeight}
-          keyboardType="numeric"
-          style={formstyle.DataDetails}
-        />
-        <TextInput
-          placeholder="Target Weight (kg)"
-          defaultValue={targetWeight}
-          onEndEditing={handleTargetWeight}
-          keyboardType="numeric"
-          style={formstyle.DataDetails}
-        />
+          {/* Form */}
+          <View style={[modernStyles.formContainer, { marginTop: SPACING.xl }]}>
+            {/* Weight Input */}
+            <View style={modernStyles.formGroup}>
+              <Text style={modernStyles.formLabel}>CURRENT WEIGHT</Text>
+              <TextInput
+                ref={weightRef}
+                placeholder="70 kg"
+                value={weight}
+                onChangeText={setWeight}
+                onFocus={() => handleFocus("weight")}
+                onBlur={handleBlur}
+                onSubmitEditing={handleWeightSubmit}
+                keyboardType="numeric"
+                style={[
+                  modernStyles.formInput,
+                  focusedField === "weight" && modernStyles.formInputFocused,
+                ]}
+                placeholderTextColor={COLORS.textLight}
+                returnKeyType="next"
+                blurOnSubmit={false}
+              />
+            </View>
+
+            {/* Target Weight Input */}
+            <View style={modernStyles.formGroup}>
+              <Text style={modernStyles.formLabel}>TARGET WEIGHT</Text>
+              <TextInput
+                ref={targetWeightRef}
+                placeholder="65 kg"
+                value={targetWeight}
+                onChangeText={setTargetWeight}
+                onFocus={() => handleFocus("targetWeight")}
+                onBlur={handleBlur}
+                keyboardType="numeric"
+                style={[
+                  modernStyles.formInput,
+                  focusedField === "targetWeight" &&
+                    modernStyles.formInputFocused,
+                ]}
+                placeholderTextColor={COLORS.textLight}
+                returnKeyType="done"
+                blurOnSubmit={true}
+              />
+            </View>
+          </View>
+        </ScrollView>
       </View>
-    </ScrollView>
+    </View>
   );
 };

@@ -1,101 +1,122 @@
-import { AppIntro } from "@/src/components/OnboardingFeatures/AppIntro";
-import { Completion } from "@/src/components/OnboardingFeatures/Completion";
-import { Demo } from "@/src/components/OnboardingFeatures/Demo";
-import { FitnessGoal } from "@/src/components/OnboardingFeatures/FitnessGoal";
-import { GenderSelection } from "@/src/components/OnboardingFeatures/GenderSelection";
-import { GraphComparison } from "@/src/components/OnboardingFeatures/GraphComparison";
-import { LifeStyle } from "@/src/components/OnboardingFeatures/LifeStyle";
-import { MotivationalSlide } from "@/src/components/OnboardingFeatures/MotivationSlide";
-import { NameAdding } from "@/src/components/OnboardingFeatures/NameAdding";
-import { OtherApps } from "@/src/components/OnboardingFeatures/OtherApps";
-import { PhysiqueInput } from "@/src/components/OnboardingFeatures/PhysiqueInput";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter } from "expo-router";
+import { onboardingStyles } from "@/src/Screens/Onboarding/Onboarding.style";
 import React from "react";
-import Onboarding from "react-native-onboarding-swiper";
+import {
+  Dimensions,
+  FlatList,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useOnboarding } from "./Onboarding.logic";
+import { BUTTON_TEXT, PAGES } from "./Onboarding.static";
+
+const { width } = Dimensions.get("window");
 
 export default function OnboardingScreen() {
-  const router = useRouter();
-  const handleOnDone = async () => {
-    await AsyncStorage.setItem("onboarding_seen", "true");
-    router.replace("/tabs/home");
+  const {
+    currentIndex,
+    flatListRef,
+    isLastPage,
+    isCurrentPageValid,
+    isFirstPage,
+    handleNext,
+    handleBack,
+    handleViewableItemsChanged,
+    viewabilityConfig,
+    handleUpdateValidation,
+  } = useOnboarding();
+
+  const renderItem = ({
+    item,
+    index,
+  }: {
+    item: (typeof PAGES)[0];
+    index: number;
+  }) => {
+    const PageComponent = item.component;
+    return (
+      <View style={{ width }}>
+        <PageComponent
+          onValidationChange={(isValid: boolean) =>
+            handleUpdateValidation(index, isValid)
+          }
+        />
+      </View>
+    );
   };
+
   return (
-    <Onboarding
-      showSkip={false}
-      bottomBarColor="#FAF9F6"
-      bottomBarHeight={50}
-      bottomBarHighlight={false}
-      onDone={handleOnDone}
-      pages={[
-        {
-          backgroundColor: "white",
-          image: <AppIntro />,
-          title: "",
-          subtitle: "",
-        },
-        {
-          backgroundColor: "white",
-          image: <Demo />,
-          title: "",
-          subtitle: "",
-        },
-        {
-          backgroundColor: "white",
-          image: <NameAdding />,
-          title: "",
-          subtitle: "",
-        },
-        {
-          backgroundColor: "white",
-          image: <MotivationalSlide />,
-          title: "",
-          subtitle: "",
-        },
-        {
-          backgroundColor: "white",
-          image: <GenderSelection />,
-          title: "",
-          subtitle: "",
-        },
-        {
-          backgroundColor: "white",
-          image: <OtherApps />,
-          title: "",
-          subtitle: "",
-        },
-        {
-          backgroundColor: "white",
-          image: <GraphComparison />,
-          title: "",
-          subtitle: "",
-        },
-        {
-          backgroundColor: "white",
-          image: <PhysiqueInput />,
-          title: "",
-          subtitle: "",
-        },
-        {
-          backgroundColor: "white",
-          image: <FitnessGoal />,
-          title: "",
-          subtitle: "",
-        },
-        {
-          backgroundColor: "white",
-          image: <LifeStyle />,
-          title: "",
-          subtitle: "",
-        },
-        {
-          backgroundColor: "white",
-          image: <Completion />,
-          title: "",
-          subtitle: "",
-        },
-      ]}
-      {...({ scrollEnabled: false } as any)}
-    />
+    <SafeAreaView style={onboardingStyles.container} edges={["top", "bottom"]}>
+      {/* Top Bar with Back Button and Dots */}
+      <View style={onboardingStyles.topBar}>
+        {/* Back Button */}
+        <TouchableOpacity
+          onPress={handleBack}
+          style={[
+            onboardingStyles.backButton,
+            isFirstPage && onboardingStyles.backButtonHidden,
+          ]}
+          disabled={isFirstPage}
+          activeOpacity={0.7}
+        >
+          <Text style={onboardingStyles.backButtonText}>
+            {BUTTON_TEXT.BACK}
+          </Text>
+        </TouchableOpacity>
+
+        {/* Dots Indicator */}
+        <View style={onboardingStyles.dotsContainer}>
+          {PAGES.map((_, index) => (
+            <View
+              key={index}
+              style={[
+                onboardingStyles.dot,
+                index === currentIndex
+                  ? onboardingStyles.dotActive
+                  : onboardingStyles.dotInactive,
+              ]}
+            />
+          ))}
+        </View>
+      </View>
+
+      {/* Content */}
+      <FlatList
+        ref={flatListRef}
+        data={PAGES}
+        renderItem={renderItem}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        keyExtractor={(item) => item.key}
+        onViewableItemsChanged={handleViewableItemsChanged}
+        viewabilityConfig={viewabilityConfig}
+        scrollEnabled={false}
+      />
+
+      {/* Bottom Bar with Next Button */}
+      <View style={onboardingStyles.bottomBar}>
+        <TouchableOpacity
+          onPress={handleNext}
+          style={[
+            onboardingStyles.nextButton,
+            isLastPage && onboardingStyles.doneButton,
+            !isCurrentPageValid && onboardingStyles.buttonDisabled,
+          ]}
+          disabled={!isCurrentPageValid}
+          activeOpacity={0.8}
+        >
+          <Text
+            style={[
+              onboardingStyles.buttonText,
+              !isCurrentPageValid && onboardingStyles.buttonTextDisabled,
+            ]}
+          >
+            {isLastPage ? BUTTON_TEXT.GET_STARTED : BUTTON_TEXT.NEXT}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 }
