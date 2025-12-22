@@ -269,26 +269,27 @@ export const homeStyles = StyleSheet.create({
     color: "#3B82F6",
   },
 
-  // Meal Item Card
+  // Meal Item Card - Compact with Small Image on Left
   mealItem: {
     backgroundColor: "#FFFFFF",
     borderRadius: 16,
     marginBottom: 12,
     overflow: "hidden",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 3,
   },
-  mealItemHeader: {
+  mealItemContent: {
     flexDirection: "row",
-    alignItems: "center",
     padding: 14,
   },
+
+  // Small Image on Left
   mealImageContainer: {
-    width: 72,
-    height: 72,
+    width: 80,
+    height: 80,
     borderRadius: 12,
     marginRight: 14,
     overflow: "hidden",
@@ -306,82 +307,51 @@ export const homeStyles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  mealHeaderInfo: {
+
+  // Content on Right
+  mealInfo: {
     flex: 1,
     justifyContent: "center",
   },
   mealTime: {
-    fontSize: 10,
+    fontSize: 11,
     color: "#999",
     fontWeight: "500",
     marginBottom: 4,
   },
   mealName: {
-    fontSize: 14,
-    color: "#181818ff",
+    fontSize: 16,
+    color: "#1A1A1A",
     fontWeight: "700",
-    marginTop: 4,
+    marginBottom: 4,
+    letterSpacing: -0.2,
   },
   mealCalories: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#1A1A1A",
-    marginBottom: 2,
-  },
-  mealCalorieLabel: {
-    fontSize: 12,
-    color: "#666",
-    fontWeight: "500",
-  },
-  expandButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "#F5F5F5",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  mealArrow: {
-    fontSize: 16,
-    color: "#666",
+    fontSize: 14,
     fontWeight: "600",
+    color: "#EF4444",
+    marginBottom: 8,
   },
 
-  // Meal Details
-  mealDetailsContainer: {
-    backgroundColor: "#FAFAFA",
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    borderTopWidth: 1,
-    borderTopColor: "#F0F0F0",
-  },
-  macroGrid: {
+  // Macros in Horizontal Line
+  macrosInline: {
     flexDirection: "row",
-    gap: 8,
-  },
-  macroDetailCard: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 10,
-    padding: 10,
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#F0F0F0",
+    gap: 12,
+    flexWrap: "wrap",
   },
-  macroDetailLabel: {
-    fontSize: 11,
-    color: "#999",
-    fontWeight: "600",
-    marginBottom: 4,
-    textTransform: "uppercase",
+  macroInlineItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
   },
-  macroDetailValue: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#1A1A1A",
+  macroDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
-  macroDetailUnit: {
-    fontSize: 11,
+  macroInlineText: {
+    fontSize: 12,
     color: "#666",
     fontWeight: "500",
   },

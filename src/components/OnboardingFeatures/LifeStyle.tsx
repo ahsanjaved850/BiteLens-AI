@@ -4,7 +4,7 @@ import {
   SPACING,
 } from "@/src/Screens/Onboarding/Onboarding.style";
 import * as Haptics from "expo-haptics";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ScrollView,
   StatusBar,
@@ -17,20 +17,12 @@ interface LifeStyleProps {
   onValidationChange?: (isValid: boolean) => void;
 }
 
-export const LifeStyle: React.FC<LifeStyleProps> = ({ onValidationChange }) => {
-  const [lifeStyle, setLifeStyle] = useState<string>("");
-
-  useEffect(() => {
-    const isValid = lifeStyle.length > 0;
-    onValidationChange?.(isValid);
-  }, [lifeStyle]);
-
-  const handlePress = async (selectedOption: string) => {
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    setLifeStyle(selectedOption);
-  };
-
-  const options = [
+const CONTENT = {
+  header: {
+    title: "Your Motivation",
+    subtitle: "What matters most to you?",
+  },
+  options: [
     {
       label: "Eat and live healthier",
       icon: "🥗",
@@ -46,7 +38,21 @@ export const LifeStyle: React.FC<LifeStyleProps> = ({ onValidationChange }) => {
       icon: "🎯",
       description: "Maintain healthy habits",
     },
-  ];
+  ],
+} as const;
+
+export const LifeStyle: React.FC<LifeStyleProps> = ({ onValidationChange }) => {
+  const [lifeStyle, setLifeStyle] = useState<string>("");
+
+  useEffect(() => {
+    const isValid = lifeStyle.length > 0;
+    onValidationChange?.(isValid);
+  }, [lifeStyle, onValidationChange]);
+
+  const handlePress = useCallback(async (selectedOption: string) => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setLifeStyle(selectedOption);
+  }, []);
 
   return (
     <View style={modernStyles.safeArea}>
@@ -61,10 +67,10 @@ export const LifeStyle: React.FC<LifeStyleProps> = ({ onValidationChange }) => {
         >
           {/* Header */}
           <View style={{ alignItems: "center" }}>
-            <Text style={modernStyles.headerTitle}>Your Motivation</Text>
+            <Text style={modernStyles.headerTitle}>{CONTENT.header.title}</Text>
             <View style={modernStyles.spacerSmall} />
             <Text style={modernStyles.subtitleLight}>
-              What matters most to you?
+              {CONTENT.header.subtitle}
             </Text>
           </View>
 
@@ -72,7 +78,7 @@ export const LifeStyle: React.FC<LifeStyleProps> = ({ onValidationChange }) => {
           <View
             style={[modernStyles.optionsContainer, { marginTop: SPACING.xxl }]}
           >
-            {options.map((option) => {
+            {CONTENT.options.map((option) => {
               const isSelected = lifeStyle === option.label;
               return (
                 <TouchableOpacity

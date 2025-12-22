@@ -30,7 +30,7 @@ export const Setting = (): JSX.Element => {
   } = useSetting();
 
   return (
-    <SafeAreaView style={settingStyles.container}>
+    <SafeAreaView style={settingStyles.container} edges={["top"]}>
       <View style={settingStyles.headerContainer}>
         <Text style={settingStyles.headerTitle}>Settings</Text>
       </View>

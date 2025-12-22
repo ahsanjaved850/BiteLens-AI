@@ -12,6 +12,23 @@ interface NameAddingProps {
   onValidationChange?: (isValid: boolean) => void;
 }
 
+const CONTENT = {
+  emoji: "👋",
+  header: {
+    title: "Nice to meet you!",
+    subtitle: "What should we call you?",
+  },
+  input: {
+    placeholder: "Enter your name",
+  },
+} as const;
+
+const VALIDATION = {
+  minLength: 2,
+  maxLength: 50,
+  debounceMs: 800,
+} as const;
+
 export const NameAdding: React.FC<NameAddingProps> = ({
   onValidationChange,
 }) => {
@@ -21,29 +38,27 @@ export const NameAdding: React.FC<NameAddingProps> = ({
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const lastSubmittedNameRef = useRef<string>("");
 
-  // Validate name format
   const isValidName = useCallback((value: string): boolean => {
     const trimmed = value.trim();
-    return trimmed.length >= 2 && trimmed.length <= 50;
+    return (
+      trimmed.length >= VALIDATION.minLength &&
+      trimmed.length <= VALIDATION.maxLength
+    );
   }, []);
 
-  // Update validation state only
   useEffect(() => {
     const isValid = isValidName(name);
     onValidationChange?.(isValid);
   }, [name, isValidName, onValidationChange]);
 
-  // Debounced API call
   const submitNameToBackend = useCallback(
     async (nameToSubmit: string) => {
       const trimmedName = nameToSubmit.trim();
 
-      // Avoid duplicate submissions
-      if (trimmedName === lastSubmittedNameRef.current) {
-        return;
-      }
-
-      if (!isValidName(trimmedName)) {
+      if (
+        trimmedName === lastSubmittedNameRef.current ||
+        !isValidName(trimmedName)
+      ) {
         return;
       }
 
@@ -57,7 +72,6 @@ export const NameAdding: React.FC<NameAddingProps> = ({
       } catch (error) {
         console.error("Failed to update name:", error);
         await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-        // Optionally: show error message to user
       } finally {
         setIsSubmitting(false);
       }
@@ -65,34 +79,28 @@ export const NameAdding: React.FC<NameAddingProps> = ({
     [isValidName]
   );
 
-  // Handle text changes with debouncing
   const handleTextChange = useCallback(
     (text: string) => {
       setName(text);
 
-      // Clear existing timer
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }
 
-      // Set new timer for debounced API call
       debounceTimerRef.current = setTimeout(() => {
         submitNameToBackend(text);
-      }, 800); // Wait 800ms after user stops typing
+      }, VALIDATION.debounceMs);
     },
     [submitNameToBackend]
   );
 
-  // Handle blur event - immediate submission
   const handleBlur = useCallback(() => {
     setIsFocused(false);
 
-    // Clear debounce timer
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
     }
 
-    // Submit immediately on blur
     if (name.trim()) {
       submitNameToBackend(name);
     }
@@ -103,7 +111,6 @@ export const NameAdding: React.FC<NameAddingProps> = ({
     setIsFocused(true);
   }, []);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (debounceTimerRef.current) {
@@ -125,15 +132,15 @@ export const NameAdding: React.FC<NameAddingProps> = ({
         >
           {/* Welcome Emoji */}
           <View style={{ alignItems: "center" }}>
-            <Text style={modernStyles.emojiLarge}>👋</Text>
+            <Text style={modernStyles.emojiLarge}>{CONTENT.emoji}</Text>
           </View>
 
           {/* Header */}
           <View style={{ alignItems: "center", marginTop: SPACING.md }}>
-            <Text style={modernStyles.headerTitle}>Nice to meet you!</Text>
+            <Text style={modernStyles.headerTitle}>{CONTENT.header.title}</Text>
             <View style={modernStyles.spacerSmall} />
             <Text style={modernStyles.subtitleLight}>
-              What should we call you?
+              {CONTENT.header.subtitle}
             </Text>
           </View>
 
@@ -142,7 +149,7 @@ export const NameAdding: React.FC<NameAddingProps> = ({
             style={[modernStyles.inputContainer, { marginTop: SPACING.xxl }]}
           >
             <TextInput
-              placeholder="Enter your name"
+              placeholder={CONTENT.input.placeholder}
               value={name}
               onChangeText={handleTextChange}
               onFocus={handleFocus}

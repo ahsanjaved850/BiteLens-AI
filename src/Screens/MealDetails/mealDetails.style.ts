@@ -102,7 +102,7 @@ export const mealDetailStyles = StyleSheet.create({
   caloriesCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#E0E7FF",
+    backgroundColor: "#ecedf1ff",
     marginHorizontal: 16,
     marginBottom: 12,
     padding: 16,
@@ -116,7 +116,7 @@ export const mealDetailStyles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
-    shadowColor: "#6366F1",
+    shadowColor: "#ffffffff",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.12,
     shadowRadius: 6,
@@ -128,7 +128,7 @@ export const mealDetailStyles = StyleSheet.create({
   caloriesLabel: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#4F46E5",
+    color: "#2c2c2cff",
     textTransform: "uppercase",
     letterSpacing: 0.6,
     marginBottom: 4,

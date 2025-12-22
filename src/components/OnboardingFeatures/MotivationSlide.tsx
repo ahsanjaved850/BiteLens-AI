@@ -6,6 +6,12 @@ import {
 import React from "react";
 import { Image, ScrollView, StatusBar, Text, View } from "react-native";
 
+const CONTENT = {
+  title: "Healthy Step Towards Cause",
+  subtitle: "Veganism is a promise to live gently and spare lives..",
+  image: require("@/assets/images/motivation.png"),
+} as const;
+
 export const MotivationalSlide: React.FC = () => {
   return (
     <View style={modernStyles.safeArea}>
@@ -20,18 +26,14 @@ export const MotivationalSlide: React.FC = () => {
         >
           {/* Header Section */}
           <View style={{ alignItems: "center", marginTop: SPACING.md }}>
-            <Text style={modernStyles.headerTitleLarge}>
-              Healthy Step Towards Cause
-            </Text>
-
-            <Text style={modernStyles.subtitleLight}>
-              Veganism is a promise to live gently and spare lives..
-            </Text>
+            <Text style={modernStyles.headerTitleLarge}>{CONTENT.title}</Text>
+            <Text style={modernStyles.subtitleLight}>{CONTENT.subtitle}</Text>
           </View>
+
           {/* Main Image */}
           <View style={[modernStyles.imagemedium, { marginTop: SPACING.xl }]}>
             <Image
-              source={require("@/assets/images/motivation.png")}
+              source={CONTENT.image}
               style={modernStyles.image}
               resizeMode="cover"
             />

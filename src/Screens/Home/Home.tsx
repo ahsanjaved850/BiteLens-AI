@@ -5,6 +5,7 @@ import {
   ActivityIndicator,
   Image,
   Modal,
+  RefreshControl,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -24,12 +25,10 @@ export const Home = () => {
     initialDetails,
     meals,
     todayNutrition,
-    expandedMeals,
     handleRefresh,
     handleAddMealPress,
     handleModalClose,
     handleMealSuccess,
-    handleToggleMealExpansion,
     handleMealPress,
     formatFullDateTime,
     getProgressColor,
@@ -71,35 +70,44 @@ export const Home = () => {
 
   if (loading) {
     return (
-      <SafeAreaView style={homeStyles.container}>
+      <View style={homeStyles.container}>
         <View style={homeStyles.loadingOverlay}>
           <View style={homeStyles.loadingContainer}>
             <ActivityIndicator size="large" color="#3B82F6" />
             <Text style={homeStyles.loadingText}>Loading...</Text>
           </View>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={homeStyles.container}>
+    <SafeAreaView style={homeStyles.container} edges={["top"]}>
+      <View style={homeStyles.headerContainer}>
+        <View style={homeStyles.headerRow}>
+          <View style={homeStyles.logoContainer}>
+            <View style={homeStyles.logo}>
+              <Ionicons name="nutrition" size={24} color="#3B82F6" />
+            </View>
+            <Text style={homeStyles.logoName}>NutriTrack</Text>
+          </View>
+        </View>
+      </View>
       <ScrollView
         style={homeStyles.body}
         contentContainerStyle={homeStyles.contentContainer}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor="#3B82F6"
+            colors={["#3B82F6"]}
+          />
+        }
         showsVerticalScrollIndicator={false}
       >
         {/* Header Section */}
-        <View style={homeStyles.headerContainer}>
-          <View style={homeStyles.headerRow}>
-            <View style={homeStyles.logoContainer}>
-              <View style={homeStyles.logo}>
-                <Ionicons name="nutrition" size={24} color="#3B82F6" />
-              </View>
-              <Text style={homeStyles.logoName}>NutriTrack</Text>
-            </View>
-          </View>
-        </View>
+
         {/* Daily Summary Card */}
         <View style={homeStyles.dailySummaryCard}>
           <View style={homeStyles.summaryHeader}>
@@ -189,9 +197,6 @@ export const Home = () => {
         <View style={homeStyles.mealHistorySection}>
           <View style={homeStyles.sectionHeader}>
             <Text style={homeStyles.sectionTitle}>Recent Meals</Text>
-            <TouchableOpacity activeOpacity={0.7}>
-              <Text style={homeStyles.viewAllButton}>View All</Text>
-            </TouchableOpacity>
           </View>
 
           {meals.length === 0 ? (
@@ -204,7 +209,6 @@ export const Home = () => {
             </View>
           ) : (
             meals.map((meal) => {
-              const isExpanded = expandedMeals.has(meal.id!);
               return (
                 <TouchableOpacity
                   key={meal.id}
@@ -212,7 +216,8 @@ export const Home = () => {
                   onPress={() => handleMealPress(meal)}
                   activeOpacity={0.7}
                 >
-                  <View style={homeStyles.mealItemHeader}>
+                  <View style={homeStyles.mealItemContent}>
+                    {/* Small Image on Left */}
                     <View style={homeStyles.mealImageContainer}>
                       {meal.meal_image ? (
                         <Image
@@ -221,71 +226,68 @@ export const Home = () => {
                         />
                       ) : (
                         <View style={homeStyles.mealPlaceholder}>
-                          <Ionicons name="image" size={32} color="#999" />
+                          <Ionicons name="restaurant" size={32} color="#999" />
                         </View>
                       )}
                     </View>
 
-                    <View style={homeStyles.mealHeaderInfo}>
+                    {/* Content on Right */}
+                    <View style={homeStyles.mealInfo}>
+                      {/* Date */}
                       <Text style={homeStyles.mealTime}>
                         {meal.created_at
                           ? formatFullDateTime(meal.created_at)
                           : "Unknown time"}
                       </Text>
+
+                      {/* Meal Name */}
                       <Text style={homeStyles.mealName}>{meal.name}</Text>
+
+                      {/* Calories */}
                       <Text style={homeStyles.mealCalories}>
-                        {Math.round(meal.calories)}
-                        <Text style={homeStyles.mealCalorieLabel}>
-                          {" calories"}
-                        </Text>
+                        {Math.round(meal.calories)} kcal
                       </Text>
-                    </View>
 
-                    <TouchableOpacity
-                      style={homeStyles.expandButton}
-                      onPress={(e) => {
-                        e.stopPropagation();
-                        handleToggleMealExpansion(meal.id!);
-                      }}
-                      activeOpacity={0.7}
-                    >
-                      <Text style={homeStyles.mealArrow}>
-                        {isExpanded ? "−" : "+"}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-
-                  {isExpanded && (
-                    <View style={homeStyles.mealDetailsContainer}>
-                      <View style={homeStyles.macroGrid}>
-                        <View style={homeStyles.macroDetailCard}>
-                          <Text style={homeStyles.macroDetailLabel}>
-                            PROTEIN
+                      {/* Macros in Horizontal Line */}
+                      <View style={homeStyles.macrosInline}>
+                        <View style={homeStyles.macroInlineItem}>
+                          <View
+                            style={[
+                              homeStyles.macroDot,
+                              { backgroundColor: "#EF4444" },
+                            ]}
+                          />
+                          <Text style={homeStyles.macroInlineText}>
+                            {Math.round(meal.protein)}g protein
                           </Text>
-                          <Text style={homeStyles.macroDetailValue}>
-                            {Math.round(meal.protein)}
-                          </Text>
-                          <Text style={homeStyles.macroDetailUnit}>grams</Text>
                         </View>
 
-                        <View style={homeStyles.macroDetailCard}>
-                          <Text style={homeStyles.macroDetailLabel}>CARBS</Text>
-                          <Text style={homeStyles.macroDetailValue}>
-                            {Math.round(meal.carbs)}
+                        <View style={homeStyles.macroInlineItem}>
+                          <View
+                            style={[
+                              homeStyles.macroDot,
+                              { backgroundColor: "#3B82F6" },
+                            ]}
+                          />
+                          <Text style={homeStyles.macroInlineText}>
+                            {Math.round(meal.carbs)}g carbs
                           </Text>
-                          <Text style={homeStyles.macroDetailUnit}>grams</Text>
                         </View>
 
-                        <View style={homeStyles.macroDetailCard}>
-                          <Text style={homeStyles.macroDetailLabel}>FATS</Text>
-                          <Text style={homeStyles.macroDetailValue}>
-                            {Math.round(meal.fat)}
+                        <View style={homeStyles.macroInlineItem}>
+                          <View
+                            style={[
+                              homeStyles.macroDot,
+                              { backgroundColor: "#F59E0B" },
+                            ]}
+                          />
+                          <Text style={homeStyles.macroInlineText}>
+                            {Math.round(meal.fat)}g fats
                           </Text>
-                          <Text style={homeStyles.macroDetailUnit}>grams</Text>
                         </View>
                       </View>
                     </View>
-                  )}
+                  </View>
                 </TouchableOpacity>
               );
             })
@@ -298,10 +300,19 @@ export const Home = () => {
         visible={modalVisible}
         animationType="slide"
         transparent={true}
-        onRequestClose={handleModalClose}
+        onRequestClose={loadingAI ? undefined : handleModalClose}
       >
-        <View style={homeStyles.modalOverlay}>
-          <View style={homeStyles.modalContent}>
+        <TouchableOpacity
+          style={homeStyles.modalOverlay}
+          activeOpacity={1}
+          onPress={loadingAI ? undefined : handleModalClose}
+          disabled={loadingAI}
+        >
+          <TouchableOpacity
+            style={homeStyles.modalContent}
+            activeOpacity={1}
+            onPress={(e) => e.stopPropagation()}
+          >
             <View style={homeStyles.modalHandle}>
               <View style={homeStyles.modalHandleBar} />
             </View>
@@ -323,12 +334,12 @@ export const Home = () => {
                 <Text style={homeStyles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
             </View>
-          </View>
-        </View>
+          </TouchableOpacity>
+        </TouchableOpacity>
       </Modal>
 
-      {/* Loading Overlay */}
-      {loadingAI && (
+      {/* Loading Overlay - Only show when modal is closed */}
+      {loadingAI && !modalVisible && (
         <View style={homeStyles.loadingOverlay}>
           <View style={homeStyles.loadingContainer}>
             <ActivityIndicator size="large" color="#3B82F6" />
