@@ -42,7 +42,7 @@ export const DataOverview = () => {
   }
 
   return (
-    <SafeAreaView style={dataStyles.container}>
+    <SafeAreaView style={dataStyles.container} edges={["top"]}>
       <View style={dataStyles.headerContainer}>
         <Text style={dataStyles.headerTitle}>Overview</Text>
       </View>

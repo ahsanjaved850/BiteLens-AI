@@ -32,7 +32,23 @@ serve(async (req: any) => {
     const { weight, height, age, targetWeight, gender, goal } =
       await req.json();
 
-    if (!weight || !height || !age || !targetWeight || !gender || !goal) {
+    // Better validation - check if values exist (allow 0)
+    if (
+      weight == null ||
+      height == null ||
+      age == null ||
+      targetWeight == null ||
+      !gender ||
+      !goal
+    ) {
+      console.error("Missing fields:", {
+        weight,
+        height,
+        age,
+        targetWeight,
+        gender,
+        goal,
+      });
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
         {
@@ -41,6 +57,15 @@ serve(async (req: any) => {
         }
       );
     }
+
+    console.log("Received data:", {
+      weight,
+      height,
+      age,
+      targetWeight,
+      gender,
+      goal,
+    });
 
     // Call OpenAI API
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -54,29 +79,21 @@ serve(async (req: any) => {
         messages: [
           {
             role: "user",
-            content: `Estimate the daily calories and macronutrients (carbs, protein, fats) a person requires based on the following data:
-            Weight: ${weight} kg,
-            Height: ${height} cm,
-            Age: ${age} years,
-            TargetWeight: ${targetWeight} kg,
-            Goal: ${goal},
-            Gender: ${gender}.
-            Also, calculate the BMI. Based on BMI, indicate the category (e.g., underweight, normal, overweight, obese).
+            content: `Calculate daily nutritional requirements for:
+Weight: ${weight}kg, Height: ${height}cm, Age: ${age}y, Target: ${targetWeight}kg, Goal: ${goal}, Gender: ${gender}
 
-            Return ONLY a valid JSON object in the following format (NO markdown, NO explanations):
-            {
-              "BMI": "24.5",
-              "Category": "Normal",
-              "calories": "2000",
-              "protein": "150",
-              "carbs": "250",
-              "fat": "67",
-              "sugar": "50",
-              "sodium": "2300",
-              "fiber": "30"
-            }
-
-            Use only numbers in values, no units.`,
+Return ONLY this JSON (no markdown):
+{
+  "BMI": "24.5",
+  "Category": "Normal",
+  "calories": "2000",
+  "protein": "150",
+  "carbs": "250",
+  "fat": "67",
+  "sugar": "50",
+  "sodium": "2300",
+  "fiber": "30"
+}`,
           },
         ],
         max_tokens: 200,
@@ -87,29 +104,49 @@ serve(async (req: any) => {
     if (!response.ok) {
       const error = await response.text();
       console.error("OpenAI API Error:", error);
-      throw new Error(`OpenAI API Error: ${response.status}`);
+      return new Response(
+        JSON.stringify({ error: `OpenAI API failed: ${response.status}` }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
 
     const data = await response.json();
     const content = data.choices[0]?.message?.content;
 
     if (!content) {
-      throw new Error("No content received from OpenAI");
+      throw new Error("No content from OpenAI");
     }
 
-    // Clean the response
-    let cleanedContent = content.trim();
-    cleanedContent = cleanedContent.replace(/```json\n?/g, "");
-    cleanedContent = cleanedContent.replace(/```\n?/g, "");
-    cleanedContent = cleanedContent.replace(/^```/gm, "");
-    cleanedContent = cleanedContent.replace(/`/g, "");
-    cleanedContent = cleanedContent.trim();
+    // Clean response
+    let cleanedContent = content
+      .trim()
+      .replace(/```json\n?/g, "")
+      .replace(/```\n?/g, "")
+      .replace(/^```/gm, "")
+      .replace(/`/g, "")
+      .trim();
 
     console.log("Cleaned content:", cleanedContent);
 
-    const parsed = JSON.parse(cleanedContent);
+    let parsed;
+    try {
+      parsed = JSON.parse(cleanedContent);
+    } catch (parseError) {
+      console.error("JSON parse error:", parseError);
+      console.error("Content was:", cleanedContent);
+      return new Response(
+        JSON.stringify({ error: "Failed to parse AI response" }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
 
-    // Get the current user
+    // Get user
     const {
       data: { user },
       error: userError,
@@ -117,44 +154,60 @@ serve(async (req: any) => {
 
     if (userError || !user) {
       console.error("User error:", userError);
-      throw new Error("User not authenticated");
+      return new Response(JSON.stringify({ error: "Not authenticated" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    console.log("User ID:", user.id); // Debug log
+    console.log("Saving for user:", user.id);
 
     // Save to database
     const { data: savedData, error: dbError } = await supabaseClient
       .from("initial_details")
-      .upsert({
-        id: user.id,
-        protein: parsed.protein ? Number(parsed.protein) : null,
-        carbs: parsed.carbs ? Number(parsed.carbs) : null,
-        fat: parsed.fat ? Number(parsed.fat) : null,
-        sodium: parsed.sodium ? Number(parsed.sodium) : null,
-        sugar: parsed.sugar ? Number(parsed.sugar) : null,
-        fiber: parsed.fiber ? Number(parsed.fiber) : null,
-        calories: parsed.calories ? Number(parsed.calories) : null,
-        bmi: parsed.BMI ? String(parsed.BMI) : null,
-        bmi_category: parsed.Category ? String(parsed.Category) : null,
-      })
+      .upsert(
+        {
+          id: user.id,
+          protein: parsed.protein ? Number(parsed.protein) : null,
+          carbs: parsed.carbs ? Number(parsed.carbs) : null,
+          fat: parsed.fat ? Number(parsed.fat) : null,
+          sodium: parsed.sodium ? Number(parsed.sodium) : null,
+          sugar: parsed.sugar ? Number(parsed.sugar) : null,
+          fiber: parsed.fiber ? Number(parsed.fiber) : null,
+          calories: parsed.calories ? Number(parsed.calories) : null,
+          bmi: parsed.BMI ? String(parsed.BMI) : null,
+          bmi_category: parsed.Category ? String(parsed.Category) : null,
+        },
+        { onConflict: "id" }
+      )
       .select()
       .single();
 
     if (dbError) {
       console.error("Database error:", dbError);
-      throw new Error(`Database error: ${dbError.message}`);
+      return new Response(
+        JSON.stringify({ error: `Database error: ${dbError.message}` }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
 
-    console.log("Data saved successfully:", savedData);
+    console.log("Success! Saved data");
 
     return new Response(JSON.stringify(savedData), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 200,
     });
   } catch (error: any) {
-    console.error("Error:", error.message);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    console.error("Unhandled error:", error);
+    return new Response(
+      JSON.stringify({ error: error.message || "Unknown error" }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
+    );
   }
 });

@@ -7,8 +7,7 @@ import { MACROS_CONFIG, SECTION_TITLES, UI_TEXT } from "./MealDetails.static";
 import { mealDetailStyles } from "./mealDetails.style";
 
 export const MealDetails = () => {
-  const { meal, deleting, handleBack, handleDelete, formatTime, getNutrients } =
-    useMealDetails();
+  const { meal, handleBack, formatTime, getNutrients } = useMealDetails();
 
   if (!meal) {
     return (
@@ -32,21 +31,12 @@ export const MealDetails = () => {
           style={mealDetailStyles.backButton}
           onPress={handleBack}
           activeOpacity={0.7}
-          disabled={deleting}
         >
           <Ionicons name="arrow-back" size={24} color="#1E293B" />
         </TouchableOpacity>
         <Text style={mealDetailStyles.headerTitle}>
           {SECTION_TITLES.MEAL_DETAILS}
         </Text>
-        <TouchableOpacity
-          style={mealDetailStyles.deleteButton}
-          onPress={handleDelete}
-          activeOpacity={0.7}
-          disabled={deleting}
-        >
-          <Ionicons name="trash-outline" size={22} color="#EF4444" />
-        </TouchableOpacity>
       </View>
 
       <ScrollView
@@ -82,7 +72,7 @@ export const MealDetails = () => {
         {/* Calories Card */}
         <View style={mealDetailStyles.caloriesCard}>
           <View style={mealDetailStyles.caloriesIconContainer}>
-            <Ionicons name="flame" size={32} color="#6366F1" />
+            <Ionicons name="flame" size={32} color="#fe0c0c" />
           </View>
           <View style={mealDetailStyles.caloriesInfo}>
             <Text style={mealDetailStyles.caloriesLabel}>
@@ -165,7 +155,6 @@ export const MealDetails = () => {
         {/* Ingredients Section */}
         <View style={mealDetailStyles.section}>
           <View style={mealDetailStyles.ingredientsHeader}>
-            <Ionicons name="list" size={22} color="#6366F1" />
             <Text style={mealDetailStyles.sectionTitle}>
               {SECTION_TITLES.INGREDIENTS}
             </Text>
@@ -186,16 +175,6 @@ export const MealDetails = () => {
               </Text>
             )}
           </View>
-        </View>
-
-        {/* AI Notice */}
-        <View style={mealDetailStyles.aiNotice}>
-          <Ionicons
-            name="information-circle-outline"
-            size={18}
-            color="#6366F1"
-          />
-          <Text style={mealDetailStyles.aiNoticeText}>{UI_TEXT.AI_NOTICE}</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

@@ -4,7 +4,7 @@ import {
   SPACING,
 } from "@/src/Screens/Onboarding/Onboarding.style";
 import * as Haptics from "expo-haptics";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ScrollView,
   StatusBar,
@@ -17,20 +17,12 @@ interface OtherAppsProps {
   onValidationChange?: (isValid: boolean) => void;
 }
 
-export const OtherApps: React.FC<OtherAppsProps> = ({ onValidationChange }) => {
-  const [oldUser, setOldUser] = useState<string>("");
-
-  useEffect(() => {
-    const isValid = oldUser.length > 0;
-    onValidationChange?.(isValid);
-  }, [oldUser]);
-
-  const handlePress = async (selectedOption: string) => {
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    setOldUser(selectedOption);
-  };
-
-  const options = [
+const CONTENT = {
+  header: {
+    title: "Your Experience",
+    subtitle: "Have you used nutrition tracking\napps before?",
+  },
+  options: [
     {
       label: "Yes",
       icon: "✅",
@@ -41,7 +33,21 @@ export const OtherApps: React.FC<OtherAppsProps> = ({ onValidationChange }) => {
       icon: "🆕",
       description: "This is my first time",
     },
-  ];
+  ],
+} as const;
+
+export const OtherApps: React.FC<OtherAppsProps> = ({ onValidationChange }) => {
+  const [oldUser, setOldUser] = useState<string>("");
+
+  useEffect(() => {
+    const isValid = oldUser.length > 0;
+    onValidationChange?.(isValid);
+  }, [oldUser, onValidationChange]);
+
+  const handlePress = useCallback(async (selectedOption: string) => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setOldUser(selectedOption);
+  }, []);
 
   return (
     <View style={modernStyles.safeArea}>
@@ -56,10 +62,10 @@ export const OtherApps: React.FC<OtherAppsProps> = ({ onValidationChange }) => {
         >
           {/* Header */}
           <View style={{ alignItems: "center" }}>
-            <Text style={modernStyles.headerTitle}>Your Experience</Text>
+            <Text style={modernStyles.headerTitle}>{CONTENT.header.title}</Text>
             <View style={modernStyles.spacerSmall} />
             <Text style={modernStyles.subtitleLight}>
-              Have you used nutrition tracking{"\n"}apps before?
+              {CONTENT.header.subtitle}
             </Text>
           </View>
 
@@ -67,7 +73,7 @@ export const OtherApps: React.FC<OtherAppsProps> = ({ onValidationChange }) => {
           <View
             style={[modernStyles.optionsContainer, { marginTop: SPACING.xxl }]}
           >
-            {options.map((option) => {
+            {CONTENT.options.map((option) => {
               const isSelected = oldUser === option.label;
               return (
                 <TouchableOpacity

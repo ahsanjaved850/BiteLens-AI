@@ -5,7 +5,7 @@ import {
   SPACING,
 } from "@/src/Screens/Onboarding/Onboarding.style";
 import * as Haptics from "expo-haptics";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ScrollView,
   StatusBar,
@@ -18,27 +18,41 @@ interface GenderSelectionProps {
   onValidationChange?: (isValid: boolean) => void;
 }
 
+const CONTENT = {
+  header: {
+    title: "About You",
+    subtitle: "Help us personalize your experience",
+  },
+  options: [{ label: "Male" }, { label: "Female" }, { label: "Other" }],
+} as const;
+
 export const GenderSelection: React.FC<GenderSelectionProps> = ({
   onValidationChange,
 }) => {
   const [gender, setGender] = useState<string>("");
-
-  const handlePress = async (selectedGender: string) => {
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    setGender(selectedGender);
-  };
+  const hasShownSuccessRef = useRef(false);
 
   useEffect(() => {
     const isValid = gender.length > 0;
     onValidationChange?.(isValid);
 
-    if (isValid) {
-      updateGender(gender);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    if (!isValid) {
+      hasShownSuccessRef.current = false;
+      return;
     }
-  }, [gender]);
 
-  const options = [{ label: "Male" }, { label: "Female" }, { label: "Other" }];
+    updateGender(gender);
+
+    if (!hasShownSuccessRef.current) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      hasShownSuccessRef.current = true;
+    }
+  }, [gender, onValidationChange]);
+
+  const handlePress = useCallback(async (selectedGender: string) => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setGender(selectedGender);
+  }, []);
 
   return (
     <View style={modernStyles.safeArea}>
@@ -53,10 +67,10 @@ export const GenderSelection: React.FC<GenderSelectionProps> = ({
         >
           {/* Header */}
           <View style={{ alignItems: "center" }}>
-            <Text style={modernStyles.headerTitle}>About You</Text>
+            <Text style={modernStyles.headerTitle}>{CONTENT.header.title}</Text>
             <View style={modernStyles.spacerSmall} />
             <Text style={modernStyles.subtitleLight}>
-              Help us personalize your experience
+              {CONTENT.header.subtitle}
             </Text>
           </View>
 
@@ -64,7 +78,7 @@ export const GenderSelection: React.FC<GenderSelectionProps> = ({
           <View
             style={[modernStyles.optionsContainer, { marginTop: SPACING.xxl }]}
           >
-            {options.map((option) => {
+            {CONTENT.options.map((option) => {
               const isSelected = gender === option.label;
               return (
                 <TouchableOpacity

@@ -26,7 +26,6 @@ export const useHome = () => {
   const [todayNutrition, setTodayNutrition] = useState<DailyNutrition>(
     INITIAL_NUTRITION_STATE
   );
-  const [expandedMeals, setExpandedMeals] = useState<Set<string>>(new Set());
 
   useFocusEffect(
     useCallback(() => {
@@ -83,19 +82,6 @@ export const useHome = () => {
       setModalVisible(false);
       loadMeals();
     }
-  };
-
-  const handleToggleMealExpansion = (mealId: string) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setExpandedMeals((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(mealId)) {
-        newSet.delete(mealId);
-      } else {
-        newSet.add(mealId);
-      }
-      return newSet;
-    });
   };
 
   const handleMealPress = (meal: MealData) => {
@@ -205,12 +191,10 @@ export const useHome = () => {
     initialDetails,
     meals,
     todayNutrition,
-    expandedMeals,
     handleRefresh,
     handleAddMealPress,
     handleModalClose,
     handleMealSuccess,
-    handleToggleMealExpansion,
     handleMealPress,
     formatTime,
     formatDate,

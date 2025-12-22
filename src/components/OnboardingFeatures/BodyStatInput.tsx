@@ -12,11 +12,39 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { ScrollView, StatusBar, Text, TextInput, View } from "react-native";
+import {
+  Keyboard,
+  ScrollView,
+  StatusBar,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
 interface PhysiqueInputProps {
   onValidationChange?: (isValid: boolean) => void;
 }
+
+const CONTENT = {
+  header: {
+    title: "Your Body Stats",
+    subtitle: "Help us create your personalized plan",
+  },
+  fields: {
+    age: {
+      label: "AGE",
+      placeholder: "25 years",
+      returnKey: "next" as const,
+    },
+    height: {
+      label: "HEIGHT",
+      placeholder: "170 cm",
+      returnKey: "next" as const,
+    },
+  },
+} as const;
+
+const SAVE_DEBOUNCE_MS = 1000;
 
 export const BodyStatInput: React.FC<PhysiqueInputProps> = ({
   onValidationChange,
@@ -25,24 +53,18 @@ export const BodyStatInput: React.FC<PhysiqueInputProps> = ({
   const [height, setHeight] = useState<string>("");
   const [focusedField, setFocusedField] = useState<string>("");
 
-  // Refs for focusing next input
   const heightRef = useRef<TextInput>(null);
   const ageRef = useRef<TextInput>(null);
-
-  // Ref to track if we've shown success haptic
   const hasShownSuccessRef = useRef(false);
 
-  // Calculate validation status - memoized
   const isValid = useMemo(() => {
     return age.trim().length > 0 && height.trim().length > 0;
   }, [age, height]);
 
-  // Validation effect - ONLY updates parent, no other side effects
   useEffect(() => {
     onValidationChange?.(isValid);
-  }, [isValid]); // Only depend on isValid, not individual fields
+  }, [isValid, onValidationChange]);
 
-  // Save effect - debounced, only when valid
   useEffect(() => {
     if (!isValid) {
       hasShownSuccessRef.current = false;
@@ -53,7 +75,6 @@ export const BodyStatInput: React.FC<PhysiqueInputProps> = ({
       try {
         updateBodyStats(age, height);
 
-        // Only show success haptic once
         if (!hasShownSuccessRef.current) {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
           hasShownSuccessRef.current = true;
@@ -61,12 +82,11 @@ export const BodyStatInput: React.FC<PhysiqueInputProps> = ({
       } catch (error) {
         console.error("Error saving physique:", error);
       }
-    }, 1000);
+    }, SAVE_DEBOUNCE_MS);
 
     return () => clearTimeout(saveTimer);
   }, [age, height, isValid]);
 
-  // Memoized handlers to prevent re-creation
   const handleFocus = useCallback((fieldName: string) => {
     setFocusedField(fieldName);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -78,6 +98,10 @@ export const BodyStatInput: React.FC<PhysiqueInputProps> = ({
 
   const handleAgeSubmit = useCallback(() => {
     heightRef.current?.focus();
+  }, []);
+
+  const handleHeightSubmit = useCallback(() => {
+    Keyboard.dismiss();
   }, []);
 
   return (
@@ -94,9 +118,9 @@ export const BodyStatInput: React.FC<PhysiqueInputProps> = ({
         >
           {/* Header */}
           <View style={{ alignItems: "center" }}>
-            <Text style={modernStyles.headerTitle}>Your Body Stats</Text>
+            <Text style={modernStyles.headerTitle}>{CONTENT.header.title}</Text>
             <Text style={modernStyles.subtitleLight}>
-              Help us create your personalized plan
+              {CONTENT.header.subtitle}
             </Text>
           </View>
 
@@ -104,10 +128,12 @@ export const BodyStatInput: React.FC<PhysiqueInputProps> = ({
           <View style={[modernStyles.formContainer, { marginTop: SPACING.xl }]}>
             {/* Age Input */}
             <View style={modernStyles.formGroup}>
-              <Text style={modernStyles.formLabel}>AGE</Text>
+              <Text style={modernStyles.formLabel}>
+                {CONTENT.fields.age.label}
+              </Text>
               <TextInput
                 ref={ageRef}
-                placeholder="25 years"
+                placeholder={CONTENT.fields.age.placeholder}
                 value={age}
                 onChangeText={setAge}
                 onFocus={() => handleFocus("age")}
@@ -119,28 +145,31 @@ export const BodyStatInput: React.FC<PhysiqueInputProps> = ({
                   focusedField === "age" && modernStyles.formInputFocused,
                 ]}
                 placeholderTextColor={COLORS.textLight}
-                returnKeyType="next"
+                returnKeyType={CONTENT.fields.age.returnKey}
                 blurOnSubmit={false}
               />
             </View>
 
             {/* Height Input */}
             <View style={modernStyles.formGroup}>
-              <Text style={modernStyles.formLabel}>HEIGHT</Text>
+              <Text style={modernStyles.formLabel}>
+                {CONTENT.fields.height.label}
+              </Text>
               <TextInput
                 ref={heightRef}
-                placeholder="170 cm"
+                placeholder={CONTENT.fields.height.placeholder}
                 value={height}
                 onChangeText={setHeight}
                 onFocus={() => handleFocus("height")}
                 onBlur={handleBlur}
+                onSubmitEditing={handleHeightSubmit}
                 keyboardType="numeric"
                 style={[
                   modernStyles.formInput,
                   focusedField === "height" && modernStyles.formInputFocused,
                 ]}
                 placeholderTextColor={COLORS.textLight}
-                returnKeyType="done"
+                returnKeyType={CONTENT.fields.height.returnKey}
                 blurOnSubmit={false}
               />
             </View>

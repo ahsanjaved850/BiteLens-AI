@@ -12,11 +12,39 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { ScrollView, StatusBar, Text, TextInput, View } from "react-native";
+import {
+  Keyboard,
+  ScrollView,
+  StatusBar,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
 interface PhysiqueInputProps {
   onValidationChange?: (isValid: boolean) => void;
 }
+
+const CONTENT = {
+  header: {
+    title: "Your Weight Stats",
+    subtitle: "Help us create your personalized plan",
+  },
+  fields: {
+    weight: {
+      label: "CURRENT WEIGHT",
+      placeholder: "70 kg",
+      returnKey: "next" as const,
+    },
+    targetWeight: {
+      label: "TARGET WEIGHT",
+      placeholder: "65 kg",
+      returnKey: "next" as const,
+    },
+  },
+} as const;
+
+const SAVE_DEBOUNCE_MS = 1000;
 
 export const PhysiqueInput: React.FC<PhysiqueInputProps> = ({
   onValidationChange,
@@ -25,24 +53,18 @@ export const PhysiqueInput: React.FC<PhysiqueInputProps> = ({
   const [targetWeight, setTargetWeight] = useState<string>("");
   const [focusedField, setFocusedField] = useState<string>("");
 
-  // Refs for focusing next input
   const weightRef = useRef<TextInput>(null);
   const targetWeightRef = useRef<TextInput>(null);
-
-  // Ref to track if we've shown success haptic
   const hasShownSuccessRef = useRef(false);
 
-  // Calculate validation status - memoized
   const isValid = useMemo(() => {
     return weight.trim().length > 0 && targetWeight.trim().length > 0;
   }, [weight, targetWeight]);
 
-  // Validation effect - ONLY updates parent, no other side effects
   useEffect(() => {
     onValidationChange?.(isValid);
-  }, [isValid]); // Only depend on isValid, not individual fields
+  }, [isValid, onValidationChange]);
 
-  // Save effect - debounced, only when valid
   useEffect(() => {
     if (!isValid) {
       hasShownSuccessRef.current = false;
@@ -53,7 +75,6 @@ export const PhysiqueInput: React.FC<PhysiqueInputProps> = ({
       try {
         updateWeightStats(weight, targetWeight);
 
-        // Only show success haptic once
         if (!hasShownSuccessRef.current) {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
           hasShownSuccessRef.current = true;
@@ -61,12 +82,11 @@ export const PhysiqueInput: React.FC<PhysiqueInputProps> = ({
       } catch (error) {
         console.error("Error saving physique:", error);
       }
-    }, 1000);
+    }, SAVE_DEBOUNCE_MS);
 
     return () => clearTimeout(saveTimer);
   }, [weight, targetWeight, isValid]);
 
-  // Memoized handlers to prevent re-creation
   const handleFocus = useCallback((fieldName: string) => {
     setFocusedField(fieldName);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -78,6 +98,10 @@ export const PhysiqueInput: React.FC<PhysiqueInputProps> = ({
 
   const handleWeightSubmit = useCallback(() => {
     targetWeightRef.current?.focus();
+  }, []);
+
+  const handleTargetWeightSubmit = useCallback(() => {
+    Keyboard.dismiss();
   }, []);
 
   return (
@@ -94,9 +118,9 @@ export const PhysiqueInput: React.FC<PhysiqueInputProps> = ({
         >
           {/* Header */}
           <View style={{ alignItems: "center" }}>
-            <Text style={modernStyles.headerTitle}>Your Weight Stats</Text>
+            <Text style={modernStyles.headerTitle}>{CONTENT.header.title}</Text>
             <Text style={modernStyles.subtitleLight}>
-              Help us create your personalized plan
+              {CONTENT.header.subtitle}
             </Text>
           </View>
 
@@ -104,10 +128,12 @@ export const PhysiqueInput: React.FC<PhysiqueInputProps> = ({
           <View style={[modernStyles.formContainer, { marginTop: SPACING.xl }]}>
             {/* Weight Input */}
             <View style={modernStyles.formGroup}>
-              <Text style={modernStyles.formLabel}>CURRENT WEIGHT</Text>
+              <Text style={modernStyles.formLabel}>
+                {CONTENT.fields.weight.label}
+              </Text>
               <TextInput
                 ref={weightRef}
-                placeholder="70 kg"
+                placeholder={CONTENT.fields.weight.placeholder}
                 value={weight}
                 onChangeText={setWeight}
                 onFocus={() => handleFocus("weight")}
@@ -119,21 +145,24 @@ export const PhysiqueInput: React.FC<PhysiqueInputProps> = ({
                   focusedField === "weight" && modernStyles.formInputFocused,
                 ]}
                 placeholderTextColor={COLORS.textLight}
-                returnKeyType="next"
+                returnKeyType={CONTENT.fields.weight.returnKey}
                 blurOnSubmit={false}
               />
             </View>
 
             {/* Target Weight Input */}
             <View style={modernStyles.formGroup}>
-              <Text style={modernStyles.formLabel}>TARGET WEIGHT</Text>
+              <Text style={modernStyles.formLabel}>
+                {CONTENT.fields.targetWeight.label}
+              </Text>
               <TextInput
                 ref={targetWeightRef}
-                placeholder="65 kg"
+                placeholder={CONTENT.fields.targetWeight.placeholder}
                 value={targetWeight}
                 onChangeText={setTargetWeight}
                 onFocus={() => handleFocus("targetWeight")}
                 onBlur={handleBlur}
+                onSubmitEditing={handleTargetWeightSubmit}
                 keyboardType="numeric"
                 style={[
                   modernStyles.formInput,
@@ -141,8 +170,8 @@ export const PhysiqueInput: React.FC<PhysiqueInputProps> = ({
                     modernStyles.formInputFocused,
                 ]}
                 placeholderTextColor={COLORS.textLight}
-                returnKeyType="done"
-                blurOnSubmit={true}
+                returnKeyType={CONTENT.fields.targetWeight.returnKey}
+                blurOnSubmit={false}
               />
             </View>
           </View>

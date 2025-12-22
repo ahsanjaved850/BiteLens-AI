@@ -8,7 +8,7 @@ export default function Index() {
   const onboardingDone = useOnboardingDone();
   const [sessionChecked, setSessionChecked] = useState(false);
   const [hasSession, setHasSession] = useState(false);
-
+  console.log(onboardingDone);
   useEffect(() => {
     const checkSession = async () => {
       const session = await getSession();

@@ -30,13 +30,13 @@ export const INITIAL_NUTRITION_STATE: DailyNutrition = {
 export const MACRO_CARDS_CONFIG = {
   PROTEIN: {
     label: "Protein",
-    iconName: "fitness",
+    iconName: "barbell-outline",
     iconColor: "#EF4444",
     iconBgColor: "#FEE2E2",
   },
   CARBS: {
     label: "Carbs",
-    iconName: "flame",
+    iconName: "nutrition-outline",
     iconColor: "#3B82F6",
     iconBgColor: "#DBEAFE",
   },
@@ -48,7 +48,7 @@ export const MACRO_CARDS_CONFIG = {
   },
   SUGAR: {
     label: "Sugar",
-    iconName: "sparkles",
+    iconName: "ice-cream-outline",
     iconColor: "#E11D48",
     iconBgColor: "#FDE2E4",
   },

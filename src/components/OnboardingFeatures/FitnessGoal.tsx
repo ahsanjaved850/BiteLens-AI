@@ -5,7 +5,7 @@ import {
   SPACING,
 } from "@/src/Screens/Onboarding/Onboarding.style";
 import * as Haptics from "expo-haptics";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ScrollView,
   StatusBar,
@@ -18,27 +18,12 @@ interface FitnessGoalProps {
   onValidationChange?: (isValid: boolean) => void;
 }
 
-export const FitnessGoal: React.FC<FitnessGoalProps> = ({
-  onValidationChange,
-}) => {
-  const [goal, setGoal] = useState<string>("");
-
-  useEffect(() => {
-    const isValid = goal.length > 0;
-    onValidationChange?.(isValid);
-
-    if (isValid) {
-      updateGoal(goal);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    }
-  }, [goal]);
-
-  const handlePress = async (selectedGoal: string) => {
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    setGoal(selectedGoal);
-  };
-
-  const options = [
+const CONTENT = {
+  header: {
+    title: "Your Goal",
+    subtitle: "What would you like to achieve?",
+  },
+  options: [
     {
       label: "Gain",
       icon: "💪",
@@ -54,7 +39,36 @@ export const FitnessGoal: React.FC<FitnessGoalProps> = ({
       icon: "🎯",
       description: "Healthy weight loss",
     },
-  ];
+  ],
+} as const;
+
+export const FitnessGoal: React.FC<FitnessGoalProps> = ({
+  onValidationChange,
+}) => {
+  const [goal, setGoal] = useState<string>("");
+  const hasShownSuccessRef = useRef(false);
+
+  useEffect(() => {
+    const isValid = goal.length > 0;
+    onValidationChange?.(isValid);
+
+    if (!isValid) {
+      hasShownSuccessRef.current = false;
+      return;
+    }
+
+    updateGoal(goal);
+
+    if (!hasShownSuccessRef.current) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      hasShownSuccessRef.current = true;
+    }
+  }, [goal, onValidationChange]);
+
+  const handlePress = useCallback(async (selectedGoal: string) => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setGoal(selectedGoal);
+  }, []);
 
   return (
     <View style={modernStyles.safeArea}>
@@ -69,10 +83,10 @@ export const FitnessGoal: React.FC<FitnessGoalProps> = ({
         >
           {/* Header */}
           <View style={{ alignItems: "center" }}>
-            <Text style={modernStyles.headerTitle}>Your Goal</Text>
+            <Text style={modernStyles.headerTitle}>{CONTENT.header.title}</Text>
             <View style={modernStyles.spacerSmall} />
             <Text style={modernStyles.subtitleLight}>
-              What would you like to achieve?
+              {CONTENT.header.subtitle}
             </Text>
           </View>
 
@@ -80,7 +94,7 @@ export const FitnessGoal: React.FC<FitnessGoalProps> = ({
           <View
             style={[modernStyles.optionsContainer, { marginTop: SPACING.xxl }]}
           >
-            {options.map((option) => {
+            {CONTENT.options.map((option) => {
               const isSelected = goal === option.label;
               return (
                 <TouchableOpacity

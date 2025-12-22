@@ -61,32 +61,34 @@ export const useData = () => {
       return;
     }
 
+    const newWeight = parseFloat(inputValue);
+
+    if (isNaN(newWeight) || newWeight <= 0) {
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      alert("Please enter a valid number");
+      return;
+    }
+
     setLoading(true);
     try {
-      const newWeight = parseFloat(inputValue);
+      // Determine which weights to use for update
+      const currentWeight =
+        modalType === "current"
+          ? newWeight.toString()
+          : profile?.weight?.toString() || "";
 
-      if (isNaN(newWeight) || newWeight <= 0) {
-        alert("Please enter a valid number");
-        setLoading(false);
-        return;
-      }
+      const goalWeight =
+        modalType === "goal"
+          ? newWeight.toString()
+          : profile?.target_weight?.toString() || "";
 
-      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      // Update weight in database
+      await updateWeightStats(currentWeight, goalWeight);
 
-      if (modalType === "current") {
-        await updateWeightStats(
-          newWeight.toString(),
-          profile?.target_weight?.toString() || ""
-        );
-      } else if (modalType === "goal") {
-        await updateWeightStats(
-          profile?.weight?.toString() || "",
-          newWeight.toString()
-        );
-      }
-
+      // Get fresh profile data
       const updatedProfile = await getProfile();
 
+      // Validate all required fields exist
       if (
         updatedProfile.weight &&
         updatedProfile.height &&
@@ -95,21 +97,33 @@ export const useData = () => {
         updatedProfile.gender &&
         updatedProfile.goal
       ) {
-        await dataAnalysis(
-          modalType === "current"
-            ? parseFloat(inputValue)
-            : parseFloat(updatedProfile.weight),
-          parseFloat(updatedProfile.height),
-          parseFloat(updatedProfile.age),
+        // Use the correct weight values for analysis
+        const weightForAnalysis =
+          modalType === "current" ? newWeight : Number(updatedProfile.weight);
+
+        const targetWeightForAnalysis =
           modalType === "goal"
-            ? parseFloat(inputValue)
-            : parseFloat(updatedProfile.target_weight),
+            ? newWeight
+            : Number(updatedProfile.target_weight);
+
+        // Call dataAnalysis with correct values
+        await dataAnalysis(
+          weightForAnalysis,
+          Number(updatedProfile.height),
+          Number(updatedProfile.age),
+          targetWeightForAnalysis,
           updatedProfile.gender,
           updatedProfile.goal
         );
       }
 
+      // SUCCESS - Now give feedback
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+      // Refresh data to show updated values
       await fetchData();
+
+      // Close modal and reset
       setModalVisible(false);
       setInputValue("");
     } catch (err: any) {

@@ -9,7 +9,7 @@ export interface NutrientConfig {
 export const NUTRIENTS_CONFIG: Omit<NutrientConfig, "value">[] = [
   {
     label: "Sugar",
-    icon: "sparkles",
+    icon: "ice-cream-outline",
     iconColor: "#E11D48",
     iconBgColor: "#FDE2E4",
   },
@@ -30,14 +30,14 @@ export const NUTRIENTS_CONFIG: Omit<NutrientConfig, "value">[] = [
 export const MACROS_CONFIG = [
   {
     label: "Protein",
-    icon: "fitness",
+    icon: "barbell-outline",
     iconColor: "#EF4444",
     iconBgColor: "#FEE2E2",
     key: "protein",
   },
   {
     label: "Carbs",
-    icon: "flame",
+    icon: "nutrition-outline",
     iconColor: "#3B82F6",
     iconBgColor: "#DBEAFE",
     key: "carbs",

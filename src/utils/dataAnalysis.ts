@@ -9,21 +9,43 @@ export const dataAnalysis = async (
   goal: string
 ) => {
   try {
-    const { data, error } = await supabase.functions.invoke("data-analysis", {
-      body: {
-        weight,
-        height,
-        age,
-        targetWeight,
-        gender,
-        goal,
-      },
+    console.log("Calling dataAnalysis with:", {
+      weight,
+      height,
+      age,
+      targetWeight,
+      gender,
+      goal,
     });
 
-    if (error) throw error;
+    const { data, error } = await supabase.functions.invoke(
+      "analyze-user-data",
+      {
+        body: {
+          weight,
+          height,
+          age,
+          targetWeight,
+          gender,
+          goal,
+        },
+      }
+    );
+
+    if (error) {
+      console.error("Edge function error:", error);
+      throw new Error(
+        error.message || "Failed to analyze data. Please try again."
+      );
+    }
+
+    console.log("dataAnalysis success:", data);
     return data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error in dataAnalysis:", error);
-    throw error;
+    // Re-throw with user-friendly message
+    throw new Error(
+      error.message || "Failed to calculate nutrition data. Please try again."
+    );
   }
 };
