@@ -30,7 +30,7 @@ import {
 } from "./Login.static";
 import { COLORS, loginStyles } from "./login.style";
 
-export default function LoginScreen({ onLogin }: LoginScreenProps) {
+export function LoginScreen({ onLogin }: LoginScreenProps) {
   const {
     email,
     password,

@@ -13,7 +13,7 @@ import { BUTTON_TEXT, PAGES } from "./Onboarding.static";
 
 const { width } = Dimensions.get("window");
 
-export default function OnboardingScreen() {
+export function OnboardingScreen() {
   const {
     currentIndex,
     flatListRef,
