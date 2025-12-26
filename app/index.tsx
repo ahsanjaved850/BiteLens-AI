@@ -35,7 +35,7 @@ export default function Index() {
 
   // Has session but NO onboarding → Go to onboarding
   if (hasSession && !onboardingDone) {
-    return <Redirect href="/auth/onboarding" />;
+    return <Redirect href="/tabs/home" />;
   }
 
   // No session → Go to login

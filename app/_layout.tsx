@@ -7,7 +7,7 @@ export default function RootLayout() {
 
   console.log(onboardingDone, "from main layout");
 
-  // Wait until AsyncStorage check is done
+  // Wait until check is done
   if (onboardingDone === null) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>

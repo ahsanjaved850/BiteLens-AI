@@ -63,7 +63,7 @@ export const FitnessGoal: React.FC<FitnessGoalProps> = ({
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       hasShownSuccessRef.current = true;
     }
-  }, [goal, onValidationChange]);
+  }, [goal]); // ✅ Removed onValidationChange
 
   const handlePress = useCallback(async (selectedGoal: string) => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);

@@ -47,7 +47,7 @@ export const LifeStyle: React.FC<LifeStyleProps> = ({ onValidationChange }) => {
   useEffect(() => {
     const isValid = lifeStyle.length > 0;
     onValidationChange?.(isValid);
-  }, [lifeStyle, onValidationChange]);
+  }, [lifeStyle]); // ✅ Removed onValidationChange
 
   const handlePress = useCallback(async (selectedOption: string) => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);

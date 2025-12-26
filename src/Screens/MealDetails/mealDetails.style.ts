@@ -10,7 +10,7 @@ export const mealDetailStyles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: "#FFFFFF",
@@ -24,9 +24,10 @@ export const mealDetailStyles = StyleSheet.create({
     backgroundColor: "#F8FAFC",
     alignItems: "center",
     justifyContent: "center",
+    marginRight: 12,
   },
   headerTitle: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: "700",
     color: "#1E293B",
   },

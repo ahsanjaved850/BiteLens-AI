@@ -1,4 +1,4 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { updateOnboading } from "@/backend/sendData";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import { useRef, useState } from "react";
@@ -8,7 +8,6 @@ import {
   NAVIGATION_ROUTES,
   PAGES,
   PageValidationState,
-  STORAGE_KEYS,
   VIEWABILITY_CONFIG,
 } from "./Onboarding.static";
 
@@ -23,7 +22,7 @@ export const useOnboarding = () => {
   const handleOnDone = async () => {
     try {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      await AsyncStorage.setItem(STORAGE_KEYS.ONBOARDING_SEEN, "true");
+      await updateOnboading(true);
       router.replace(NAVIGATION_ROUTES.HOME);
     } catch (error) {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);

@@ -42,7 +42,7 @@ export const OtherApps: React.FC<OtherAppsProps> = ({ onValidationChange }) => {
   useEffect(() => {
     const isValid = oldUser.length > 0;
     onValidationChange?.(isValid);
-  }, [oldUser, onValidationChange]);
+  }, [oldUser]); // ✅ Removed onValidationChange
 
   const handlePress = useCallback(async (selectedOption: string) => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);

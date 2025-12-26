@@ -1,14 +1,14 @@
 import { Ionicons } from "@expo/vector-icons";
 import { JSX } from "react";
 import {
-  Image,
   RefreshControl,
   ScrollView,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { homeStyles } from "../Home/Home.style";
 import { useSetting } from "./Setting.logic";
 import {
   APP_VERSION,
@@ -314,10 +314,9 @@ export const Setting = (): JSX.Element => {
 
         {/* App Info */}
         <View style={settingStyles.appInfoSection}>
-          <Image
-            style={settingStyles.appLogo}
-            source={require("@/assets/images/app_icon.png")}
-          />
+          <View style={homeStyles.logo}>
+              <Ionicons name="nutrition" size={24} color="#3B82F6" />
+          </View>
           <Text style={settingStyles.appVersion}>{APP_VERSION}</Text>
         </View>
       </ScrollView>

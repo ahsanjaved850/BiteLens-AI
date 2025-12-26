@@ -7,7 +7,7 @@ export interface ProfileData {
   target_weight?: number;
 }
 
-export const APP_VERSION = "GreenBite AI v1.0.0";
+export const APP_VERSION = "NutriTrack AI v1.0.0";
 
 export const WEIGHT_UNIT = "kg";
 export const HEIGHT_UNIT = "cm";
