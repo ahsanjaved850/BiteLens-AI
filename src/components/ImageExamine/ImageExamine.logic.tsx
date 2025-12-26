@@ -167,7 +167,6 @@ export const useImageExamine = ({
 
       console.log("Sending image to AI for analysis...");
       const nutritionData = await sendImageToAI(base64);
-      console.log("AI Nutrition Data received:", nutritionData);
 
       const {
         data: { user },
@@ -197,7 +196,6 @@ export const useImageExamine = ({
 
       await saveMealToDatabase(mealData);
       console.log("Meal saved successfully!");
-
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
       setProcessing(false);

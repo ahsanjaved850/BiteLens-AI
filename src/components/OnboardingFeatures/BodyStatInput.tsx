@@ -63,7 +63,7 @@ export const BodyStatInput: React.FC<PhysiqueInputProps> = ({
 
   useEffect(() => {
     onValidationChange?.(isValid);
-  }, [isValid, onValidationChange]);
+  }, [isValid]); // ✅ Removed onValidationChange
 
   useEffect(() => {
     if (!isValid) {

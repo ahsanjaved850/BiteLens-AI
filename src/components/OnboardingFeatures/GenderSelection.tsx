@@ -31,23 +31,46 @@ export const GenderSelection: React.FC<GenderSelectionProps> = ({
 }) => {
   const [gender, setGender] = useState<string>("");
   const hasShownSuccessRef = useRef(false);
+  const onValidationChangeRef = useRef(onValidationChange);
 
+  // Update ref when callback changes
+  useEffect(() => {
+    onValidationChangeRef.current = onValidationChange;
+  }, [onValidationChange]);
+
+  // Validation effect - separate from submission
   useEffect(() => {
     const isValid = gender.length > 0;
-    onValidationChange?.(isValid);
+    onValidationChangeRef.current?.(isValid);
+  }, [gender]);
 
-    if (!isValid) {
+  // Submission effect - only runs when gender changes
+  useEffect(() => {
+    if (!gender) {
       hasShownSuccessRef.current = false;
       return;
     }
 
-    updateGender(gender);
+    const saveGender = async () => {
+      try {
+        await updateGender(gender);
 
-    if (!hasShownSuccessRef.current) {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      hasShownSuccessRef.current = true;
-    }
-  }, [gender, onValidationChange]);
+        if (!hasShownSuccessRef.current) {
+          await Haptics.notificationAsync(
+            Haptics.NotificationFeedbackType.Success
+          );
+          hasShownSuccessRef.current = true;
+        }
+      } catch (error) {
+        console.error("Failed to update gender:", error);
+        await Haptics.notificationAsync(
+          Haptics.NotificationFeedbackType.Error
+        );
+      }
+    };
+
+    saveGender();
+  }, [gender]);
 
   const handlePress = useCallback(async (selectedGender: string) => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);

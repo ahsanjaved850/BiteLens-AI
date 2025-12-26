@@ -9,7 +9,7 @@ const APP_CONTENT = {
   title: "GreenBite AI",
   headerTitle: "Your Personal AI Nutrition Assistant",
   features: [
-    { emoji: "🥗", text: "Vegan Friendly" },
+    { emoji: "🥗", text: "Health Friendly" },
     { emoji: "📸", text: "Snap & Track" },
     { emoji: "📊", text: "Smart Insights" },
   ],

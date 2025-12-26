@@ -37,47 +37,51 @@ export const NameAdding: React.FC<NameAddingProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const lastSubmittedNameRef = useRef<string>("");
+  const onValidationChangeRef = useRef(onValidationChange);
 
-  const isValidName = useCallback((value: string): boolean => {
+  // Update ref when callback changes
+  useEffect(() => {
+    onValidationChangeRef.current = onValidationChange;
+  }, [onValidationChange]);
+
+  const isValidName = (value: string): boolean => {
     const trimmed = value.trim();
     return (
       trimmed.length >= VALIDATION.minLength &&
       trimmed.length <= VALIDATION.maxLength
     );
-  }, []);
+  };
 
+  // Validation effect - separate from submission
   useEffect(() => {
     const isValid = isValidName(name);
-    onValidationChange?.(isValid);
-  }, [name, isValidName, onValidationChange]);
+    onValidationChangeRef.current?.(isValid);
+  }, [name]);
 
-  const submitNameToBackend = useCallback(
-    async (nameToSubmit: string) => {
-      const trimmedName = nameToSubmit.trim();
+  const submitNameToBackend = useCallback(async (nameToSubmit: string) => {
+    const trimmedName = nameToSubmit.trim();
 
-      if (
-        trimmedName === lastSubmittedNameRef.current ||
-        !isValidName(trimmedName)
-      ) {
-        return;
-      }
+    if (
+      trimmedName === lastSubmittedNameRef.current ||
+      !isValidName(trimmedName)
+    ) {
+      return;
+    }
 
-      try {
-        setIsSubmitting(true);
-        await updateName(trimmedName);
-        lastSubmittedNameRef.current = trimmedName;
-        await Haptics.notificationAsync(
-          Haptics.NotificationFeedbackType.Success
-        );
-      } catch (error) {
-        console.error("Failed to update name:", error);
-        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      } finally {
-        setIsSubmitting(false);
-      }
-    },
-    [isValidName]
-  );
+    try {
+      setIsSubmitting(true);
+      await updateName(trimmedName);
+      lastSubmittedNameRef.current = trimmedName;
+      await Haptics.notificationAsync(
+        Haptics.NotificationFeedbackType.Success
+      );
+    } catch (error) {
+      console.error("Failed to update name:", error);
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, []); // No dependencies - stable reference
 
   const handleTextChange = useCallback(
     (text: string) => {

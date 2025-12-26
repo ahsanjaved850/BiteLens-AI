@@ -15,7 +15,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     storage: AsyncStorage,
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: false, // Only needed for web
+   
   },
 });
 
@@ -127,36 +127,6 @@ export const fetchUserMeals = async (): Promise<MealData[]> => {
   }
 };
 
-/**
- * Delete a meal by ID
- */
-export const deleteMeal = async (mealId: string): Promise<void> => {
-  try {
-    const { data: meal, error: fetchError } = await supabase
-      .from("daily_meals")
-      .select("meal_image")
-      .eq("id", mealId)
-      .single();
-
-    if (fetchError) throw fetchError;
-
-    if (meal?.meal_image) {
-      const imageUrl = meal.meal_image;
-      const fileName = imageUrl.split("/").slice(-2).join("/");
-      await supabase.storage.from("meal-images").remove([fileName]);
-    }
-
-    const { error: deleteError } = await supabase
-      .from("daily_meals")
-      .delete()
-      .eq("id", mealId);
-
-    if (deleteError) throw deleteError;
-  } catch (error) {
-    console.error("Error in deleteMeal:", error);
-    throw error;
-  }
-};
 
 /**
  * Get today's total nutrition

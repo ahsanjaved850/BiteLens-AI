@@ -21,6 +21,7 @@ export const updateBodyStats = async (age: string, height: string) => {
 
   return data;
 };
+
 export const updateWeightStats = async (
   weight: string,
   targetWeight: string
@@ -173,3 +174,11 @@ export const updateDailyIntake = async (
 
   return data;
 };
+
+export const updateOnboading = async (onboarding : boolean) => {
+  const userId = await getCurrentUser()
+  const { data, error } = await supabase.from("profile").upsert({onboarding});
+  
+  if (error) throw error;
+  return data;
+}
