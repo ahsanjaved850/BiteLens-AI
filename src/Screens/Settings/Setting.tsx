@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { JSX } from "react";
 import {
+  Image,
   RefreshControl,
   ScrollView,
   Text,
@@ -315,7 +316,11 @@ export const Setting = (): JSX.Element => {
         {/* App Info */}
         <View style={settingStyles.appInfoSection}>
           <View style={homeStyles.logo}>
-              <Ionicons name="nutrition" size={24} color="#3B82F6" />
+            <Image 
+              source={require("@/assets/images/nutritrack-app-icon-1024.png")} 
+              style={{ width: 50, height: 50 }}
+              resizeMode="contain"
+            />
           </View>
           <Text style={settingStyles.appVersion}>{APP_VERSION}</Text>
         </View>

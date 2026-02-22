@@ -41,7 +41,7 @@ export const Home = () => {
     goal: number,
     iconName: string,
     iconColor: string,
-    iconBgColor: string
+    iconBgColor: string,
   ) => {
     const percentage = Math.min((value / goal) * 100, 100);
     const progressColor = getProgressColor(value, goal);
@@ -86,9 +86,11 @@ export const Home = () => {
       <View style={homeStyles.headerContainer}>
         <View style={homeStyles.headerRow}>
           <View style={homeStyles.logoContainer}>
-            <View style={homeStyles.logo}>
-              <Ionicons name="nutrition" size={24} color="#3B82F6" />
-            </View>
+            <Image
+              source={require("@/assets/images/nutritrack-app-icon-1024.png")}
+              style={{ width: 50, height: 50 }}
+              resizeMode="contain"
+            />
             <Text style={homeStyles.logoName}>NutriTrack</Text>
           </View>
         </View>
@@ -135,7 +137,7 @@ export const Home = () => {
                 initialDetails?.protein || 0,
                 MACRO_CARDS_CONFIG.PROTEIN.iconName,
                 MACRO_CARDS_CONFIG.PROTEIN.iconColor,
-                MACRO_CARDS_CONFIG.PROTEIN.iconBgColor
+                MACRO_CARDS_CONFIG.PROTEIN.iconBgColor,
               )}
               {renderMacroCard(
                 MACRO_CARDS_CONFIG.CARBS.label,
@@ -143,7 +145,7 @@ export const Home = () => {
                 initialDetails?.carbs || 0,
                 MACRO_CARDS_CONFIG.CARBS.iconName,
                 MACRO_CARDS_CONFIG.CARBS.iconColor,
-                MACRO_CARDS_CONFIG.CARBS.iconBgColor
+                MACRO_CARDS_CONFIG.CARBS.iconBgColor,
               )}
               {renderMacroCard(
                 MACRO_CARDS_CONFIG.FATS.label,
@@ -151,7 +153,7 @@ export const Home = () => {
                 initialDetails?.fat || 0,
                 MACRO_CARDS_CONFIG.FATS.iconName,
                 MACRO_CARDS_CONFIG.FATS.iconColor,
-                MACRO_CARDS_CONFIG.FATS.iconBgColor
+                MACRO_CARDS_CONFIG.FATS.iconBgColor,
               )}
               {renderMacroCard(
                 MACRO_CARDS_CONFIG.SUGAR.label,
@@ -159,7 +161,7 @@ export const Home = () => {
                 initialDetails?.sugar || 0,
                 MACRO_CARDS_CONFIG.SUGAR.iconName,
                 MACRO_CARDS_CONFIG.SUGAR.iconColor,
-                MACRO_CARDS_CONFIG.SUGAR.iconBgColor
+                MACRO_CARDS_CONFIG.SUGAR.iconBgColor,
               )}
               {renderMacroCard(
                 MACRO_CARDS_CONFIG.SODIUM.label,
@@ -167,7 +169,7 @@ export const Home = () => {
                 initialDetails?.sodium || 0,
                 MACRO_CARDS_CONFIG.SODIUM.iconName,
                 MACRO_CARDS_CONFIG.SODIUM.iconColor,
-                MACRO_CARDS_CONFIG.SODIUM.iconBgColor
+                MACRO_CARDS_CONFIG.SODIUM.iconBgColor,
               )}
               {renderMacroCard(
                 MACRO_CARDS_CONFIG.FIBER.label,
@@ -175,7 +177,7 @@ export const Home = () => {
                 initialDetails?.fiber || 0,
                 MACRO_CARDS_CONFIG.FIBER.iconName,
                 MACRO_CARDS_CONFIG.FIBER.iconColor,
-                MACRO_CARDS_CONFIG.FIBER.iconBgColor
+                MACRO_CARDS_CONFIG.FIBER.iconBgColor,
               )}
             </View>
           </View>

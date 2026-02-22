@@ -24,13 +24,13 @@ export const useHome = () => {
   const [initialDetails, setInitialDetails] = useState<DailyNutrition>();
   const [meals, setMeals] = useState<MealData[]>([]);
   const [todayNutrition, setTodayNutrition] = useState<DailyNutrition>(
-    INITIAL_NUTRITION_STATE
+    INITIAL_NUTRITION_STATE,
   );
 
   useFocusEffect(
     useCallback(() => {
       loadMeals();
-    }, [])
+    }, []),
   );
 
   const loadMeals = async () => {
@@ -49,6 +49,7 @@ export const useHome = () => {
       setRefreshing(false);
     }
   };
+  console.log(todayNutrition);
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -73,7 +74,7 @@ export const useHome = () => {
         mealData.fat,
         mealData.sugar || 0,
         mealData.sodium || 0,
-        mealData.fiber || 0
+        mealData.fiber || 0,
       );
       setModalVisible(false);
       loadMeals();
@@ -107,17 +108,17 @@ export const useHome = () => {
     const dateOnly = new Date(
       date.getFullYear(),
       date.getMonth(),
-      date.getDate()
+      date.getDate(),
     );
     const todayOnly = new Date(
       today.getFullYear(),
       today.getMonth(),
-      today.getDate()
+      today.getDate(),
     );
     const yesterdayOnly = new Date(
       yesterday.getFullYear(),
       yesterday.getMonth(),
-      yesterday.getDate()
+      yesterday.getDate(),
     );
 
     if (dateOnly.getTime() === todayOnly.getTime()) {
@@ -141,17 +142,17 @@ export const useHome = () => {
     const dateOnly = new Date(
       date.getFullYear(),
       date.getMonth(),
-      date.getDate()
+      date.getDate(),
     );
     const todayOnly = new Date(
       today.getFullYear(),
       today.getMonth(),
-      today.getDate()
+      today.getDate(),
     );
     const yesterdayOnly = new Date(
       yesterday.getFullYear(),
       yesterday.getMonth(),
-      yesterday.getDate()
+      yesterday.getDate(),
     );
 
     const time = date.toLocaleTimeString("en-US", {

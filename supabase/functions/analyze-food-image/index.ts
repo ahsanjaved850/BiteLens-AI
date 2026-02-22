@@ -102,7 +102,7 @@ serve(async (req: any) => {
     if (!parsed.calories || !parsed.protein || !parsed.carbs || !parsed.fats) {
       throw new Error("Missing required nutrition fields in response");
     }
-
+    console.log(cleanedContent);
     // Ensure values are strings
     const nutritionData = {
       name: String(parsed.name),

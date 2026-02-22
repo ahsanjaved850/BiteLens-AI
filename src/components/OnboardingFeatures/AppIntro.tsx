@@ -6,7 +6,7 @@ import React from "react";
 import { Image, StatusBar, Text, View } from "react-native";
 
 const APP_CONTENT = {
-  title: "GreenBite AI",
+  title: "NutriTrack",
   headerTitle: "Your Personal AI Nutrition Assistant",
   features: [
     { emoji: "🥗", text: "Health Friendly" },

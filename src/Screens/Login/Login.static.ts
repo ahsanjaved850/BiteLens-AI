@@ -74,7 +74,7 @@ export const ALERT_MESSAGES = {
 } as const;
 
 export const APP_INFO = {
-  NAME: "GreenBite AI",
+  NAME: "NutriTrack",
   TAGLINE: "Your AI Nutrition Assistant",
 } as const;
 
