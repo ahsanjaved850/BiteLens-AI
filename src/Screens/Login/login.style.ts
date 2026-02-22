@@ -63,12 +63,11 @@ export const loginStyles = StyleSheet.create({
   logoWrapper: {
     width: 80,
     height: 80,
-    backgroundColor: COLORS.primaryLight,
+    backgroundColor: COLORS.background,
     borderRadius: 24,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 10,
-    ...SHADOWS.medium,
   },
   logo: {
     width: 80,
@@ -78,7 +77,7 @@ export const loginStyles = StyleSheet.create({
   appName: {
     fontSize: 28,
     fontWeight: "800",
-    color: COLORS.primary,
+    color: COLORS.text,
     letterSpacing: -0.5,
   },
   appTagline: {

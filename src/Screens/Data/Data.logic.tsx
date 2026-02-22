@@ -29,14 +29,15 @@ export const useData = () => {
       if (showRefreshing) setRefreshing(true);
 
       const data = await getProfile();
-      const initialDetails = await getInitialDetails();
       setProfile(data);
+      const initialDetails = await getInitialDetails();
       setDetails(initialDetails);
     } catch (err: any) {
       console.log(err);
     } finally {
       if (showRefreshing) setRefreshing(false);
     }
+   
   };
 
   const handleRefresh = () => {

@@ -15,7 +15,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     storage: AsyncStorage,
     autoRefreshToken: true,
     persistSession: true,
-   
   },
 });
 
@@ -39,7 +38,7 @@ export interface MealData {
  */
 export const uploadMealImage = async (
   imageUri: string,
-  userId: string
+  userId: string,
 ): Promise<string> => {
   try {
     const base64 = await FileSystem.readAsStringAsync(imageUri, {
@@ -127,7 +126,6 @@ export const fetchUserMeals = async (): Promise<MealData[]> => {
   }
 };
 
-
 /**
  * Get today's total nutrition
  */
@@ -137,7 +135,7 @@ export const getTodayNutrition = async () => {
     today.setHours(0, 0, 0, 0);
 
     const { data, error } = await supabase
-      .from("daily_meals")
+      .from("daily_intake")
       .select("calories, protein, carbs, fat, sugar, sodium, fiber")
       .gte("created_at", today.toISOString());
 
@@ -161,7 +159,7 @@ export const getTodayNutrition = async () => {
         sugar: 0,
         sodium: 0,
         fiber: 0,
-      }
+      },
     );
 
     return totals;

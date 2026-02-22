@@ -71,10 +71,10 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
               {/* Logo Section */}
               <View style={loginStyles.logoContainer}>
                 <View style={loginStyles.logoWrapper}>
-                  <Image
-                    source={require("@/assets/images/app_icon.png")}
-                    style={loginStyles.logo}
-                    resizeMode="contain"
+                 <Image 
+                  source={require("@/assets/images/nutritrack-adaptive-icon.png")} 
+                  style={{ width: 100, height: 100 }}
+                  resizeMode="contain"
                   />
                 </View>
                 <Text style={loginStyles.appName}>{APP_INFO.NAME}</Text>

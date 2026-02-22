@@ -30,14 +30,11 @@ export const homeStyles = StyleSheet.create({
     justifyContent: "center",
   },
   logo: {
-    width: 26,
-    height: 26,
-    borderRadius: 8,
+   
   },
   logoName: {
     fontWeight: "700",
     fontSize: 28,
-    marginLeft: 4,
     color: "#1A1A1A",
     letterSpacing: -0.5,
   },
