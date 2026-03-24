@@ -27,7 +27,7 @@ NutriTrack AI is a cross-platform mobile application built with **React Native (
 
 ### 🏠 Home Screen
 - **Today's Summary** card showing real-time calorie consumption vs. goal
-- **Macronutrient breakdown** — Protein, Carbs, Fats, Sugar, Sodium, Fiber — each with color-coded progress bars
+- **Macronutrient breakdown** —> Protein, Carbs, Fats, Sugar, Sodium, Fiber —> each with color-coded progress bars
 - **Recent Meals** list with meal images, timestamps, and inline macro tags
 - Pull-to-refresh support
 - Add Meal floating action button
@@ -59,7 +59,7 @@ NutriTrack AI is a cross-platform mobile application built with **React Native (
 - Personal information display (name, age, gender)
 - Physical details display (weight, height, goal weight)
 - Support & Legal links (Help Center, Terms & Conditions)
-- Danger Zone — account deletion with confirmation alert
+- Danger Zone —> account deletion with confirmation alert
 
 ---
 
