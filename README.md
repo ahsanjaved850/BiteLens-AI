@@ -27,7 +27,7 @@ NutriTrack AI is a cross-platform mobile application built with **React Native (
 
 ### 🏠 Home Screen
 - **Today's Summary** card showing real-time calorie consumption vs. goal
-- **Macronutrient breakdown** —> Protein, Carbs, Fats, Sugar, Sodium, Fiber —> each with color-coded progress bars
+- **Macronutrient breakdown** Protein, Carbs, Fats, Sugar, Sodium, Fiber each with color-coded progress bars
 - **Recent Meals** list with meal images, timestamps, and inline macro tags
 - Pull-to-refresh support
 - Add Meal floating action button
@@ -59,7 +59,7 @@ NutriTrack AI is a cross-platform mobile application built with **React Native (
 - Personal information display (name, age, gender)
 - Physical details display (weight, height, goal weight)
 - Support & Legal links (Help Center, Terms & Conditions)
-- Danger Zone —> account deletion with confirmation alert
+- Danger Zone: account deletion with confirmation alert
 
 ---
 
@@ -160,43 +160,6 @@ Each screen follows a consistent **three-file pattern**:
 | `daily_intake` | id, user_id, total_calories, total_protein, total_carbs, total_fat, total_sugar, total_sodium, total_fiber, created_at |
 
 **Supabase Storage**  `meal-images` bucket stores user meal photos, organized by `userId/timestamp.jpg`.
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js 18+
-- Expo CLI (`npm install -g expo-cli`)
-- A Supabase project with the schema above configured
-- A Supabase Edge Function deployed for AI meal analysis
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/your-username/nutritrack-ai.git
-cd nutritrack-ai
-
-# Install dependencies
-yarn install
-# or
-npm install
-```
-
-### Running the App
-
-```bash
-# Start the Expo development server
-npx expo start
-
-# Run on iOS simulator
-npx expo run:ios
-
-# Run on Android emulator
-npx expo run:android
-```
 
 ---
 
