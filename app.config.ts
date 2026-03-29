@@ -4,7 +4,7 @@ import "dotenv/config";
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: "NutriTrack",
-  slug: "NutriTrack",
+  slug: "calai_vegan",
   scheme: "NutriTrack",
   version: "1.0.0",
   orientation: "portrait",
@@ -22,7 +22,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 
   ios: {
     supportsTablet: true,
-    bundleIdentifier: "com.ahsan.nutritrack",
+    bundleIdentifier: "com.nutritrackapp",
     buildNumber: "1.0.0",
     icon: "./assets/images/nutritrack-ios-icon.png",
     infoPlist: {
@@ -31,7 +31,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
 
   android: {
-    package: "com.ahsan.nutritrack",
+    package: "com.nutritrackapp",
     versionCode: 1,
     adaptiveIcon: {
       foregroundImage: "./assets/images/nutritrack-adaptive-icon.png",
