@@ -8,7 +8,7 @@ export default function Index() {
   const onboardingDone = useOnboardingDone();
   const [sessionChecked, setSessionChecked] = useState(false);
   const [hasSession, setHasSession] = useState(false);
-  console.log(onboardingDone);
+
   useEffect(() => {
     const checkSession = async () => {
       const session = await getSession();
@@ -28,16 +28,16 @@ export default function Index() {
     );
   }
 
-  // Has session AND onboarding done → Go to home
-  if (hasSession && onboardingDone) {
-    return <Redirect href="/tabs/home" />;
+  // No session → Login
+  if (!hasSession) {
+    return <Redirect href="/auth/login" />;
   }
 
-  // Has session but NO onboarding → Go to onboarding
+  // Has session but onboarding NOT done → Onboarding
   if (hasSession && !onboardingDone) {
-    return <Redirect href="/tabs/home" />;
+    return <Redirect href="/auth/onboarding" />;
   }
 
-  // No session → Go to login
-  return <Redirect href="/auth/login" />;
+  // Has session AND onboarding done → Home
+  return <Redirect href="/tabs/home" />;
 }
