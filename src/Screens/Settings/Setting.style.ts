@@ -1,122 +1,152 @@
 import { StyleSheet } from "react-native";
 
+const C = {
+  bg: "#FFFDF7",
+  bgWarm: "#FFF9ED",
+  bgCard: "#FFFFFF",
+  bgGray: "#F5F3EE",
+
+  textDark: "#0F1923",
+  text: "#1B2838",
+  textSec: "#5A6B7E",
+  textLight: "#9CA8B7",
+  textOnDark: "#FFFFFF",
+
+  primary: "#F5A623",
+  primaryLight: "#FFF8EC",
+  primaryMuted: "#FFE8C2",
+
+  secondary: "#1B2838",
+  accent: "#FF6B35",
+
+  border: "#EDE8DF",
+  borderLight: "#F5F0E8",
+  divider: "#F0EBE3",
+
+  danger: "#DC2626",
+  dangerLight: "#FEF2F2",
+  dangerBorder: "#FECACA",
+};
+
 export const settingStyles = StyleSheet.create({
+  // ─── Shell ─────────────────────────────────────────────────────
   container: {
     flex: 1,
-    backgroundColor: "#FAFAFA",
+    backgroundColor: C.bg,
   },
   body: {
     flex: 1,
   },
   contentContainer: {
     paddingHorizontal: 16,
-    paddingBottom: 100,
+    paddingBottom: 110,
   },
 
-  // Header
+  // ─── Header ────────────────────────────────────────────────────
   headerContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 16,
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 8,
   },
   headerTitle: {
     fontSize: 28,
-    fontWeight: "700",
-    color: "#1A1A1A",
+    fontWeight: "800",
+    color: C.textDark,
     letterSpacing: -0.5,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: "#666",
+    color: C.textSec,
     marginTop: 4,
     fontWeight: "500",
   },
 
-  // Profile Card
+  // ─── Profile Card ──────────────────────────────────────────────
   profileCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20,
-    marginTop: 16,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 3,
+    backgroundColor: C.bgCard,
+    borderRadius: 24,
+    marginTop: 12,
+    padding: 24,
+    shadowColor: "#1B2838",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 16,
+    elevation: 4,
     alignItems: "center",
   },
   profileImageContainer: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: "#F0F0F0",
+    backgroundColor: C.primaryMuted,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 12,
+    marginBottom: 14,
   },
   profileInitials: {
-    fontSize: 32,
-    fontWeight: "700",
-    color: "#666",
+    fontSize: 30,
+    fontWeight: "800",
+    color: C.primary,
   },
   profileName: {
     fontSize: 22,
-    fontWeight: "700",
-    color: "#1A1A1A",
+    fontWeight: "800",
+    color: C.textDark,
     marginBottom: 4,
+    letterSpacing: -0.3,
   },
   profileEmail: {
     fontSize: 14,
-    color: "#666",
+    color: C.textSec,
     fontWeight: "500",
   },
   editProfileButton: {
     marginTop: 16,
     paddingHorizontal: 24,
     paddingVertical: 10,
-    backgroundColor: "#F5F5F5",
-    borderRadius: 20,
+    backgroundColor: C.bgGray,
+    borderRadius: 50,
   },
   editProfileText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#1A1A1A",
+    color: C.text,
   },
 
-  // Section Styles
+  // ─── Section ───────────────────────────────────────────────────
   section: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
+    backgroundColor: C.bgCard,
+    borderRadius: 20,
     marginTop: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
+    shadowColor: "#1B2838",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 10,
     elevation: 2,
     overflow: "hidden",
   },
   sectionHeader: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 12,
+    paddingHorizontal: 20,
+    paddingTop: 18,
+    paddingBottom: 10,
   },
   sectionTitle: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "700",
-    color: "#999",
+    color: C.textLight,
     textTransform: "uppercase",
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
   },
 
-  // Setting Item
+  // ─── Setting Item ──────────────────────────────────────────────
   settingItem: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderBottomWidth: 0.5,
-    borderBottomColor: "#F0F0F0",
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: C.borderLight,
   },
   settingItemLast: {
     borderBottomWidth: 0,
@@ -127,13 +157,13 @@ export const settingStyles = StyleSheet.create({
     flex: 1,
   },
   settingIconContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "#F5F5F5",
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: C.bgGray,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 12,
+    marginRight: 14,
   },
   settingItemContent: {
     flex: 1,
@@ -141,12 +171,12 @@ export const settingStyles = StyleSheet.create({
   settingItemLabel: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#1A1A1A",
+    color: C.textDark,
     marginBottom: 2,
   },
   settingItemValue: {
     fontSize: 13,
-    color: "#666",
+    color: C.textSec,
     fontWeight: "500",
   },
   settingItemRight: {
@@ -155,48 +185,48 @@ export const settingStyles = StyleSheet.create({
   },
   settingItemValueRight: {
     fontSize: 15,
-    color: "#666",
+    color: C.textSec,
     fontWeight: "600",
     marginRight: 8,
   },
   chevronIcon: {
-    color: "#999",
+    color: C.textLight,
   },
 
-  // Danger Zone
+  // ─── Danger Zone ───────────────────────────────────────────────
   dangerSection: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
+    backgroundColor: C.bgCard,
+    borderRadius: 20,
     marginTop: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
+    shadowColor: "#1B2838",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 10,
     elevation: 2,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "#FEE2E2",
+    borderColor: C.dangerBorder,
   },
   dangerSectionHeader: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     paddingTop: 16,
-    paddingBottom: 12,
-    backgroundColor: "#FEF2F2",
+    paddingBottom: 10,
+    backgroundColor: C.dangerLight,
   },
   dangerSectionTitle: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "700",
-    color: "#DC2626",
+    color: C.danger,
     textTransform: "uppercase",
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
   },
   dangerItem: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingVertical: 14,
-    paddingHorizontal: 16,
-    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 20,
+    backgroundColor: C.bgCard,
   },
   dangerItemLeft: {
     flexDirection: "row",
@@ -204,41 +234,48 @@ export const settingStyles = StyleSheet.create({
     flex: 1,
   },
   dangerIconContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "#FEE2E2",
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: C.dangerLight,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 12,
+    marginRight: 14,
   },
   dangerItemLabel: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#DC2626",
+    color: C.danger,
   },
 
-  // Action Buttons
+  // ─── Action Buttons ────────────────────────────────────────────
   actionButton: {
-    backgroundColor: "#000000",
+    backgroundColor: C.secondary,
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 50,
     alignItems: "center",
     marginTop: 24,
+    shadowColor: C.secondary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
   },
   actionButtonText: {
     fontSize: 15,
-    fontWeight: "600",
-    color: "#FFFFFF",
+    fontWeight: "700",
+    color: C.textOnDark,
   },
   logoutButton: {
-    backgroundColor: "#F5F5F5",
+    backgroundColor: C.bgGray,
+    shadowOpacity: 0,
+    elevation: 0,
   },
   logoutButtonText: {
-    color: "#1A1A1A",
+    color: C.text,
   },
 
-  // App Info
+  // ─── App Info ──────────────────────────────────────────────────
   appInfoSection: {
     alignItems: "center",
     marginTop: 32,
@@ -246,8 +283,9 @@ export const settingStyles = StyleSheet.create({
   },
   appVersion: {
     fontSize: 13,
-    color: "#999",
+    color: C.textLight,
     fontWeight: "500",
+    marginTop: 8,
   },
   appLogo: {
     width: 32,
@@ -256,16 +294,16 @@ export const settingStyles = StyleSheet.create({
     marginBottom: 8,
   },
 
-  // Stats Card
+  // ─── Stats Card ────────────────────────────────────────────────
   statsCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
+    backgroundColor: C.bgCard,
+    borderRadius: 20,
     marginTop: 16,
     padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
+    shadowColor: "#1B2838",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 10,
     elevation: 2,
   },
   statsGrid: {
@@ -274,23 +312,23 @@ export const settingStyles = StyleSheet.create({
   },
   statItem: {
     flex: 1,
-    backgroundColor: "#F8F9FA",
-    borderRadius: 12,
+    backgroundColor: C.bgWarm,
+    borderRadius: 16,
     padding: 14,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#F0F0F0",
+    borderColor: C.borderLight,
   },
   statValue: {
     fontSize: 24,
-    fontWeight: "700",
-    color: "#1A1A1A",
+    fontWeight: "800",
+    color: C.textDark,
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 11,
-    color: "#666",
-    fontWeight: "600",
+    color: C.textSec,
+    fontWeight: "700",
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },

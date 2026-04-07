@@ -7,7 +7,7 @@ import {
 } from "@/src/utils/supabase";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import * as Haptics from "expo-haptics";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import {
   DailyNutrition,
   INITIAL_NUTRITION_STATE,
@@ -17,43 +17,87 @@ import {
 
 export const useHome = () => {
   const navigation = useNavigation();
+
   const [modalVisible, setModalVisible] = useState(false);
   const [loadingAI, setLoadingAI] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Full-screen loading only for very first load
   const [loading, setLoading] = useState(true);
+
   const [initialDetails, setInitialDetails] = useState<DailyNutrition>();
   const [meals, setMeals] = useState<MealData[]>([]);
   const [todayNutrition, setTodayNutrition] = useState<DailyNutrition>(
-    INITIAL_NUTRITION_STATE,
+    INITIAL_NUTRITION_STATE
+  );
+
+  const hasLoadedOnceRef = useRef(false);
+  const isFetchingRef = useRef(false);
+
+  const loadMeals = useCallback(
+    async ({
+      showLoader = false,
+      showRefresh = false,
+    }: {
+      showLoader?: boolean;
+      showRefresh?: boolean;
+    } = {}) => {
+      if (isFetchingRef.current) return;
+
+      isFetchingRef.current = true;
+
+      try {
+        if (showLoader) setLoading(true);
+        if (showRefresh) setRefreshing(true);
+
+        // Fetch independently so one failure does not wipe all the data
+        const [mealsResult, detailsResult, nutritionResult] =
+          await Promise.allSettled([
+            fetchUserMeals(),
+            getInitialDetails(),
+            getTodayNutrition(),
+          ]);
+
+        if (mealsResult.status === "fulfilled") {
+          setMeals(mealsResult.value || []);
+        } else {
+          console.error("Error loading meals:", mealsResult.reason);
+        }
+
+        if (detailsResult.status === "fulfilled") {
+          setInitialDetails(detailsResult.value);
+        } else {
+          console.error("Error loading initial details:", detailsResult.reason);
+        }
+
+        if (nutritionResult.status === "fulfilled") {
+          setTodayNutrition(nutritionResult.value || INITIAL_NUTRITION_STATE);
+        } else {
+          console.error("Error loading today nutrition:", nutritionResult.reason);
+        }
+      } finally {
+        if (showLoader) setLoading(false);
+        if (showRefresh) setRefreshing(false);
+        isFetchingRef.current = false;
+      }
+    },
+    []
   );
 
   useFocusEffect(
     useCallback(() => {
-      loadMeals();
-    }, []),
+      if (!hasLoadedOnceRef.current) {
+        hasLoadedOnceRef.current = true;
+        loadMeals({ showLoader: true });
+      } else {
+        // Silent refresh when returning to Home
+        loadMeals();
+      }
+    }, [loadMeals])
   );
 
-  const loadMeals = async () => {
-    try {
-      setLoading(true);
-      const fetchedMeals = await fetchUserMeals();
-      setMeals(fetchedMeals);
-      const details = await getInitialDetails();
-      setInitialDetails(details);
-      const nutrition = await getTodayNutrition();
-      setTodayNutrition(nutrition);
-    } catch (error) {
-      console.error("Error loading meals:", error);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
-  console.log(todayNutrition);
-
   const handleRefresh = () => {
-    setRefreshing(true);
-    loadMeals();
+    loadMeals({ showRefresh: true });
   };
 
   const handleAddMealPress = () => {
@@ -74,14 +118,14 @@ export const useHome = () => {
         mealData.fat,
         mealData.sugar || 0,
         mealData.sodium || 0,
-        mealData.fiber || 0,
+        mealData.fiber || 0
       );
-      setModalVisible(false);
-      loadMeals();
     } catch (error) {
       console.error("Error updating daily intake:", error);
+    } finally {
       setModalVisible(false);
-      loadMeals();
+      // Silent refresh after meal save
+      await loadMeals();
     }
   };
 
@@ -108,17 +152,17 @@ export const useHome = () => {
     const dateOnly = new Date(
       date.getFullYear(),
       date.getMonth(),
-      date.getDate(),
+      date.getDate()
     );
     const todayOnly = new Date(
       today.getFullYear(),
       today.getMonth(),
-      today.getDate(),
+      today.getDate()
     );
     const yesterdayOnly = new Date(
       yesterday.getFullYear(),
       yesterday.getMonth(),
-      yesterday.getDate(),
+      yesterday.getDate()
     );
 
     if (dateOnly.getTime() === todayOnly.getTime()) {
@@ -142,17 +186,17 @@ export const useHome = () => {
     const dateOnly = new Date(
       date.getFullYear(),
       date.getMonth(),
-      date.getDate(),
+      date.getDate()
     );
     const todayOnly = new Date(
       today.getFullYear(),
       today.getMonth(),
-      today.getDate(),
+      today.getDate()
     );
     const yesterdayOnly = new Date(
       yesterday.getFullYear(),
       yesterday.getMonth(),
-      yesterday.getDate(),
+      yesterday.getDate()
     );
 
     const time = date.toLocaleTimeString("en-US", {
@@ -177,7 +221,10 @@ export const useHome = () => {
   };
 
   const getProgressColor = (value: number, goal: number) => {
+    if (!goal || goal <= 0) return PROGRESS_COLORS.LOW;
+
     const percentage = (value / goal) * 100;
+
     if (percentage < PROGRESS_THRESHOLDS.LOW) return PROGRESS_COLORS.LOW;
     if (percentage < PROGRESS_THRESHOLDS.MEDIUM) return PROGRESS_COLORS.MEDIUM;
     if (percentage < PROGRESS_THRESHOLDS.HIGH) return PROGRESS_COLORS.HIGH;

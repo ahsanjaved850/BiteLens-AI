@@ -54,18 +54,16 @@ export const DataOverview = () => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={handleRefresh}
-            tintColor="#3B82F6"
-            colors={["#3B82F6"]}
+            tintColor="#F5A623"
+            colors={["#F5A623"]}
           />
         }
         showsVerticalScrollIndicator={false}
       >
-        {/* Weight Management Section */}
+        {/* Weight Management */}
         <View style={dataStyles.section}>
           <View style={dataStyles.sectionHeader}>
-            <View>
-              <Text style={dataStyles.sectionTitle}>Weight Management</Text>
-            </View>
+            <Text style={dataStyles.sectionTitle}>Weight Management</Text>
           </View>
 
           <View style={dataStyles.dataCard}>
@@ -103,12 +101,10 @@ export const DataOverview = () => {
           </View>
         </View>
 
-        {/* BMI Section */}
+        {/* BMI */}
         <View style={dataStyles.section}>
           <View style={dataStyles.sectionHeader}>
-            <View>
-              <Text style={dataStyles.sectionTitle}>Body Mass Index (BMI)</Text>
-            </View>
+            <Text style={dataStyles.sectionTitle}>Body Mass Index</Text>
           </View>
 
           <View style={dataStyles.bmiCard}>
@@ -118,9 +114,7 @@ export const DataOverview = () => {
                 style={[
                   dataStyles.bmiCategory,
                   {
-                    backgroundColor: `${getBMICategoryColor(
-                      details?.bmi_category || ""
-                    )}15`,
+                    backgroundColor: `${getBMICategoryColor(details?.bmi_category || "")}15`,
                     color: getBMICategoryColor(details?.bmi_category || ""),
                   },
                 ]}
@@ -130,41 +124,21 @@ export const DataOverview = () => {
             </View>
 
             <View style={dataStyles.bmiScale}>
-              <View
-                style={[
-                  dataStyles.bmiScaleSegment,
-                  { backgroundColor: "#3B82F6" },
-                ]}
-              />
-              <View
-                style={[
-                  dataStyles.bmiScaleSegment,
-                  { backgroundColor: "#10B981" },
-                ]}
-              />
-              <View
-                style={[
-                  dataStyles.bmiScaleSegment,
-                  { backgroundColor: "#F59E0B" },
-                ]}
-              />
-              <View
-                style={[
-                  dataStyles.bmiScaleSegment,
-                  { backgroundColor: "#EF4444" },
-                ]}
-              />
+              <View style={[dataStyles.bmiScaleSegment, { backgroundColor: "#3B82F6" }]} />
+              <View style={[dataStyles.bmiScaleSegment, { backgroundColor: "#2ECC71" }]} />
+              <View style={[dataStyles.bmiScaleSegment, { backgroundColor: "#F59E0B" }]} />
+              <View style={[dataStyles.bmiScaleSegment, { backgroundColor: "#EF4444" }]} />
             </View>
           </View>
         </View>
 
-        {/* Weight Progress Card */}
+        {/* Weight Progress */}
         <View style={dataStyles.weightProgressCard}>
           <View style={dataStyles.progressHeader}>
             <Text style={dataStyles.progressTitle}>Weight Progress</Text>
             {progress > 0 && (
               <View style={dataStyles.trendBadge}>
-                <Ionicons name="trending-down" size={14} color="#16A34A" />
+                <Ionicons name="trending-down" size={14} color="#2ECC71" />
                 <Text style={dataStyles.trendText}>On Track</Text>
               </View>
             )}
@@ -182,10 +156,7 @@ export const DataOverview = () => {
             <View style={dataStyles.progressBarContainer}>
               <View style={dataStyles.progressBar}>
                 <View
-                  style={[
-                    dataStyles.progressBarFill,
-                    { width: `${progress}%` },
-                  ]}
+                  style={[dataStyles.progressBarFill, { width: `${progress}%` }]}
                 />
               </View>
               <Text style={dataStyles.progressPercentage}>
@@ -210,7 +181,7 @@ export const DataOverview = () => {
         </View>
       </ScrollView>
 
-      {/* Update Weight Modal */}
+      {/* Modal */}
       <Modal
         animationType="fade"
         transparent={true}
@@ -220,14 +191,10 @@ export const DataOverview = () => {
         <View style={dataStyles.modalOverlay}>
           <View style={dataStyles.modalContent}>
             <Text style={dataStyles.modalTitle}>
-              {modalType === "current"
-                ? MODAL_TITLES.CURRENT
-                : MODAL_TITLES.GOAL}
+              {modalType === "current" ? MODAL_TITLES.CURRENT : MODAL_TITLES.GOAL}
             </Text>
             <Text style={dataStyles.modalSubtitle}>
-              {modalType === "current"
-                ? MODAL_SUBTITLES.CURRENT
-                : MODAL_SUBTITLES.GOAL}
+              {modalType === "current" ? MODAL_SUBTITLES.CURRENT : MODAL_SUBTITLES.GOAL}
             </Text>
 
             <View style={dataStyles.inputContainer}>
@@ -238,7 +205,7 @@ export const DataOverview = () => {
                   inputFocused && dataStyles.textInputFocused,
                 ]}
                 placeholder="Enter weight"
-                placeholderTextColor="#999"
+                placeholderTextColor="#9CA8B7"
                 keyboardType="decimal-pad"
                 value={inputValue}
                 onChangeText={setInputValue}
@@ -251,7 +218,7 @@ export const DataOverview = () => {
 
             {loading ? (
               <View style={dataStyles.loadingContainer}>
-                <ActivityIndicator size="large" color="#000000" />
+                <ActivityIndicator size="large" color="#F5A623" />
                 <Text style={dataStyles.loadingText}>Updating...</Text>
               </View>
             ) : (

@@ -149,7 +149,7 @@ export const updateDailyIntake = async (
     id: userId,
     total_calories: (currentIntake?.total_calories || 0) + mealCalories,
     total_carbs: (currentIntake?.total_carbs || 0) + mealCarbs,
-    total_protien: (currentIntake?.total_protien || 0) + mealProtein,
+    total_protein: (currentIntake?.total_protein || 0) + mealProtein,
     total_fat: (currentIntake?.total_fat || 0) + mealFat,
     total_sugar: (currentIntake?.total_sugar || 0) + mealSugar,
     total_sodium: (currentIntake?.total_sodium || 0) + mealSodium,
@@ -175,10 +175,18 @@ export const updateDailyIntake = async (
   return data;
 };
 
-export const updateOnboading = async (onboarding : boolean) => {
-  const userId = await getCurrentUser()
-  const { data, error } = await supabase.from("profile").upsert({onboarding});
-  
+export const updateOnboading = async (onboarding: boolean) => {
+  const userId = await getCurrentUser();
+
+  const { data, error } = await supabase
+    .from("profile")
+    .upsert({
+      id: userId,
+      onboarding,
+    })
+    .select()
+    .single();
+
   if (error) throw error;
   return data;
-}
+};

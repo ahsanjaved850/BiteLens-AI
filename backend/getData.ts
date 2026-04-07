@@ -77,15 +77,17 @@ export const getTodayIntake = async () => {
   if (userError) throw userError;
   if (!user) throw new Error("Not authenticated");
 
-  // Get today's date in YYYY-MM-DD format
   const today = new Date().toISOString().split("T")[0];
 
   const { data, error } = await supabase
     .from("daily_intake")
-    .select("*")
-    .eq("user_id", user.id)
+    .select(
+      "total_calories, total_carbs, total_protein, total_fat, total_sugar, total_sodium, total_fiber"
+    )
+    .eq("id", user.id)
     .gte("created_at", `${today}T00:00:00`)
-    .lte("created_at", `${today}T23:59:59`);
+    .lte("created_at", `${today}T23:59:59`)
+    .maybeSingle();
 
   if (error) {
     console.error("Error fetching today's intake:", error);
@@ -100,8 +102,7 @@ export const getTodayIntake = async () => {
     };
   }
 
-  // If no meals for today, return zeros
-  if (!data || data.length === 0) {
+  if (!data) {
     return {
       total_calories: 0,
       total_carbs: 0,
@@ -113,27 +114,13 @@ export const getTodayIntake = async () => {
     };
   }
 
-  // Calculate totals from all meals
-  const totals = data.reduce(
-    (acc, meal) => ({
-      total_calories: acc.total_calories + (meal.calories || 0),
-      total_carbs: acc.total_carbs + (meal.carbs || 0),
-      total_protein: acc.total_protein + (meal.protein || 0),
-      total_fat: acc.total_fat + (meal.fat || 0),
-      total_sugar: acc.total_sugar + (meal.sugar || 0),
-      total_sodium: acc.total_sodium + (meal.sodium || 0),
-      total_fiber: acc.total_fiber + (meal.fiber || 0),
-    }),
-    {
-      total_calories: 0,
-      total_carbs: 0,
-      total_protein: 0,
-      total_fat: 0,
-      total_sugar: 0,
-      total_sodium: 0,
-      total_fiber: 0,
-    },
-  );
-
-  return totals;
+  return {
+    total_calories: Number(data.total_calories || 0),
+    total_carbs: Number(data.total_carbs || 0),
+    total_protein: Number(data.total_protein || 0),
+    total_fat: Number(data.total_fat || 0),
+    total_sugar: Number(data.total_sugar || 0),
+    total_sodium: Number(data.total_sodium || 0),
+    total_fiber: Number(data.total_fiber || 0),
+  };
 };

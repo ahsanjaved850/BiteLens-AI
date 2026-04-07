@@ -3,35 +3,35 @@ import { Dimensions, StyleSheet } from "react-native";
 const { width, height } = Dimensions.get("window");
 
 export const COLORS = {
-  primary: "#4CAF50",
-  primaryDark: "#45a049",
-  primaryLight: "#E8F5E9",
-  secondary: "#8BC34A",
-  background: "#FFFFFF",
-  backgroundLight: "#F8F9FA",
-  text: "#2C3E50",
-  textLight: "#95A5A6",
-  textDark: "#1A1A1A",
-  border: "#E8E8E8",
-  error: "#FF6B6B",
-  success: "#4CAF50",
+  primary: "#F5A623",
+  primaryDark: "#E8951A",
+  primaryLight: "#FFF8EC",
+  secondary: "#1B2838",
+  background: "#FFFDF7",
+  backgroundLight: "#FFF9ED",
+  text: "#1B2838",
+  textLight: "#9CA8B7",
+  textDark: "#0F1923",
+  border: "#EDE8DF",
+  error: "#EF4444",
+  success: "#2ECC71",
   white: "#FFFFFF",
-  overlay: "rgba(0, 0, 0, 0.5)",
+  overlay: "rgba(15, 25, 35, 0.5)",
 };
 
 export const SHADOWS = {
   small: {
-    shadowColor: "#000",
+    shadowColor: "#1B2838",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.04,
     shadowRadius: 4,
     elevation: 2,
   },
   medium: {
-    shadowColor: "#000",
+    shadowColor: "#1B2838",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
-    shadowRadius: 12,
+    shadowRadius: 16,
     elevation: 4,
   },
 };
@@ -55,10 +55,10 @@ export const loginStyles = StyleSheet.create({
     paddingBottom: 74,
   },
 
-  // Logo Section
+  // Logo
   logoContainer: {
     alignItems: "center",
-    marginBottom: 32, // ← Gap between logo and form
+    marginBottom: 32,
   },
   logoWrapper: {
     width: 80,
@@ -77,7 +77,7 @@ export const loginStyles = StyleSheet.create({
   appName: {
     fontSize: 28,
     fontWeight: "800",
-    color: COLORS.text,
+    color: COLORS.textDark,
     letterSpacing: -0.5,
   },
   appTagline: {
@@ -86,7 +86,7 @@ export const loginStyles = StyleSheet.create({
     marginTop: 4,
   },
 
-  // Form Section
+  // Form
   formContainer: {
     flex: 1,
     justifyContent: "center",
@@ -97,26 +97,27 @@ export const loginStyles = StyleSheet.create({
     color: COLORS.textDark,
     marginBottom: 8,
     letterSpacing: -0.5,
-    minHeight: 40, // ← Fixed height to prevent jumping
+    minHeight: 40,
   },
   formSubtitle: {
     fontSize: 16,
     color: COLORS.textLight,
     marginBottom: 18,
     lineHeight: 24,
-    minHeight: 48, // ← Fixed height to prevent jumping (2 lines)
+    minHeight: 48,
   },
 
-  // Input Fields
+  // Inputs
   inputContainer: {
     marginBottom: 16,
   },
   inputLabel: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: COLORS.textDark,
+    fontSize: 13,
+    fontWeight: "700",
+    color: COLORS.text,
     marginBottom: 8,
-    letterSpacing: 0.2,
+    letterSpacing: 0.3,
+    textTransform: "uppercase",
   },
   inputWrapper: {
     position: "relative",
@@ -128,12 +129,12 @@ export const loginStyles = StyleSheet.create({
     padding: 16,
     fontSize: 16,
     color: COLORS.textDark,
-    backgroundColor: COLORS.background,
-    minHeight: 56,
+    backgroundColor: COLORS.white,
+    minHeight: 58,
   },
   inputFocused: {
     borderColor: COLORS.primary,
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.white,
   },
   inputError: {
     borderColor: COLORS.error,
@@ -150,15 +151,16 @@ export const loginStyles = StyleSheet.create({
     fontSize: 24,
   },
 
-  // Error Message
+  // Error
   errorText: {
     fontSize: 13,
     color: COLORS.error,
     marginTop: 6,
     marginLeft: 4,
+    fontWeight: "500",
   },
 
-  // Forgot Password
+  // Forgot
   forgotPasswordContainer: {
     alignItems: "flex-end",
     marginTop: 8,
@@ -170,16 +172,20 @@ export const loginStyles = StyleSheet.create({
     fontWeight: "600",
   },
 
-  // Submit Button
+  // Submit
   submitButton: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 16,
+    backgroundColor: COLORS.secondary,
+    borderRadius: 50,
     paddingVertical: 18,
     alignItems: "center",
     justifyContent: "center",
     marginTop: 8,
-    minHeight: 56,
-    ...SHADOWS.medium,
+    minHeight: 58,
+    shadowColor: COLORS.secondary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 6,
   },
   submitButtonDisabled: {
     backgroundColor: COLORS.border,
@@ -188,9 +194,9 @@ export const loginStyles = StyleSheet.create({
   },
   submitButtonText: {
     color: COLORS.white,
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: "700",
-    letterSpacing: 0.5,
+    letterSpacing: 0.3,
   },
   submitButtonTextDisabled: {
     color: COLORS.textLight,
@@ -214,7 +220,7 @@ export const loginStyles = StyleSheet.create({
     fontWeight: "500",
   },
 
-  // Social Buttons
+  // Social
   socialButtonsContainer: {
     gap: 12,
     marginBottom: 32,
@@ -225,10 +231,10 @@ export const loginStyles = StyleSheet.create({
     justifyContent: "center",
     borderWidth: 2,
     borderColor: COLORS.border,
-    borderRadius: 16,
+    borderRadius: 50,
     paddingVertical: 16,
-    backgroundColor: COLORS.background,
-    minHeight: 56,
+    backgroundColor: COLORS.white,
+    minHeight: 58,
   },
   socialButtonIcon: {
     fontSize: 20,
@@ -240,13 +246,13 @@ export const loginStyles = StyleSheet.create({
     color: COLORS.textDark,
   },
 
-  // Toggle Section
+  // Toggle
   toggleContainer: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     paddingVertical: 24,
-    minHeight: 70, // ← Fixed height to prevent jumping
+    minHeight: 70,
   },
   toggleText: {
     fontSize: 15,
@@ -259,11 +265,11 @@ export const loginStyles = StyleSheet.create({
     color: COLORS.primary,
   },
 
-  // Terms & Privacy
+  // Terms
   termsContainer: {
     paddingTop: 16,
     paddingBottom: 8,
-    minHeight: 60, // ← Fixed height to prevent jumping when showing/hiding
+    minHeight: 60,
   },
   termsText: {
     fontSize: 13,

@@ -68,22 +68,21 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
             keyboardShouldPersistTaps="handled"
           >
             <View style={loginStyles.contentContainer}>
-              {/* Logo Section */}
+              {/* Logo */}
               <View style={loginStyles.logoContainer}>
                 <View style={loginStyles.logoWrapper}>
-                 <Image 
-                  source={require("@/assets/images/nutritrack-adaptive-icon.png")} 
-                  style={{ width: 100, height: 100 }}
-                  resizeMode="contain"
+                  <Image
+                    source={require("@/assets/images/nutritrack-adaptive-icon.png")}
+                    style={{ width: 100, height: 100 }}
+                    resizeMode="contain"
                   />
                 </View>
                 <Text style={loginStyles.appName}>{APP_INFO.NAME}</Text>
                 <Text style={loginStyles.appTagline}>{APP_INFO.TAGLINE}</Text>
               </View>
 
-              {/* Form Section */}
+              {/* Form */}
               <View style={loginStyles.formContainer}>
-                {/* Form Title */}
                 <Text style={loginStyles.formTitle}>
                   {newUser ? FORM_TITLES.SIGN_UP : FORM_TITLES.SIGN_IN}
                 </Text>
@@ -91,7 +90,7 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
                   {newUser ? FORM_SUBTITLES.SIGN_UP : FORM_SUBTITLES.SIGN_IN}
                 </Text>
 
-                {/* Email Input */}
+                {/* Email */}
                 <View style={loginStyles.inputContainer}>
                   <Text style={loginStyles.inputLabel}>
                     {FORM_LABELS.EMAIL}
@@ -121,7 +120,7 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
                   )}
                 </View>
 
-                {/* Password Input */}
+                {/* Password */}
                 <View style={loginStyles.inputContainer}>
                   <Text style={loginStyles.inputLabel}>
                     {FORM_LABELS.PASSWORD}
@@ -166,7 +165,7 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
                   )}
                 </View>
 
-                {/* Submit Button */}
+                {/* Submit */}
                 <TouchableOpacity
                   style={[
                     loginStyles.submitButton,
@@ -190,7 +189,7 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
                   )}
                 </TouchableOpacity>
 
-                {/* Toggle Sign In/Up */}
+                {/* Toggle */}
                 <View style={loginStyles.toggleContainer}>
                   <Text style={loginStyles.toggleText}>
                     {newUser

@@ -19,7 +19,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 });
 
 export interface MealData {
-  id?: string;
+  id: string;
   created_at?: string;
   name: string;
   calories: number;
@@ -33,12 +33,32 @@ export interface MealData {
   meal_image: string;
 }
 
+export interface TodayNutrition {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  sugar: number;
+  sodium: number;
+  fiber: number;
+}
+
+const EMPTY_NUTRITION: TodayNutrition = {
+  calories: 0,
+  protein: 0,
+  carbs: 0,
+  fat: 0,
+  sugar: 0,
+  sodium: 0,
+  fiber: 0,
+};
+
 /**
  * Upload image to Supabase Storage
  */
 export const uploadMealImage = async (
   imageUri: string,
-  userId: string,
+  userId: string
 ): Promise<string> => {
   try {
     const base64 = await FileSystem.readAsStringAsync(imageUri, {
@@ -48,9 +68,11 @@ export const uploadMealImage = async (
     const fileExt = imageUri.split(".").pop() || "jpg";
     const fileName = `${userId}/${Date.now()}.${fileExt}`;
 
-    const arrayBuffer = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+    const arrayBuffer = Uint8Array.from(atob(base64), (c) =>
+      c.charCodeAt(0)
+    );
 
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from("meal-images")
       .upload(fileName, arrayBuffer, {
         contentType: `image/${fileExt}`,
@@ -99,27 +121,34 @@ export const saveMealToDatabase = async (mealData: MealData): Promise<void> => {
     });
 
     if (error) throw error;
-
-    console.log("Meal saved successfully");
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error in saveMealToDatabase:", error);
     throw error;
   }
 };
 
 /**
- * Fetch meals for current user
+ * Fetch meals for current user only
  */
 export const fetchUserMeals = async (): Promise<MealData[]> => {
   try {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError) throw userError;
+    if (!user) throw new Error("Not authenticated");
+
     const { data, error } = await supabase
       .from("daily_meals")
       .select("*")
+      .eq("user_id", user.id)
       .order("created_at", { ascending: false });
 
     if (error) throw error;
 
-    return data as MealData[];
+    return (data ?? []) as MealData[];
   } catch (error) {
     console.error("Error in fetchUserMeals:", error);
     throw error;
@@ -127,42 +156,46 @@ export const fetchUserMeals = async (): Promise<MealData[]> => {
 };
 
 /**
- * Get today's total nutrition
+ * Get today's nutrition totals for current user
+ *
+ * Based on your daily_intake schema:
+ * - primary key is `id`
+ * - nutrition fields are `total_*`
+ * - protein column is `total_protein` (not total_protien)
  */
-export const getTodayNutrition = async () => {
+export const getTodayNutrition = async (): Promise<TodayNutrition> => {
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError) throw userError;
+    if (!user) throw new Error("Not authenticated");
 
     const { data, error } = await supabase
       .from("daily_intake")
-      .select("calories, protein, carbs, fat, sugar, sodium, fiber")
-      .gte("created_at", today.toISOString());
+      .select(
+        "total_calories, total_carbs, total_protein, total_fat, total_sugar, total_sodium, total_fiber"
+      )
+      .eq("id", user.id)
+      .maybeSingle();
 
     if (error) throw error;
 
-    const totals = data.reduce(
-      (acc, meal) => ({
-        calories: acc.calories + (meal.calories || 0),
-        protein: acc.protein + (meal.protein || 0),
-        carbs: acc.carbs + (meal.carbs || 0),
-        fat: acc.fat + (meal.fat || 0),
-        sugar: acc.sugar + (meal.sugar || 0),
-        sodium: acc.sodium + (meal.sodium || 0),
-        fiber: acc.fiber + (meal.fiber || 0),
-      }),
-      {
-        calories: 0,
-        protein: 0,
-        carbs: 0,
-        fat: 0,
-        sugar: 0,
-        sodium: 0,
-        fiber: 0,
-      },
-    );
+    if (!data) {
+      return EMPTY_NUTRITION;
+    }
 
-    return totals;
+    return {
+      calories: Number(data.total_calories || 0),
+      protein: Number(data.total_protein || 0),
+      carbs: Number(data.total_carbs || 0),
+      fat: Number(data.total_fat || 0),
+      sugar: Number(data.total_sugar || 0),
+      sodium: Number(data.total_sodium || 0),
+      fiber: Number(data.total_fiber || 0),
+    };
   } catch (error) {
     console.error("Error in getTodayNutrition:", error);
     throw error;
