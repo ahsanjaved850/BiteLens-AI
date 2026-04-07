@@ -1,45 +1,102 @@
 import {
   COLORS,
-  modernStyles,
+  SHADOWS,
   SPACING,
+  TYPOGRAPHY,
 } from "@/src/Screens/Onboarding/Onboarding.style";
 import React from "react";
-import { Image, ScrollView, StatusBar, Text, View } from "react-native";
+import {
+  Dimensions,
+  Image,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+
+const { width: SW, height: SH } = Dimensions.get("window");
 
 const CONTENT = {
-  title: "Healthy Step Towards Cause",
-  subtitle: "Veganism is a promise to live gently and spare lives..",
+  subtitle: "This time is different",
+  title: "Let's make your\ngoal a reality",
+  chartTitle: "NutriTrack delivers long-term results",
+  chartDescription:
+    "Avoid the 80% rebound risk of traditional diets with NutriTrack's sustainable solution",
   image: require("@/assets/images/motivation.png"),
 } as const;
 
 export const MotivationalSlide: React.FC = () => {
   return (
-    <View style={modernStyles.safeArea}>
-      <View style={modernStyles.screenContainer}>
-        <StatusBar
-          barStyle="dark-content"
-          backgroundColor={COLORS.background}
-        />
-        <ScrollView
-          contentContainerStyle={modernStyles.contentContainer}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Header Section */}
-          <View style={{ alignItems: "center", marginTop: SPACING.md }}>
-            <Text style={modernStyles.headerTitleLarge}>{CONTENT.title}</Text>
-            <Text style={modernStyles.subtitleLight}>{CONTENT.subtitle}</Text>
-          </View>
+    <View style={styles.safeArea}>
+      <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
 
-          {/* Main Image */}
-          <View style={[modernStyles.imagemedium, { marginTop: SPACING.xl }]}>
-            <Image
-              source={CONTENT.image}
-              style={modernStyles.image}
-              resizeMode="cover"
-            />
-          </View>
-        </ScrollView>
+      <View style={styles.screenContainer}>
+        {/* Header */}
+        <View style={styles.headerSection}>
+          <Text style={styles.subtitle}>{CONTENT.subtitle}</Text>
+          <Text style={styles.headerTitle}>{CONTENT.title}</Text>
+        </View>
+
+        {/* Image */}
+        <View style={styles.imageContainer}>
+          <Image
+            source={CONTENT.image}
+            style={styles.image}
+            resizeMode="contain"
+          />
+        </View>
       </View>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+
+  screenContainer: {
+    flex: 1,
+    paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.sm,
+    paddingBottom: SPACING.lg,
+  },
+
+  headerSection: {
+    alignItems: "center",
+    marginTop: SPACING.md,
+    marginBottom: SPACING.xl,
+  },
+
+  subtitle: {
+    ...TYPOGRAPHY.body,
+    color: COLORS.textSecondary,
+    marginBottom: SPACING.xs,
+  },
+
+  headerTitle: {
+    ...TYPOGRAPHY.h1,
+    color: COLORS.textDark,
+    textAlign: "center",
+    lineHeight: 36,
+  },
+
+  imageContainer: {
+    width: "100%",
+    height: SH * 0.5,
+    maxHeight: 420,
+    minHeight: 260,
+    borderRadius: 24,
+    overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: COLORS.backgroundCard,
+    ...SHADOWS.small,
+  },
+
+  image: {
+    width: "100%",
+    height: "100%",
+  },
+});

@@ -1,6 +1,7 @@
 import { onboardingStyles } from "@/src/Screens/Onboarding/Onboarding.style";
 import React from "react";
 import {
+  ActivityIndicator,
   Dimensions,
   FlatList,
   Text,
@@ -20,8 +21,12 @@ export function OnboardingScreen() {
     isLastPage,
     isCurrentPageValid,
     isFirstPage,
+    progress,
+    isFinishing,
+    startCompletionAnimation,
     handleNext,
     handleBack,
+    handleCompletionAnimationFinished,
     handleViewableItemsChanged,
     viewabilityConfig,
     handleUpdateValidation,
@@ -35,29 +40,39 @@ export function OnboardingScreen() {
     index: number;
   }) => {
     const PageComponent = item.component;
+
     return (
       <View style={{ width }}>
         <PageComponent
           onValidationChange={(isValid: boolean) =>
             handleUpdateValidation(index, isValid)
           }
+          startAnimation={index === PAGES.length - 1 ? startCompletionAnimation : false}
+          onAnimationComplete={
+            index === PAGES.length - 1
+              ? handleCompletionAnimationFinished
+              : undefined
+          }
+          isSubmitting={index === PAGES.length - 1 ? isFinishing : false}
         />
       </View>
     );
   };
 
+  const disableBottomButton =
+    !isCurrentPageValid || isFinishing || startCompletionAnimation;
+
   return (
     <SafeAreaView style={onboardingStyles.container} edges={["top", "bottom"]}>
-      {/* Top Bar with Back Button and Dots */}
       <View style={onboardingStyles.topBar}>
-        {/* Back Button */}
         <TouchableOpacity
           onPress={handleBack}
           style={[
             onboardingStyles.backButton,
-            isFirstPage && onboardingStyles.backButtonHidden,
+            (isFirstPage || isFinishing || startCompletionAnimation) &&
+              onboardingStyles.backButtonHidden,
           ]}
-          disabled={isFirstPage}
+          disabled={isFirstPage || isFinishing || startCompletionAnimation}
           activeOpacity={0.7}
         >
           <Text style={onboardingStyles.backButtonText}>
@@ -65,23 +80,18 @@ export function OnboardingScreen() {
           </Text>
         </TouchableOpacity>
 
-        {/* Dots Indicator */}
-        <View style={onboardingStyles.dotsContainer}>
-          {PAGES.map((_, index) => (
-            <View
-              key={index}
-              style={[
-                onboardingStyles.dot,
-                index === currentIndex
-                  ? onboardingStyles.dotActive
-                  : onboardingStyles.dotInactive,
-              ]}
-            />
-          ))}
+        <View style={onboardingStyles.progressBarContainer}>
+          <View
+            style={[
+              onboardingStyles.progressBarFill,
+              { width: `${progress * 100}%` },
+            ]}
+          />
         </View>
+
+        <View style={{ width: 44 }} />
       </View>
 
-      {/* Content */}
       <FlatList
         ref={flatListRef}
         data={PAGES}
@@ -95,26 +105,29 @@ export function OnboardingScreen() {
         scrollEnabled={false}
       />
 
-      {/* Bottom Bar with Next Button */}
       <View style={onboardingStyles.bottomBar}>
         <TouchableOpacity
           onPress={handleNext}
           style={[
             onboardingStyles.nextButton,
             isLastPage && onboardingStyles.doneButton,
-            !isCurrentPageValid && onboardingStyles.buttonDisabled,
+            disableBottomButton && onboardingStyles.buttonDisabled,
           ]}
-          disabled={!isCurrentPageValid}
+          disabled={disableBottomButton}
           activeOpacity={0.8}
         >
-          <Text
-            style={[
-              onboardingStyles.buttonText,
-              !isCurrentPageValid && onboardingStyles.buttonTextDisabled,
-            ]}
-          >
-            {isLastPage ? BUTTON_TEXT.GET_STARTED : BUTTON_TEXT.NEXT}
-          </Text>
+          {isFinishing ? (
+            <ActivityIndicator color="#FFFFFF" />
+          ) : (
+            <Text
+              style={[
+                onboardingStyles.buttonText,
+                disableBottomButton && onboardingStyles.buttonTextDisabled,
+              ]}
+            >
+              {isLastPage ? BUTTON_TEXT.GET_STARTED : BUTTON_TEXT.NEXT}
+            </Text>
+          )}
         </TouchableOpacity>
       </View>
     </SafeAreaView>

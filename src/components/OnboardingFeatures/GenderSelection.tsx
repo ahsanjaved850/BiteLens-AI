@@ -1,14 +1,16 @@
 import { updateGender } from "@/backend/sendData";
 import {
   COLORS,
-  modernStyles,
+  SHADOWS,
   SPACING,
+  TYPOGRAPHY,
 } from "@/src/Screens/Onboarding/Onboarding.style";
 import * as Haptics from "expo-haptics";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ScrollView,
   StatusBar,
+  StyleSheet,
   Text,
   TouchableOpacity,
   View,
@@ -23,7 +25,11 @@ const CONTENT = {
     title: "About You",
     subtitle: "Help us personalize your experience",
   },
-  options: [{ label: "Male" }, { label: "Female" }, { label: "Other" }],
+  options: [
+    { label: "Male", emoji: "👨" },
+    { label: "Female", emoji: "👩" },
+    { label: "Other", emoji: "🧑" },
+  ],
 } as const;
 
 export const GenderSelection: React.FC<GenderSelectionProps> = ({
@@ -33,18 +39,15 @@ export const GenderSelection: React.FC<GenderSelectionProps> = ({
   const hasShownSuccessRef = useRef(false);
   const onValidationChangeRef = useRef(onValidationChange);
 
-  // Update ref when callback changes
   useEffect(() => {
     onValidationChangeRef.current = onValidationChange;
   }, [onValidationChange]);
 
-  // Validation effect - separate from submission
   useEffect(() => {
     const isValid = gender.length > 0;
     onValidationChangeRef.current?.(isValid);
   }, [gender]);
 
-  // Submission effect - only runs when gender changes
   useEffect(() => {
     if (!gender) {
       hasShownSuccessRef.current = false;
@@ -78,29 +81,21 @@ export const GenderSelection: React.FC<GenderSelectionProps> = ({
   }, []);
 
   return (
-    <View style={modernStyles.safeArea}>
-      <View style={modernStyles.screenContainer}>
-        <StatusBar
-          barStyle="dark-content"
-          backgroundColor={COLORS.background}
-        />
+    <View style={styles.safeArea}>
+      <View style={styles.screenContainer}>
+        <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
         <ScrollView
-          contentContainerStyle={modernStyles.contentContainer}
+          contentContainerStyle={styles.contentContainer}
           showsVerticalScrollIndicator={false}
         >
           {/* Header */}
-          <View style={{ alignItems: "center" }}>
-            <Text style={modernStyles.headerTitle}>{CONTENT.header.title}</Text>
-            <View style={modernStyles.spacerSmall} />
-            <Text style={modernStyles.subtitleLight}>
-              {CONTENT.header.subtitle}
-            </Text>
+          <View style={styles.headerSection}>
+            <Text style={styles.headerTitle}>{CONTENT.header.title}</Text>
+            <Text style={styles.subtitle}>{CONTENT.header.subtitle}</Text>
           </View>
 
           {/* Options */}
-          <View
-            style={[modernStyles.optionsContainer, { marginTop: SPACING.xxl }]}
-          >
+          <View style={styles.optionsContainer}>
             {CONTENT.options.map((option) => {
               const isSelected = gender === option.label;
               return (
@@ -108,19 +103,25 @@ export const GenderSelection: React.FC<GenderSelectionProps> = ({
                   key={option.label}
                   onPress={() => handlePress(option.label)}
                   style={[
-                    modernStyles.optionButton,
-                    isSelected && modernStyles.optionButtonSelected,
+                    styles.optionButton,
+                    isSelected && styles.optionButtonSelected,
                   ]}
                   activeOpacity={0.7}
                 >
+                  <Text style={styles.optionEmoji}>{option.emoji}</Text>
                   <Text
                     style={[
-                      modernStyles.optionText,
-                      isSelected && modernStyles.optionTextSelected,
+                      styles.optionText,
+                      isSelected && styles.optionTextSelected,
                     ]}
                   >
                     {option.label}
                   </Text>
+                  {isSelected && (
+                    <View style={styles.checkmark}>
+                      <Text style={styles.checkmarkText}>✓</Text>
+                    </View>
+                  )}
                 </TouchableOpacity>
               );
             })}
@@ -130,3 +131,102 @@ export const GenderSelection: React.FC<GenderSelectionProps> = ({
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  screenContainer: {
+    flex: 1,
+  },
+  contentContainer: {
+    flexGrow: 1,
+    paddingHorizontal: SPACING.lg,
+    paddingBottom: SPACING.xxxl,
+  },
+  headerSection: {
+    alignItems: "center",
+    marginTop: SPACING.xl,
+    marginBottom: SPACING.md,
+  },
+  headerTitle: {
+    ...TYPOGRAPHY.h1,
+    color: COLORS.textDark,
+    textAlign: "center",
+    marginBottom: SPACING.xs,
+  },
+  subtitle: {
+    ...TYPOGRAPHY.body,
+    color: COLORS.textLight,
+    textAlign: "center",
+  },
+  optionsContainer: {
+    marginTop: SPACING.xxl,
+    gap: SPACING.md,
+  },
+  optionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: SPACING.lg,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.backgroundCard,
+    minHeight: 72,
+  },
+  optionButtonSelected: {
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.primaryLight,
+    ...SHADOWS.small,
+  },
+  optionEmoji: {
+    fontSize: 36,
+    marginRight: SPACING.md,
+  },
+  optionText: {
+    ...TYPOGRAPHY.body,
+    color: COLORS.text,
+    fontWeight: "500",
+    flex: 1,
+  },
+  optionTextSelected: {
+    color: COLORS.textDark,
+    fontWeight: "700",
+  },
+  checkmark: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: COLORS.primary,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  checkmarkText: {
+    color: COLORS.white,
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  behindQuestion: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    backgroundColor: COLORS.backgroundGray,
+    borderRadius: 14,
+    padding: SPACING.md,
+    marginTop: SPACING.xl,
+  },
+  behindEmoji: {
+    fontSize: 28,
+    marginRight: SPACING.sm,
+  },
+  behindTitle: {
+    ...TYPOGRAPHY.bodySemibold,
+    color: COLORS.textDark,
+    marginBottom: 2,
+  },
+  behindText: {
+    ...TYPOGRAPHY.small,
+    color: COLORS.textSecondary,
+    lineHeight: 20,
+  },
+});

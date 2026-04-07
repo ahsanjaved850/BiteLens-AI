@@ -1,14 +1,16 @@
 import { updateGoal } from "@/backend/sendData";
 import {
   COLORS,
-  modernStyles,
+  SHADOWS,
   SPACING,
+  TYPOGRAPHY,
 } from "@/src/Screens/Onboarding/Onboarding.style";
 import * as Haptics from "expo-haptics";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ScrollView,
   StatusBar,
+  StyleSheet,
   Text,
   TouchableOpacity,
   View,
@@ -63,7 +65,7 @@ export const FitnessGoal: React.FC<FitnessGoalProps> = ({
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       hasShownSuccessRef.current = true;
     }
-  }, [goal]); // ✅ Removed onValidationChange
+  }, [goal]);
 
   const handlePress = useCallback(async (selectedGoal: string) => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -71,29 +73,21 @@ export const FitnessGoal: React.FC<FitnessGoalProps> = ({
   }, []);
 
   return (
-    <View style={modernStyles.safeArea}>
-      <View style={modernStyles.screenContainer}>
-        <StatusBar
-          barStyle="dark-content"
-          backgroundColor={COLORS.background}
-        />
+    <View style={styles.safeArea}>
+      <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
+      <View style={styles.screenContainer}>
         <ScrollView
-          contentContainerStyle={modernStyles.contentContainer}
+          contentContainerStyle={styles.contentContainer}
           showsVerticalScrollIndicator={false}
         >
           {/* Header */}
-          <View style={{ alignItems: "center" }}>
-            <Text style={modernStyles.headerTitle}>{CONTENT.header.title}</Text>
-            <View style={modernStyles.spacerSmall} />
-            <Text style={modernStyles.subtitleLight}>
-              {CONTENT.header.subtitle}
-            </Text>
+          <View style={styles.headerSection}>
+            <Text style={styles.headerTitle}>{CONTENT.header.title}</Text>
+            <Text style={styles.subtitle}>{CONTENT.header.subtitle}</Text>
           </View>
 
           {/* Options */}
-          <View
-            style={[modernStyles.optionsContainer, { marginTop: SPACING.xxl }]}
-          >
+          <View style={styles.optionsContainer}>
             {CONTENT.options.map((option) => {
               const isSelected = goal === option.label;
               return (
@@ -101,30 +95,28 @@ export const FitnessGoal: React.FC<FitnessGoalProps> = ({
                   key={option.label}
                   onPress={() => handlePress(option.label)}
                   style={[
-                    modernStyles.optionButton,
-                    isSelected && modernStyles.optionButtonSelected,
+                    styles.optionButton,
+                    isSelected && styles.optionButtonSelected,
                   ]}
                   activeOpacity={0.7}
                 >
-                  <Text style={modernStyles.optionIconLarge}>
-                    {option.icon}
-                  </Text>
-                  <View style={modernStyles.optionContent}>
+                  <Text style={styles.optionEmoji}>{option.icon}</Text>
+                  <View style={styles.optionContent}>
                     <Text
                       style={[
-                        modernStyles.optionText,
-                        isSelected && modernStyles.optionTextSelected,
+                        styles.optionText,
+                        isSelected && styles.optionTextSelected,
                       ]}
                     >
                       {option.label}
                     </Text>
-                    <Text style={modernStyles.optionDescription}>
+                    <Text style={styles.optionDescription}>
                       {option.description}
                     </Text>
                   </View>
                   {isSelected && (
-                    <View style={modernStyles.optionCheckmark}>
-                      <Text style={modernStyles.checkmarkText}>✓</Text>
+                    <View style={styles.checkmark}>
+                      <Text style={styles.checkmarkText}>✓</Text>
                     </View>
                   )}
                 </TouchableOpacity>
@@ -136,3 +128,87 @@ export const FitnessGoal: React.FC<FitnessGoalProps> = ({
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  screenContainer: {
+    flex: 1,
+  },
+  contentContainer: {
+    flexGrow: 1,
+    paddingHorizontal: SPACING.lg,
+    paddingBottom: SPACING.xxxl,
+  },
+  headerSection: {
+    alignItems: "center",
+    marginTop: SPACING.xl,
+    marginBottom: SPACING.md,
+  },
+  headerTitle: {
+    ...TYPOGRAPHY.h1,
+    color: COLORS.textDark,
+    textAlign: "center",
+    marginBottom: SPACING.sm,
+  },
+  subtitle: {
+    ...TYPOGRAPHY.body,
+    color: COLORS.textLight,
+    textAlign: "center",
+  },
+  optionsContainer: {
+    marginTop: SPACING.xxl,
+    gap: SPACING.md,
+  },
+  optionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: SPACING.lg,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.backgroundCard,
+    minHeight: 80,
+  },
+  optionButtonSelected: {
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.primaryLight,
+    ...SHADOWS.small,
+  },
+  optionEmoji: {
+    fontSize: 40,
+    marginRight: SPACING.md,
+  },
+  optionContent: {
+    flex: 1,
+  },
+  optionText: {
+    ...TYPOGRAPHY.body,
+    color: COLORS.text,
+    fontWeight: "500",
+  },
+  optionTextSelected: {
+    color: COLORS.textDark,
+    fontWeight: "700",
+  },
+  optionDescription: {
+    ...TYPOGRAPHY.small,
+    color: COLORS.textLight,
+    marginTop: 3,
+  },
+  checkmark: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: COLORS.primary,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  checkmarkText: {
+    color: COLORS.white,
+    fontSize: 15,
+    fontWeight: "700",
+  },
+});

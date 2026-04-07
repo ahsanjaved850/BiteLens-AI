@@ -32,7 +32,7 @@ export const MealDetails = () => {
           onPress={handleBack}
           activeOpacity={0.7}
         >
-          <Ionicons name="arrow-back" size={24} color="#1E293B" />
+          <Ionicons name="arrow-back" size={22} color="#0F1923" />
         </TouchableOpacity>
         <Text style={mealDetailStyles.headerTitle}>
           {SECTION_TITLES.MEAL_DETAILS}
@@ -53,16 +53,16 @@ export const MealDetails = () => {
             />
           ) : (
             <View style={mealDetailStyles.imagePlaceholder}>
-              <Ionicons name="image-outline" size={64} color="#94A3B8" />
+              <Ionicons name="image-outline" size={64} color="#9CA8B7" />
             </View>
           )}
         </View>
 
-        {/* Meal Info Card */}
+        {/* Meal Info Card — overlaps image */}
         <View style={mealDetailStyles.infoCard}>
           <Text style={mealDetailStyles.mealName}>{meal.name}</Text>
           <View style={mealDetailStyles.timeContainer}>
-            <Ionicons name="time-outline" size={16} color="#64748B" />
+            <Ionicons name="time-outline" size={16} color="#9CA8B7" />
             <Text style={mealDetailStyles.timeText}>
               {formatTime(meal.created_at)}
             </Text>
@@ -72,7 +72,7 @@ export const MealDetails = () => {
         {/* Calories Card */}
         <View style={mealDetailStyles.caloriesCard}>
           <View style={mealDetailStyles.caloriesIconContainer}>
-            <Ionicons name="flame" size={32} color="#fe0c0c" />
+            <Ionicons name="flame" size={28} color="#F5A623" />
           </View>
           <View style={mealDetailStyles.caloriesInfo}>
             <Text style={mealDetailStyles.caloriesLabel}>
@@ -84,7 +84,7 @@ export const MealDetails = () => {
           </View>
         </View>
 
-        {/* Macronutrients Section */}
+        {/* Macronutrients */}
         <View style={mealDetailStyles.section}>
           <Text style={mealDetailStyles.sectionTitle}>
             {SECTION_TITLES.MACRONUTRIENTS}
@@ -100,7 +100,7 @@ export const MealDetails = () => {
                 >
                   <Ionicons
                     name={macro.icon as any}
-                    size={24}
+                    size={22}
                     color={macro.iconColor}
                   />
                 </View>
@@ -113,7 +113,7 @@ export const MealDetails = () => {
           </View>
         </View>
 
-        {/* Additional Nutrients Section */}
+        {/* Additional Nutrients */}
         <View style={mealDetailStyles.section}>
           <Text style={mealDetailStyles.sectionTitle}>
             {SECTION_TITLES.ADDITIONAL_NUTRIENTS}
@@ -152,29 +152,12 @@ export const MealDetails = () => {
           </View>
         </View>
 
-        {/* Ingredients Section */}
-        <View style={mealDetailStyles.section}>
-          <View style={mealDetailStyles.ingredientsHeader}>
-            <Text style={mealDetailStyles.sectionTitle}>
-              {SECTION_TITLES.INGREDIENTS}
-            </Text>
-          </View>
-          <View style={mealDetailStyles.ingredientsContainer}>
-            {meal.ingredients && meal.ingredients.length > 0 ? (
-              meal.ingredients.map((ingredient, index) => (
-                <View key={index} style={mealDetailStyles.ingredientItem}>
-                  <View style={mealDetailStyles.ingredientBullet} />
-                  <Text style={mealDetailStyles.ingredientText}>
-                    {ingredient}
-                  </Text>
-                </View>
-              ))
-            ) : (
-              <Text style={mealDetailStyles.noIngredientsText}>
-                {UI_TEXT.NO_INGREDIENTS}
-              </Text>
-            )}
-          </View>
+        {/* AI Notice */}
+        <View style={mealDetailStyles.aiNotice}>
+          <Ionicons name="sparkles" size={16} color="#F5A623" />
+          <Text style={mealDetailStyles.aiNoticeText}>
+            {UI_TEXT.AI_NOTICE}
+          </Text>
         </View>
       </ScrollView>
     </SafeAreaView>

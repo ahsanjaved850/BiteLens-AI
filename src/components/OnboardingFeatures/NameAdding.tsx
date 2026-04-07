@@ -1,12 +1,19 @@
 import { updateName } from "@/backend/sendData";
 import {
   COLORS,
-  modernStyles,
   SPACING,
+  TYPOGRAPHY
 } from "@/src/Screens/Onboarding/Onboarding.style";
 import * as Haptics from "expo-haptics";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { ScrollView, StatusBar, Text, TextInput, View } from "react-native";
+import {
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
 interface NameAddingProps {
   onValidationChange?: (isValid: boolean) => void;
@@ -39,7 +46,6 @@ export const NameAdding: React.FC<NameAddingProps> = ({
   const lastSubmittedNameRef = useRef<string>("");
   const onValidationChangeRef = useRef(onValidationChange);
 
-  // Update ref when callback changes
   useEffect(() => {
     onValidationChangeRef.current = onValidationChange;
   }, [onValidationChange]);
@@ -52,7 +58,6 @@ export const NameAdding: React.FC<NameAddingProps> = ({
     );
   };
 
-  // Validation effect - separate from submission
   useEffect(() => {
     const isValid = isValidName(name);
     onValidationChangeRef.current?.(isValid);
@@ -81,7 +86,7 @@ export const NameAdding: React.FC<NameAddingProps> = ({
     } finally {
       setIsSubmitting(false);
     }
-  }, []); // No dependencies - stable reference
+  }, []);
 
   const handleTextChange = useCallback(
     (text: string) => {
@@ -124,34 +129,27 @@ export const NameAdding: React.FC<NameAddingProps> = ({
   }, []);
 
   return (
-    <View style={modernStyles.safeArea}>
-      <View style={modernStyles.screenContainer}>
-        <StatusBar
-          barStyle="dark-content"
-          backgroundColor={COLORS.background}
-        />
+    <View style={styles.safeArea}>
+      <View style={styles.screenContainer}>
+        <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
         <ScrollView
-          contentContainerStyle={modernStyles.contentContainer}
+          contentContainerStyle={styles.contentContainer}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
-          {/* Welcome Emoji */}
-          <View style={{ alignItems: "center" }}>
-            <Text style={modernStyles.emojiLarge}>{CONTENT.emoji}</Text>
+          {/* Emoji */}
+          <View style={styles.emojiContainer}>
+            <Text style={styles.emoji}>{CONTENT.emoji}</Text>
           </View>
 
           {/* Header */}
-          <View style={{ alignItems: "center", marginTop: SPACING.md }}>
-            <Text style={modernStyles.headerTitle}>{CONTENT.header.title}</Text>
-            <View style={modernStyles.spacerSmall} />
-            <Text style={modernStyles.subtitleLight}>
-              {CONTENT.header.subtitle}
-            </Text>
+          <View style={styles.headerSection}>
+            <Text style={styles.headerTitle}>{CONTENT.header.title}</Text>
+            <Text style={styles.subtitle}>{CONTENT.header.subtitle}</Text>
           </View>
 
-          {/* Input Section */}
-          <View
-            style={[modernStyles.inputContainer, { marginTop: SPACING.xxl }]}
-          >
+          {/* Input */}
+          <View style={styles.inputContainer}>
             <TextInput
               placeholder={CONTENT.input.placeholder}
               value={name}
@@ -159,8 +157,8 @@ export const NameAdding: React.FC<NameAddingProps> = ({
               onFocus={handleFocus}
               onBlur={handleBlur}
               style={[
-                modernStyles.input,
-                (isFocused || name) && modernStyles.inputFocused,
+                styles.input,
+                (isFocused || name) && styles.inputFocused,
               ]}
               placeholderTextColor={COLORS.textLight}
               autoCapitalize="words"
@@ -174,3 +172,80 @@ export const NameAdding: React.FC<NameAddingProps> = ({
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  screenContainer: {
+    flex: 1,
+  },
+  contentContainer: {
+    flexGrow: 1,
+    paddingHorizontal: SPACING.lg,
+    paddingBottom: SPACING.xxxl,
+  },
+  emojiContainer: {
+    alignItems: "center",
+    marginTop: SPACING.xxl,
+  },
+  emoji: {
+    fontSize: 72,
+  },
+  headerSection: {
+    alignItems: "center",
+    marginTop: SPACING.md,
+  },
+  headerTitle: {
+    ...TYPOGRAPHY.h1,
+    color: COLORS.textDark,
+    textAlign: "center",
+    marginBottom: SPACING.xs,
+  },
+  subtitle: {
+    ...TYPOGRAPHY.body,
+    color: COLORS.textLight,
+    textAlign: "center",
+  },
+  inputContainer: {
+    marginTop: SPACING.xxl,
+  },
+  input: {
+    borderWidth: 2,
+    borderColor: COLORS.border,
+    borderRadius: 16,
+    padding: SPACING.md,
+    ...TYPOGRAPHY.body,
+    color: COLORS.textDark,
+    backgroundColor: COLORS.backgroundCard,
+    minHeight: 58,
+    textAlign: "center",
+    fontSize: 18,
+  },
+  inputFocused: {
+    borderColor: COLORS.primary,
+  },
+  behindQuestion: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    backgroundColor: COLORS.backgroundGray,
+    borderRadius: 14,
+    padding: SPACING.md,
+    marginTop: SPACING.xl,
+  },
+  behindEmoji: {
+    fontSize: 28,
+    marginRight: SPACING.sm,
+  },
+  behindTitle: {
+    ...TYPOGRAPHY.bodySemibold,
+    color: COLORS.textDark,
+    marginBottom: 2,
+  },
+  behindText: {
+    ...TYPOGRAPHY.small,
+    color: COLORS.textSecondary,
+    lineHeight: 20,
+  },
+});
