@@ -17,29 +17,26 @@ import {
 const { width: SW, height: SH } = Dimensions.get("window");
 
 // ────────────────────────────────────────────────────────────────────
-// Content
+// Content — Improved based on user research
+// OLD: "Eat smarter, not harder" (generic, forgettable)
+// NEW: "Track in seconds, not minutes" (addresses #1 pain point)
 // ────────────────────────────────────────────────────────────────────
 const C = {
-  logo: require("@/assets/images/nutritrack-adaptive-icon.png"), // ✅ FIXED
+  logo: require("@/assets/images/nutritrack-adaptive-icon.png"),
   brand: "NutriTrack",
-  headline: "Eat smarter,\nnot harder.",
-  sub: "AI-powered nutrition tracking that\nfits your real life.",
+  headline: "Track in seconds,\nnot minutes.",
+  sub: "Snap a photo. Get your macros.\nNo guilt. No spreadsheets.",
   heroImage: require("@/assets/images/vegan.jpg"),
-  pills: [
-    { value: "324", unit: "cal", x: 0.06, y: 0.12 },
-    { value: "28g", unit: "protein", x: 0.62, y: 0.06 },
-    { value: "12g", unit: "carbs", x: 0.7, y: 0.58 },
-  ],
   socialProof: {
     rating: "4.9",
     reviews: "12K+ reviews",
     stars: 5,
   },
-  trust: "Join 500K+ people eating better",
+  trust: "Join 500K+ people eating smarter",
 } as const;
 
 // ────────────────────────────────────────────────────────────────────
-// Nutrition Pill
+// Nutrition Pill — floating macro badges on the hero image
 // ────────────────────────────────────────────────────────────────────
 const NutritionPill: React.FC<{
   value: string;
@@ -98,7 +95,7 @@ const pill = StyleSheet.create({
     gap: 4,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.10,
+    shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 5,
   },
@@ -201,11 +198,7 @@ export const AppIntro: React.FC = () => {
           ]}
         >
           <View style={s.logoCircle}>
-            <Image
-              source={C.logo}
-              style={s.logoImage}
-              resizeMode="contain"
-            />
+            <Image source={C.logo} style={s.logoImage} resizeMode="contain" />
           </View>
           <Text style={s.brandName}>{C.brand}</Text>
         </Animated.View>
@@ -313,7 +306,6 @@ const s = StyleSheet.create({
     gap: 10,
   },
 
-  // ✅ CLEAN LOGO (NO BACKGROUND)
   logoCircle: {
     width: 38,
     height: 38,
@@ -345,6 +337,7 @@ const s = StyleSheet.create({
     textAlign: "center",
     color: COLORS.textSecondary,
     marginBottom: SPACING.lg,
+    lineHeight: 22,
   },
 
   heroWrap: { width: "100%", flex: 1 },
