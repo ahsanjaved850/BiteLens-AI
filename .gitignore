@@ -39,5 +39,6 @@ yarn-error.*
 *.tsbuildinfo
 *.expo-env.d.ts
 
-/ios
-/android
+# generated native folders
+ios/
+android/
