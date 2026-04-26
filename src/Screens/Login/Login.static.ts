@@ -74,7 +74,7 @@ export const ALERT_MESSAGES = {
 } as const;
 
 export const APP_INFO = {
-  NAME: "NutriTrack",
+  NAME: "BiteLens",
   TAGLINE: "Your AI Nutrition Assistant",
 } as const;
 

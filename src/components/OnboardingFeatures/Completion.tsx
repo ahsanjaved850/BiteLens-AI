@@ -383,7 +383,7 @@ const ReadyScreen: React.FC = () => {
         </View>
         <Text style={s.readyTitle}>Ready to transform{"\n"}your nutrition?</Text>
         <Text style={s.readySubtitle}>
-          Here's what NutriTrack will build for you
+          Here's what BiteLens will build for you
         </Text>
       </Animated.View>
 
@@ -613,7 +613,7 @@ export const Completion: React.FC<CompletionProps> = ({
               </View>
               <Text style={s.loadingTitle}>Creating your plan</Text>
               <Text style={s.loadingSubtitle}>
-                Personalizing NutriTrack based on{"\n"}your body and goals
+                Personalizing BiteLens based on{"\n"}your body and goals
               </Text>
             </Animated.View>
 

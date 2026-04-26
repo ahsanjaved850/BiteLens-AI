@@ -2,12 +2,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createClient } from "@supabase/supabase-js";
 import * as FileSystem from "expo-file-system/legacy";
 
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error("Missing Supabase environment variables");
-}
+const supabaseUrl = "https://zfwtxejwsuqibjjolfmh.supabase.co";
+const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpmd3R4ZWp3c3VxaWJqam9sZm1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA4NTE0NTcsImV4cCI6MjA2NjQyNzQ1N30.u_gdHQvtEwfYa_xqHqceb51j8qlT78NvA3ZDzYNixWY";
 
 // Create Supabase client with AsyncStorage for session persistence
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {

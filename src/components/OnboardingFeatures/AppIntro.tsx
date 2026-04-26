@@ -17,13 +17,11 @@ import {
 const { width: SW, height: SH } = Dimensions.get("window");
 
 // ────────────────────────────────────────────────────────────────────
-// Content — Improved based on user research
-// OLD: "Eat smarter, not harder" (generic, forgettable)
-// NEW: "Track in seconds, not minutes" (addresses #1 pain point)
+// Content — BiteLens App Intro (renamed from NutriTrack)
 // ────────────────────────────────────────────────────────────────────
 const C = {
   logo: require("@/assets/images/nutritrack-adaptive-icon.png"),
-  brand: "NutriTrack",
+  brand: "BiteLens",
   headline: "Track in seconds,\nnot minutes.",
   sub: "Snap a photo. Get your macros.\nNo guilt. No spreadsheets.",
   heroImage: require("@/assets/images/vegan.jpg"),

@@ -28,12 +28,12 @@ const CONTENT = {
       emoji: "😤",
     },
     {
-      label: "NutriTrack",
+      label: "BiteLens",
       points: ["Progress over perfection", "Weekly trends matter", "AI adapts to you"],
       emoji: "😊",
     },
   ],
-  bottomLine: "80% of rigid dieters regain weight.\nNutriTrack's flexible approach keeps you going.",
+  bottomLine: "80% of rigid dieters regain weight.\nBiteLens's flexible approach keeps you going.",
 } as const;
 
 export const MotivationalSlide: React.FC = () => {

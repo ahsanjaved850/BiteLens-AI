@@ -1,4 +1,4 @@
-# 🥗 NutriTrack AI
+# 🥗BiteLens AI
 
 > **Your AI-powered nutrition companion** — snap a photo of any meal and instantly get a full nutritional breakdown, track your daily macros, and stay on top of your health goals.
 
@@ -6,7 +6,7 @@
 
 ## 📱 Overview
 
-NutriTrack AI is a cross-platform mobile application built with **React Native (Expo)** that combines AI-powered meal analysis with a clean, intuitive nutrition tracking experience. Users simply photograph their food, and the app uses a backend AI model (via Supabase Edge Functions) to identify the meal, estimate its nutritional content, and log everything automatically.
+BiteLens AI is a cross-platform mobile application built with **React Native (Expo)** that combines AI-powered meal analysis with a clean, intuitive nutrition tracking experience. Users simply photograph their food, and the app uses a backend AI model (via Supabase Edge Functions) to identify the meal, estimate its nutritional content, and log everything automatically.
 
 ---
 
@@ -185,18 +185,6 @@ EXPO_PUBLIC_SUPABASE_KEY=your_supabase_anon_key
 - A Supabase project with the schema above configured
 - A Supabase Edge Function deployed for AI meal analysis
 
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/your-username/nutritrack-ai.git
-cd nutritrack-ai
-
-# Install dependencies
-yarn install
-# or
-npm install
-```
 
 ### Running the App
 

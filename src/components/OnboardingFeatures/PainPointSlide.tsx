@@ -14,15 +14,6 @@ import {
   View,
 } from "react-native";
 
-// ────────────────────────────────────────────────────────────────────
-// Content
-// Validates user's past pain with calorie tracking apps.
-// Research context:
-//   • 73% of quitters cite "too time-consuming" as primary reason
-//   • 80% abandon tracking apps within weeks
-//   • 71% of trainers see clients anxious after missing a single day
-//   • 27% of users quit an app specifically for mental health reasons
-// ────────────────────────────────────────────────────────────────────
 const CONTENT = {
   header: {
     subtitle: "Sound familiar?",
@@ -53,27 +44,18 @@ const CONTENT = {
   reframe: {
     emoji: "💡",
     title: "It wasn't you — it was the app.",
-    description: "NutriTrack was built to fix every single one of these.",
+    description: "BiteLens was built to fix every single one of these.",
   },
 } as const;
 
-// ────────────────────────────────────────────────────────────────────
-// Main Component
-// ────────────────────────────────────────────────────────────────────
 export const PainPointSlide: React.FC = () => {
-  // Header fade
   const headerAnim = useRef(new Animated.Value(0)).current;
-
-  // Individual pain point animations
   const painAnims = CONTENT.painPoints.map(
     () => useRef(new Animated.Value(0)).current
   );
-
-  // Reframe card
   const reframeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // 1. Header fades in first
     Animated.timing(headerAnim, {
       toValue: 1,
       duration: 400,
@@ -81,7 +63,6 @@ export const PainPointSlide: React.FC = () => {
       useNativeDriver: true,
     }).start();
 
-    // 2. Pain points stagger in
     Animated.stagger(
       150,
       painAnims.map((anim) =>
@@ -95,7 +76,6 @@ export const PainPointSlide: React.FC = () => {
       )
     ).start();
 
-    // 3. Reframe card springs in last
     Animated.spring(reframeAnim, {
       toValue: 1,
       tension: 50,
@@ -108,9 +88,7 @@ export const PainPointSlide: React.FC = () => {
   return (
     <View style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
-
       <View style={styles.screenContainer}>
-        {/* ── Header ── */}
         <Animated.View
           style={[
             styles.headerSection,
@@ -131,7 +109,6 @@ export const PainPointSlide: React.FC = () => {
           <Text style={styles.headerTitle}>{CONTENT.header.title}</Text>
         </Animated.View>
 
-        {/* ── Pain Point Cards ── */}
         <View style={styles.painContainer}>
           {CONTENT.painPoints.map((point, index) => (
             <Animated.View
@@ -160,7 +137,6 @@ export const PainPointSlide: React.FC = () => {
           ))}
         </View>
 
-        {/* ── Reframe Card ── */}
         <Animated.View
           style={[
             styles.reframeCard,
@@ -196,11 +172,7 @@ export const PainPointSlide: React.FC = () => {
   );
 };
 
-// ────────────────────────────────────────────────────────────────────
-// Styles
-// ────────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  /* ── Layout ── */
   safeArea: {
     flex: 1,
     backgroundColor: COLORS.background,
@@ -210,8 +182,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.lg,
     justifyContent: "center",
   },
-
-  /* ── Header ── */
   headerSection: {
     alignItems: "center",
     marginBottom: SPACING.xl,
@@ -228,8 +198,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 36,
   },
-
-  /* ── Pain Cards ── */
   painContainer: {
     gap: 10,
     marginBottom: SPACING.xl,
@@ -260,8 +228,6 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     lineHeight: 20,
   },
-
-  /* ── Reframe Card ── */
   reframeCard: {
     flexDirection: "row",
     alignItems: "center",
