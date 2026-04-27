@@ -110,7 +110,7 @@ export const Home = () => {
               style={{ width: 40, height: 40 }}
               resizeMode="contain"
             />
-            <Text style={homeStyles.logoName}>NutriTrack</Text>
+            <Text style={homeStyles.logoName}>BiteLens AI</Text>
           </View>
         </View>
       </View>

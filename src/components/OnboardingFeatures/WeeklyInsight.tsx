@@ -14,12 +14,6 @@ import {
   View,
 } from "react-native";
 
-// ────────────────────────────────────────────────────────────────────
-// Content — Weekly averages reduce daily anxiety
-// Research: Users who focus on weekly trends instead of daily targets
-//           show 3x higher retention and significantly less guilt.
-//           "A bad Tuesday doesn't matter if the week is on track."
-// ────────────────────────────────────────────────────────────────────
 const CONTENT = {
   preTitle: "Progress, not perfection",
   title: "One bad meal won't\nruin your week",
@@ -57,9 +51,6 @@ const CONTENT = {
   ],
 } as const;
 
-// ────────────────────────────────────────────────────────────────────
-// Animated Bar
-// ────────────────────────────────────────────────────────────────────
 const DayBar: React.FC<{
   day: string;
   percent: number;
@@ -67,7 +58,6 @@ const DayBar: React.FC<{
   index: number;
 }> = ({ day, percent, status, index }) => {
   const heightAnim = useRef(new Animated.Value(0)).current;
-
   const maxBarHeight = 100;
   const barHeight = Math.min((percent / 120) * maxBarHeight, maxBarHeight);
   const isOver = status === "over";
@@ -85,7 +75,6 @@ const DayBar: React.FC<{
   return (
     <View style={barStyles.container}>
       <View style={barStyles.barTrack}>
-        {/* Target line */}
         <View style={barStyles.targetLine} />
         <Animated.View
           style={[
@@ -110,10 +99,7 @@ const DayBar: React.FC<{
 };
 
 const barStyles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-  },
+  container: { flex: 1, alignItems: "center" },
   barTrack: {
     width: "70%",
     height: 100,
@@ -123,7 +109,7 @@ const barStyles = StyleSheet.create({
   },
   targetLine: {
     position: "absolute",
-    top: 100 - (100 / 120) * 100, // 100% target line
+    top: 100 - (100 / 120) * 100,
     left: -4,
     right: -4,
     height: 1.5,
@@ -148,9 +134,6 @@ const barStyles = StyleSheet.create({
   },
 });
 
-// ────────────────────────────────────────────────────────────────────
-// Main Component
-// ────────────────────────────────────────────────────────────────────
 export const WeeklyInsight: React.FC = () => {
   const headerAnim = useRef(new Animated.Value(0)).current;
   const chartAnim = useRef(new Animated.Value(0)).current;
@@ -159,28 +142,10 @@ export const WeeklyInsight: React.FC = () => {
 
   useEffect(() => {
     Animated.stagger(200, [
-      Animated.timing(headerAnim, {
-        toValue: 1,
-        duration: 400,
-        useNativeDriver: true,
-      }),
-      Animated.timing(chartAnim, {
-        toValue: 1,
-        duration: 400,
-        useNativeDriver: true,
-      }),
-      Animated.timing(avgAnim, {
-        toValue: 1,
-        duration: 400,
-        delay: 1200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(principleAnim, {
-        toValue: 1,
-        duration: 400,
-        delay: 1600,
-        useNativeDriver: true,
-      }),
+      Animated.timing(headerAnim, { toValue: 1, duration: 400, useNativeDriver: true }),
+      Animated.timing(chartAnim, { toValue: 1, duration: 400, useNativeDriver: true }),
+      Animated.timing(avgAnim, { toValue: 1, duration: 400, delay: 1200, useNativeDriver: true }),
+      Animated.timing(principleAnim, { toValue: 1, duration: 400, delay: 1600, useNativeDriver: true }),
     ]).start();
   }, []);
 
@@ -188,67 +153,37 @@ export const WeeklyInsight: React.FC = () => {
     <View style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
       <View style={styles.screenContainer}>
-        {/* Header */}
         <Animated.View
-          style={[
-            styles.headerSection,
-            {
-              opacity: headerAnim,
-              transform: [
-                {
-                  translateY: headerAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [20, 0],
-                  }),
-                },
-              ],
-            },
-          ]}
+          style={[styles.headerSection, {
+            opacity: headerAnim,
+            transform: [{ translateY: headerAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }],
+          }]}
         >
           <Text style={styles.preTitle}>{CONTENT.preTitle}</Text>
           <Text style={styles.headerTitle}>{CONTENT.title}</Text>
           <Text style={styles.subtitle}>{CONTENT.subtitle}</Text>
         </Animated.View>
 
-        {/* Weekly Chart Card */}
         <Animated.View style={[styles.chartCard, { opacity: chartAnim }]}>
           <Text style={styles.chartLabel}>This Week</Text>
           <View style={styles.barsRow}>
             {CONTENT.weekData.map((d, i) => (
-              <DayBar
-                key={d.day}
-                day={d.day}
-                percent={d.percent}
-                status={d.status}
-                index={i}
-              />
+              <DayBar key={d.day} day={d.day} percent={d.percent} status={d.status} index={i} />
             ))}
           </View>
         </Animated.View>
 
-        {/* Weekly Average Badge */}
         <Animated.View
-          style={[
-            styles.avgCard,
-            {
-              opacity: avgAnim,
-              transform: [
-                {
-                  scale: avgAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0.9, 1],
-                  }),
-                },
-              ],
-            },
-          ]}
+          style={[styles.avgCard, {
+            opacity: avgAnim,
+            transform: [{ scale: avgAnim.interpolate({ inputRange: [0, 1], outputRange: [0.9, 1] }) }],
+          }]}
         >
           <Text style={styles.avgEmoji}>{CONTENT.weeklyAverage.emoji}</Text>
           <Text style={styles.avgValue}>{CONTENT.weeklyAverage.value}</Text>
           <Text style={styles.avgLabel}>{CONTENT.weeklyAverage.label}</Text>
         </Animated.View>
 
-        {/* Principles */}
         <Animated.View style={[styles.principlesContainer, { opacity: principleAnim }]}>
           {CONTENT.principles.map((p, i) => (
             <View key={i} style={styles.principleRow}>
@@ -265,112 +200,24 @@ export const WeeklyInsight: React.FC = () => {
   );
 };
 
-// ────────────────────────────────────────────────────────────────────
-// Styles
-// ────────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-  screenContainer: {
-    flex: 1,
-    paddingHorizontal: SPACING.lg,
-  },
-  headerSection: {
-    alignItems: "center",
-    marginTop: SPACING.md,
-    marginBottom: SPACING.lg,
-  },
-  preTitle: {
-    ...TYPOGRAPHY.body,
-    color: COLORS.success,
-    fontWeight: "700",
-    marginBottom: SPACING.xs,
-  },
-  headerTitle: {
-    ...TYPOGRAPHY.h1,
-    color: COLORS.textDark,
-    textAlign: "center",
-    lineHeight: 36,
-  },
-  subtitle: {
-    ...TYPOGRAPHY.small,
-    color: COLORS.textSecondary,
-    textAlign: "center",
-    marginTop: SPACING.sm,
-    lineHeight: 20,
-  },
-
-  // Chart Card
-  chartCard: {
-    backgroundColor: COLORS.backgroundCard,
-    borderRadius: 20,
-    padding: SPACING.lg,
-    ...SHADOWS.small,
-  },
-  chartLabel: {
-    ...TYPOGRAPHY.bodySemibold,
-    color: COLORS.textDark,
-    marginBottom: SPACING.md,
-  },
-  barsRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-end",
-    height: 130,
-    paddingBottom: SPACING.xs,
-  },
-
-  // Average Card
-  avgCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: COLORS.primaryLight,
-    borderRadius: 16,
-    padding: SPACING.md,
-    marginTop: SPACING.md,
-    gap: SPACING.sm,
-  },
-  avgEmoji: {
-    fontSize: 24,
-  },
-  avgValue: {
-    fontSize: 24,
-    fontWeight: "800",
-    color: COLORS.primary,
-  },
-  avgLabel: {
-    ...TYPOGRAPHY.small,
-    color: COLORS.textSecondary,
-    flex: 1,
-  },
-
-  // Principles
-  principlesContainer: {
-    marginTop: SPACING.lg,
-    gap: SPACING.sm,
-  },
-  principleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 6,
-  },
-  principleEmoji: {
-    fontSize: 22,
-    marginRight: SPACING.md,
-  },
-  principleContent: {
-    flex: 1,
-  },
-  principleTitle: {
-    ...TYPOGRAPHY.bodySemibold,
-    color: COLORS.textDark,
-    fontSize: 14,
-  },
-  principleDesc: {
-    ...TYPOGRAPHY.small,
-    color: COLORS.textSecondary,
-    lineHeight: 18,
-  },
+  safeArea: { flex: 1, backgroundColor: COLORS.background },
+  screenContainer: { flex: 1, paddingHorizontal: SPACING.lg },
+  headerSection: { alignItems: "center", marginTop: SPACING.md, marginBottom: SPACING.lg },
+  preTitle: { ...TYPOGRAPHY.body, color: COLORS.success, fontWeight: "700", marginBottom: SPACING.xs },
+  headerTitle: { ...TYPOGRAPHY.h1, color: COLORS.textDark, textAlign: "center", lineHeight: 36 },
+  subtitle: { ...TYPOGRAPHY.small, color: COLORS.textSecondary, textAlign: "center", marginTop: SPACING.sm, lineHeight: 20 },
+  chartCard: { backgroundColor: COLORS.backgroundCard, borderRadius: 20, padding: SPACING.lg, ...SHADOWS.small },
+  chartLabel: { ...TYPOGRAPHY.bodySemibold, color: COLORS.textDark, marginBottom: SPACING.md },
+  barsRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", height: 130, paddingBottom: SPACING.xs },
+  avgCard: { flexDirection: "row", alignItems: "center", backgroundColor: COLORS.primaryLight, borderRadius: 16, padding: SPACING.md, marginTop: SPACING.md, gap: SPACING.sm },
+  avgEmoji: { fontSize: 24 },
+  avgValue: { fontSize: 24, fontWeight: "800", color: COLORS.primary },
+  avgLabel: { ...TYPOGRAPHY.small, color: COLORS.textSecondary, flex: 1 },
+  principlesContainer: { marginTop: SPACING.lg, gap: SPACING.sm },
+  principleRow: { flexDirection: "row", alignItems: "center", paddingVertical: 6 },
+  principleEmoji: { fontSize: 22, marginRight: SPACING.md },
+  principleContent: { flex: 1 },
+  principleTitle: { ...TYPOGRAPHY.bodySemibold, color: COLORS.textDark, fontSize: 14 },
+  principleDesc: { ...TYPOGRAPHY.small, color: COLORS.textSecondary, lineHeight: 18 },
 });

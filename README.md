@@ -1,4 +1,4 @@
-# 🥗 NutriTrack AI
+# 🥗BiteLens AI
 
 > **Your AI-powered nutrition companion** snap a photo of any meal and instantly get a full nutritional breakdown, track your daily macros, and stay on top of your health goals.
 
@@ -6,7 +6,7 @@
 
 ## 📱 Overview
 
-NutriTrack AI is a cross-platform mobile application built with **React Native (Expo)** that combines AI-powered meal analysis with a clean, intuitive nutrition tracking experience. Users simply photograph their food, and the app uses a backend AI model (via Supabase Edge Functions) to identify the meal, estimate its nutritional content, and log everything automatically.
+BiteLens AI is a cross-platform mobile application built with **React Native (Expo)** that combines AI-powered meal analysis with a clean, intuitive nutrition tracking experience. Users simply photograph their food, and the app uses a backend AI model (via Supabase Edge Functions) to identify the meal, estimate its nutritional content, and log everything automatically.
 
 ---
 
@@ -158,25 +158,3 @@ Each screen follows a consistent **three-file pattern**:
 | `initial_details` | id, calories, protein, carbs, fat, sugar, sodium, fiber, bmi, bmi_category |
 | `daily_meals` | id, user_id, name, calories, protein, carbs, fat, sugar, sodium, fiber, ingredients, meal_image, created_at |
 | `daily_intake` | id, user_id, total_calories, total_protein, total_carbs, total_fat, total_sugar, total_sodium, total_fiber, created_at |
-
-**Supabase Storage**  `meal-images` bucket stores user meal photos, organized by `userId/timestamp.jpg`.
-
----
-
-## 🔒 Security
-
-- All sensitive API keys (AI model key) are stored in **Supabase Edge Functions** and never shipped in the client bundle.
-- Supabase Row Level Security (RLS) should be enabled on all tables so users can only access their own data.
-- Session tokens are persisted securely in AsyncStorage and refreshed automatically by the Supabase client.
-
----
-
-## 📄 License
-
-This project is for personal and educational use. See `LICENSE` for details.
-
----
-
-<div align="center">
-  <strong>Built with ❤️ using React Native, Expo, and Supabase</strong>
-</div>

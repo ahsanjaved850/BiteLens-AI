@@ -1,6 +1,7 @@
 import { getProfile } from "@/backend/getData";
 import { updateOnboading } from "@/backend/sendData";
 import { dataAnalysis } from "@/src/utils/dataAnalysis";
+import { presentPaywall } from "@/src/utils/presentPaywall";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import { useRef, useState } from "react";
@@ -75,8 +76,20 @@ export const useOnboarding = () => {
       return;
     }
 
-    // Last page: start Completion animation first
-    setStartCompletionAnimation(true);
+    // Last page: show paywall first, then start animation if user pays
+    try {
+      const didPurchase = await presentPaywall();
+
+      if (!didPurchase) {
+        // User cancelled/dismissed — stay on Completion READY screen
+        return;
+      }
+
+      // User paid! Now start the Completion animation
+      setStartCompletionAnimation(true);
+    } catch (error) {
+      console.error("Paywall error:", error);
+    }
   };
 
   const handleBack = async () => {
