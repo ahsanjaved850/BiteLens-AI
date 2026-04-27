@@ -1,6 +1,6 @@
 # 🥗BiteLens AI
 
-> **Your AI-powered nutrition companion** — snap a photo of any meal and instantly get a full nutritional breakdown, track your daily macros, and stay on top of your health goals.
+> **Your AI-powered nutrition companion** snap a photo of any meal and instantly get a full nutritional breakdown, track your daily macros, and stay on top of your health goals.
 
 ---
 
@@ -27,7 +27,7 @@ BiteLens AI is a cross-platform mobile application built with **React Native (Ex
 
 ### 🏠 Home Screen
 - **Today's Summary** card showing real-time calorie consumption vs. goal
-- **Macronutrient breakdown** — Protein, Carbs, Fats, Sugar, Sodium, Fiber — each with color-coded progress bars
+- **Macronutrient breakdown** Protein, Carbs, Fats, Sugar, Sodium, Fiber each with color-coded progress bars
 - **Recent Meals** list with meal images, timestamps, and inline macro tags
 - Pull-to-refresh support
 - Add Meal floating action button
@@ -59,7 +59,7 @@ BiteLens AI is a cross-platform mobile application built with **React Native (Ex
 - Personal information display (name, age, gender)
 - Physical details display (weight, height, goal weight)
 - Support & Legal links (Help Center, Terms & Conditions)
-- Danger Zone — account deletion with confirmation alert
+- Danger Zone: account deletion with confirmation alert
 
 ---
 
@@ -143,10 +143,10 @@ backend/
 ```
 
 Each screen follows a consistent **three-file pattern**:
-- `*.tsx` — pure UI, no business logic
-- `*.logic.tsx` — custom hook encapsulating all state and handlers
-- `*.static.ts` — constants, interfaces, and config objects
-- `*.style.ts` — StyleSheet definitions
+- `*.tsx` => pure UI, no business logic
+- `*.logic.tsx` => custom hook encapsulating all state and handlers
+- `*.static.ts` => constants, interfaces, and config objects
+- `*.style.ts` => StyleSheet definitions
 
 ---
 
@@ -158,63 +158,3 @@ Each screen follows a consistent **three-file pattern**:
 | `initial_details` | id, calories, protein, carbs, fat, sugar, sodium, fiber, bmi, bmi_category |
 | `daily_meals` | id, user_id, name, calories, protein, carbs, fat, sugar, sodium, fiber, ingredients, meal_image, created_at |
 | `daily_intake` | id, user_id, total_calories, total_protein, total_carbs, total_fat, total_sugar, total_sodium, total_fiber, created_at |
-
-**Supabase Storage** — `meal-images` bucket stores user meal photos, organized by `userId/timestamp.jpg`.
-
----
-
-## 🔑 Environment Variables
-
-Create a `.env` file (or set environment variables in your Expo config) with the following:
-
-```env
-EXPO_PUBLIC_SUPABASE_URL=your_supabase_project_url
-EXPO_PUBLIC_SUPABASE_KEY=your_supabase_anon_key
-```
-
-> **Note:** The AI model API key is **never exposed to the client**. It is stored and used exclusively within a Supabase Edge Function, keeping it secure server-side.
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js 18+
-- Expo CLI (`npm install -g expo-cli`)
-- A Supabase project with the schema above configured
-- A Supabase Edge Function deployed for AI meal analysis
-
-
-### Running the App
-
-```bash
-# Start the Expo development server
-npx expo start
-
-# Run on iOS simulator
-npx expo run:ios
-
-# Run on Android emulator
-npx expo run:android
-```
-
----
-
-## 🔒 Security
-
-- All sensitive API keys (AI model key) are stored in **Supabase Edge Functions** and never shipped in the client bundle.
-- Supabase Row Level Security (RLS) should be enabled on all tables so users can only access their own data.
-- Session tokens are persisted securely in AsyncStorage and refreshed automatically by the Supabase client.
-
----
-
-## 📄 License
-
-This project is for personal and educational use. See `LICENSE` for details.
-
----
-
-<div align="center">
-  <strong>Built with ❤️ using React Native, Expo, and Supabase</strong>
-</div>
