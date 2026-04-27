@@ -10,20 +10,7 @@ interface RevenueCatState {
   checkEntitlement: () => Promise<boolean>;
 }
 
-/**
- * Hook to check if the user has an active "pro" entitlement.
- *
- * Usage:
- * ```
- * const { isProUser, isLoading, checkEntitlement } = useRevenueCat();
- *
- * // Gate a feature:
- * if (!isProUser) { showPaywall(); }
- *
- * // Re-check after purchase:
- * const isPro = await checkEntitlement();
- * ```
- */
+
 export const useRevenueCat = (): RevenueCatState => {
   const [isProUser, setIsProUser] = useState(false);
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);

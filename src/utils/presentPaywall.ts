@@ -1,20 +1,5 @@
 import RevenueCatUI, { PAYWALL_RESULT } from "react-native-purchases-ui";
 
-/**
- * Present the RevenueCat paywall and return whether the user purchased.
- *
- * - Shows the paywall you designed in the RevenueCat dashboard
- * - Returns `true` if user purchased or restored a purchase
- * - Returns `false` if user cancelled, error, or paywall not presented
- *
- * Usage:
- * ```
- * const didPurchase = await presentPaywall();
- * if (didPurchase) {
- *   // User is now premium — proceed with animation
- * }
- * ```
- */
 export const presentPaywall = async (): Promise<boolean> => {
   try {
     const paywallResult: PAYWALL_RESULT =

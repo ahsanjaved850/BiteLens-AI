@@ -6,7 +6,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   name: "BiteLens",
   slug: "calai_vegan",
   scheme: "bitelens",
-  version: "1.0.0",
+  version: "1.1",
   orientation: "portrait",
   userInterfaceStyle: "light",
 
