@@ -38,7 +38,6 @@ export function Auth({ onLogin, mode = "signin" }: AuthProps) {
             throw new Error("No identityToken.");
           }
 
-          // ── Authenticate with Supabase via Apple ID token ──────────────
           const {
             error,
             data: { user },
@@ -54,7 +53,6 @@ export function Auth({ onLogin, mode = "signin" }: AuthProps) {
             );
           }
 
-          // ── Extract Apple's full name (only returned on first auth) ────
           const nameParts = credential.fullName
             ? [
                 credential.fullName.givenName,
@@ -85,7 +83,6 @@ export function Auth({ onLogin, mode = "signin" }: AuthProps) {
             }
           }
 
-          // ── Branch: signup vs signin ───────────────────────────────────
           if (isSignup) {
             // First-time Apple signup → mirror the email/pw signUp() flow:
             // flush onboarding data, run dataAnalysis, link RevenueCat, etc.

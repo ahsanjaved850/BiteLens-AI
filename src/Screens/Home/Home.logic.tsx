@@ -8,7 +8,7 @@ import {
 import { useDailyReset } from "@/src/utils/useDailyReset";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import * as Haptics from "expo-haptics";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   DailyNutrition,
   INITIAL_NUTRITION_STATE,
@@ -16,8 +16,64 @@ import {
   PROGRESS_THRESHOLDS,
 } from "./Home.static";
 
+const useTodayStr = (): string => {
+  const getToday = () => new Date().toISOString().split("T")[0];
+  const [todayStr, setTodayStr] = useState(getToday);
+
+  useEffect(() => {
+    const scheduleNextMidnight = () => {
+      const now = new Date();
+      const tomorrow = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() + 1,
+        0,
+        0,
+        0,
+        0,
+      );
+      const msUntilMidnight = tomorrow.getTime() - now.getTime();
+
+      const timer = setTimeout(() => {
+        setTodayStr(getToday());
+        scheduleNextMidnight();
+      }, msUntilMidnight);
+
+      return timer;
+    };
+
+    const timer = scheduleNextMidnight();
+    return () => clearTimeout(timer);
+  }, []);
+
+  return todayStr;
+};
+
+const getDateString = (date?: Date | string): string => {
+  if (!date) return new Date().toISOString().split("T")[0];
+  if (typeof date === "string") return date;
+  return date.toISOString().split("T")[0];
+};
+
+const formatSelectedDate = (dateStr: string, todayStr: string): string => {
+  if (dateStr === todayStr) return "Today";
+
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  if (dateStr === getDateString(yesterday)) return "Yesterday";
+
+  const date = new Date(dateStr + "T00:00:00");
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
+
 export const useHome = () => {
   const navigation = useNavigation();
+
+  const todayStr = useTodayStr();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [loadingAI, setLoadingAI] = useState(false);
@@ -32,20 +88,32 @@ export const useHome = () => {
     INITIAL_NUTRITION_STATE,
   );
 
+  const [selectedDate, setSelectedDate] = useState<string>(() =>
+    getDateString(),
+  );
+
+  // isToday now compares against the live todayStr, not a stale snapshot
+  const isToday = selectedDate === todayStr;
+  const formattedSelectedDate = formatSelectedDate(selectedDate, todayStr);
+
   const hasLoadedOnceRef = useRef(false);
-  const isFetchingRef = useRef(false);
+  const fetchIdRef = useRef(0);
+  const selectedDateRef = useRef(selectedDate);
 
   const loadMeals = useCallback(
     async ({
       showLoader = false,
       showRefresh = false,
+      date,
     }: {
       showLoader?: boolean;
       showRefresh?: boolean;
+      date?: string;
     } = {}) => {
-      if (isFetchingRef.current) return;
-
-      isFetchingRef.current = true;
+      // Stamp this request. Any older in-flight fetch will detect its ID
+      // is stale and discard results instead of overwriting with wrong data.
+      fetchIdRef.current += 1;
+      const myFetchId = fetchIdRef.current;
 
       try {
         if (showLoader) setLoading(true);
@@ -54,10 +122,13 @@ export const useHome = () => {
         // Fetch independently so one failure does not wipe all the data
         const [mealsResult, detailsResult, nutritionResult] =
           await Promise.allSettled([
-            fetchUserMeals(),
+            fetchUserMeals(date),
             getInitialDetails(),
-            getTodayNutrition(),
+            getTodayNutrition(date),
           ]);
+
+        // A newer fetch started while we were awaiting — discard stale results
+        if (myFetchId !== fetchIdRef.current) return;
 
         if (mealsResult.status === "fulfilled") {
           setMeals(mealsResult.value || []);
@@ -80,35 +151,63 @@ export const useHome = () => {
           );
         }
       } finally {
+        // Always clear loading indicators — even for cancelled fetches.
+        // If we don't, a cancelled initial load leaves loading=true forever.
         if (showLoader) setLoading(false);
         if (showRefresh) setRefreshing(false);
-        isFetchingRef.current = false;
       }
     },
     [],
   );
 
+  // Keep ref in sync so useFocusEffect always reads the current date
+  useEffect(() => {
+    selectedDateRef.current = selectedDate;
+  }, [selectedDate]);
+
   useFocusEffect(
     useCallback(() => {
       if (!hasLoadedOnceRef.current) {
         hasLoadedOnceRef.current = true;
-        loadMeals({ showLoader: true });
+        loadMeals({ showLoader: true, date: selectedDateRef.current });
       } else {
         // Silent refresh when returning to Home
-        loadMeals();
+        loadMeals({ date: selectedDateRef.current });
       }
     }, [loadMeals]),
   );
 
-  // ── Daily reset — when date changes, refetch so all values show 0 ──
-  useDailyReset(() => {
+  // ── When todayStr changes (midnight rollover), snap back to new today ──
+  useEffect(() => {
+    setSelectedDate(todayStr);
     setTodayNutrition(INITIAL_NUTRITION_STATE);
     setMeals([]);
-    loadMeals();
+    loadMeals({ date: todayStr });
+  }, [todayStr]); // fires only when todayStr actually changes (midnight)
+
+  // ── Daily reset — kept for compatibility with useDailyReset hook ───────
+  useDailyReset(() => {
+    setSelectedDate(todayStr);
+    setTodayNutrition(INITIAL_NUTRITION_STATE);
+    setMeals([]);
+    loadMeals({ date: todayStr });
   });
 
+  const handleDateChange = useCallback(
+    (date: string) => {
+      if (date > todayStr) return;
+
+      // Instantly clear UI and show loading state while new date's data loads
+      setTodayNutrition(INITIAL_NUTRITION_STATE);
+      setMeals([]);
+      setSelectedDate(date);
+      loadMeals({ date, showRefresh: true });
+    },
+    [loadMeals, todayStr],
+  );
+
   const handleRefresh = () => {
-    loadMeals({ showRefresh: true });
+    loadMeals({ showRefresh: true, date: selectedDate });
   };
 
   const handleAddMealPress = () => {
@@ -136,7 +235,7 @@ export const useHome = () => {
     } finally {
       setModalVisible(false);
       // Silent refresh after meal save
-      await loadMeals();
+      await loadMeals({ date: selectedDate });
     }
   };
 
@@ -250,11 +349,15 @@ export const useHome = () => {
     initialDetails,
     meals,
     todayNutrition,
+    selectedDate,
+    isToday,
+    formattedSelectedDate,
     handleRefresh,
     handleAddMealPress,
     handleModalClose,
     handleMealSuccess,
     handleMealPress,
+    handleDateChange,
     formatTime,
     formatDate,
     formatFullDateTime,

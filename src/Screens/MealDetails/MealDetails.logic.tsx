@@ -1,7 +1,9 @@
-import { MealData } from "@/src/utils/supabase";
+import { deleteMeal, MealData } from "@/src/utils/supabase";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import * as Haptics from "expo-haptics";
+import { Alert } from "react-native";
 import {
+  ALERT_MESSAGES,
   NutrientConfig,
   NUTRIENTS_CONFIG,
   UNIT_SUFFIX,
@@ -15,6 +17,47 @@ export const useMealDetails = () => {
   const handleBack = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     navigation.goBack();
+  };
+
+  const handleDelete = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+    Alert.alert(
+      ALERT_MESSAGES.DELETE_CONFIRM.title,
+      ALERT_MESSAGES.DELETE_CONFIRM.message,
+      [
+        {
+          text: ALERT_MESSAGES.DELETE_CONFIRM.cancelText,
+          style: "cancel",
+        },
+        {
+          text: ALERT_MESSAGES.DELETE_CONFIRM.confirmText,
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteMeal(meal);
+
+              Alert.alert(
+                ALERT_MESSAGES.DELETE_SUCCESS.title,
+                ALERT_MESSAGES.DELETE_SUCCESS.message,
+                [
+                  {
+                    text: ALERT_MESSAGES.DELETE_SUCCESS.buttonText,
+                    onPress: () => navigation.goBack(), // goes back to Home, which will auto-refresh
+                  },
+                ],
+              );
+            } catch (error) {
+              Alert.alert(
+                ALERT_MESSAGES.DELETE_ERROR.title,
+                ALERT_MESSAGES.DELETE_ERROR.message,
+                [{ text: ALERT_MESSAGES.DELETE_ERROR.buttonText }],
+              );
+            }
+          },
+        },
+      ],
+    );
   };
 
   const formatTime = (dateString?: string) => {
@@ -60,6 +103,7 @@ export const useMealDetails = () => {
   return {
     meal,
     handleBack,
+    handleDelete, // 👈 new
     formatTime,
     getNutrients,
   };

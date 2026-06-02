@@ -21,22 +21,17 @@ interface Props {
 export const Slide2: React.FC<Props> = ({ isActive }) => {
   return (
     <View style={styles.container}>
-      {/* Sunset gradient — bridges Slide 1 (bold orange) and Slide 3 (cream).
-          This is the visual hinge of the whole carousel. */}
       <LinearGradient
         colors={["#FFB627", "#FFC73D", "#FFD86B", "#FFE89A"]}
         locations={[0, 0.35, 0.7, 1]}
         style={StyleSheet.absoluteFill}
       />
 
-      {/* Soft radial glow behind the headline — done with stacked semi-
-          transparent circles. Each layer is just barely visible; together
-          they create a gentle "spotlight" effect without screaming. */}
       <View style={styles.glowOuter} pointerEvents="none" />
       <View style={styles.glowMiddle} pointerEvents="none" />
       <View style={styles.glowInner} pointerEvents="none" />
 
-      {/* Decorative circles — only orange family, drifting slowly */}
+      {/* Decorative circles  only orange family, drifting slowly */}
       <FloatingCircle
         size={240}
         color="#FF8A1F"
@@ -70,9 +65,6 @@ export const Slide2: React.FC<Props> = ({ isActive }) => {
         opacity={0.6}
       />
 
-      {/* Two larger avatars — bigger than slide 1, softer shadows.
-          Placed asymmetrically so the eye travels diagonally across
-          the screen toward the headline. */}
       <FloatingAvatar
         size={110}
         source={AVATAR_WOMAN}
@@ -112,7 +104,7 @@ export const Slide2: React.FC<Props> = ({ isActive }) => {
             the healthiest way
           </Animated.Text>
 
-          {/* Subtle underline accent — visual punctuation */}
+          {/* Subtle underline accent  visual punctuation */}
           <Animated.View
             entering={FadeInUp.duration(500).delay(700)}
             style={styles.accentBar}
@@ -132,7 +124,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 
-  // Soft radial glow stack — concentric translucent circles
+  // Soft radial glow stack  concentric translucent circles
   glowOuter: {
     position: "absolute",
     width: SCREEN_W * 1.4,

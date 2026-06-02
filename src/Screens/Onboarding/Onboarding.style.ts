@@ -2,7 +2,6 @@ import { Dimensions, StyleSheet } from "react-native";
 
 const { width, height } = Dimensions.get("window");
 
-// ─── Eato-inspired Color Palette ───────────────────────────────────
 export const COLORS = {
   // Primary — matches app-wide theme exactly
   primary: "#F47B20", // brand orange
@@ -57,7 +56,6 @@ export const COLORS = {
   overlayDark: "rgba(15, 26, 34, 0.5)",
 };
 
-// ─── Spacing System ────────────────────────────────────────────────
 export const SPACING = {
   xs: 4,
   sm: 8,
@@ -68,7 +66,6 @@ export const SPACING = {
   xxxl: 64,
 };
 
-// ─── Typography System ─────────────────────────────────────────────
 export const TYPOGRAPHY = {
   displayLarge: {
     fontSize: 38,
@@ -149,7 +146,6 @@ export const TYPOGRAPHY = {
   },
 };
 
-// ─── Shadow System ─────────────────────────────────────────────────
 export const SHADOWS = {
   small: {
     shadowColor: "#F47B20",
@@ -181,9 +177,8 @@ export const SHADOWS = {
   },
 };
 
-// ─── Modern Styles (Component Styles) ──────────────────────────────
 export const modernStyles = StyleSheet.create({
-  // ── Layout ─────────────────────
+  // Layout
   safeArea: {
     flex: 1,
     backgroundColor: COLORS.background,
@@ -203,7 +198,7 @@ export const modernStyles = StyleSheet.create({
     alignItems: "center",
   },
 
-  // ── Header & Logo ─────────────
+  // Header & Logo
   headerContainer: {
     alignItems: "center",
     marginBottom: SPACING.xl,
@@ -286,7 +281,7 @@ export const modernStyles = StyleSheet.create({
     marginBottom: SPACING.md,
   },
 
-  // ── Images ─────────────────────
+  // Images
   imageContainer: {
     width: "100%",
     height: height * 0.3,
@@ -343,7 +338,7 @@ export const modernStyles = StyleSheet.create({
     borderColor: COLORS.primaryMuted,
   },
 
-  // ── Feature Tags ───────────────
+  // Feature Tags
   featureTagsContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -377,7 +372,7 @@ export const modernStyles = StyleSheet.create({
     fontWeight: "600",
   },
 
-  // ── Quote Section ──────────────
+  // Quote Section
   quoteCard: {
     backgroundColor: COLORS.primaryLight,
     borderRadius: 20,
@@ -401,7 +396,7 @@ export const modernStyles = StyleSheet.create({
     fontWeight: "500",
   },
 
-  // ── Selection Options ──────────
+  // Selection Options
   optionsContainer: {
     marginTop: SPACING.xl,
     gap: SPACING.md,
@@ -461,7 +456,7 @@ export const modernStyles = StyleSheet.create({
     fontWeight: "700",
   },
 
-  // ── Form ───────────────────────
+  //  Form
   formContainer: {
     marginTop: SPACING.xl,
     gap: SPACING.lg,
@@ -497,7 +492,7 @@ export const modernStyles = StyleSheet.create({
     marginTop: SPACING.xs,
   },
 
-  // ── Info Box ───────────────────
+  // Info Box
   infoBox: {
     backgroundColor: COLORS.primaryLight,
     borderRadius: 16,
@@ -523,7 +518,7 @@ export const modernStyles = StyleSheet.create({
     marginRight: SPACING.sm,
   },
 
-  // ── Progress Indicator ─────────
+  //  Progress Indicator
   progressContainer: {
     flexDirection: "row",
     justifyContent: "center",
@@ -544,7 +539,7 @@ export const modernStyles = StyleSheet.create({
     backgroundColor: COLORS.primary,
   },
 
-  // ── Input Section ──────────────
+  //  Input Section
   inputContainer: {
     marginTop: SPACING.xl,
   },
@@ -578,7 +573,7 @@ export const modernStyles = StyleSheet.create({
     transform: [{ translateY: -12 }],
   },
 
-  // ── Cards ──────────────────────
+  //  Cards
   card: {
     backgroundColor: COLORS.backgroundCard,
     borderRadius: 20,
@@ -632,7 +627,7 @@ export const modernStyles = StyleSheet.create({
     color: COLORS.textDark,
   },
 
-  // ── Decorative Elements ────────
+  //  Decorative Elements
   decorativeCircle: {
     position: "absolute",
     width: 200,
@@ -653,7 +648,7 @@ export const modernStyles = StyleSheet.create({
     backgroundColor: "rgba(245, 166, 35, 0.04)",
   },
 
-  // ── Spacing Utilities ──────────
+  //  Spacing Utilities
   spacerSmall: {
     height: SPACING.md,
   },
@@ -665,7 +660,7 @@ export const modernStyles = StyleSheet.create({
   },
 });
 
-// ─── Onboarding Loading Styles ─────────────────────────────────────
+// ─ Onboarding Loading Styles ─
 export const onboardingLoadingStyle = StyleSheet.create({
   container: {
     flex: 1,
@@ -680,7 +675,7 @@ export const onboardingLoadingStyle = StyleSheet.create({
   },
 });
 
-// ─── Onboarding Shell Styles ───────────────────────────────────────
+// ─ Onboarding Shell Styles ─
 export const onboardingStyles = StyleSheet.create({
   // Outer white wrapper — same pattern as Home/Data/Settings
   // prevents the peach gradient showing at the bottom
@@ -806,7 +801,7 @@ export const onboardingStyles = StyleSheet.create({
   },
 });
 
-// ─── Scroll Picker Styles (Eato-style) ─────────────────────────────
+// ─ Scroll Picker Styles (Eato-style) ─
 export const pickerStyles = StyleSheet.create({
   container: {
     alignItems: "center",
@@ -969,7 +964,7 @@ export const pickerStyles = StyleSheet.create({
   },
 });
 
-// ─── Health Concerns Styles ────────────────────────────────────────
+// ─ Health Concerns Styles
 export const healthStyles = StyleSheet.create({
   container: {
     marginTop: SPACING.lg,
@@ -1044,7 +1039,7 @@ export const healthStyles = StyleSheet.create({
   },
 });
 
-// ─── Comparison Card Styles ────────────────────────────────────────
+// ─ Comparison Card Styles
 export const comparisonStyles = StyleSheet.create({
   container: {
     flexDirection: "row",
@@ -1105,7 +1100,7 @@ export const comparisonStyles = StyleSheet.create({
   },
 });
 
-// ─── Stats / Social Proof Styles ───────────────────────────────────
+// ─ Stats / Social Proof Styles ─
 export const statsStyles = StyleSheet.create({
   container: {
     backgroundColor: COLORS.backgroundCard,
@@ -1144,7 +1139,7 @@ export const statsStyles = StyleSheet.create({
   },
 });
 
-// ─── Nutrition Macro Tracker Styles ────────────────────────────────
+// ─ Nutrition Macro Tracker Styles
 export const macroStyles = StyleSheet.create({
   cardContainer: {
     backgroundColor: COLORS.accent,
@@ -1196,7 +1191,7 @@ export const macroStyles = StyleSheet.create({
   },
 });
 
-// ─── Tailoring / Loading Styles ────────────────────────────────────
+// ─ Tailoring / Loading Styles
 export const tailoringStyles = StyleSheet.create({
   container: {
     flex: 1,

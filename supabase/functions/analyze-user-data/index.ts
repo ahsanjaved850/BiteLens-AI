@@ -26,7 +26,7 @@ serve(async (req: any) => {
         global: {
           headers: { Authorization: req.headers.get("Authorization")! },
         },
-      }
+      },
     );
 
     const { weight, height, age, targetWeight, gender, goal } =
@@ -54,7 +54,7 @@ serve(async (req: any) => {
         {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
@@ -78,26 +78,58 @@ serve(async (req: any) => {
         model: "gpt-4o",
         messages: [
           {
+            role: "system",
+            content: `You are a certified sports nutritionist and dietitian. 
+            Calculate precise nutritional requirements using the Mifflin-St Jeor equation for BMR and goal-based macro splitting.
+            Always return valid JSON only. No markdown, no explanation, no extra text.`,
+          },
+          {
             role: "user",
-            content: `Calculate daily nutritional requirements for:
-Weight: ${weight}kg, Height: ${height}cm, Age: ${age}y, Target: ${targetWeight}kg, Goal: ${goal}, Gender: ${gender}
+            content: `Calculate personalized daily nutritional requirements for:
 
-Return ONLY this JSON (no markdown):
-{
-  "BMI": "24.5",
-  "Category": "Normal",
-  "calories": "2000",
-  "protein": "150",
-  "carbs": "250",
-  "fat": "67",
-  "sugar": "50",
-  "sodium": "2300",
-  "fiber": "30"
-}`,
+            PERSONAL DATA:
+            - Gender: ${gender}
+            - Age: ${age} years
+            - Current Weight: ${weight} kg
+            - Height: ${height} cm
+            - Target Weight: ${targetWeight} kg
+            - Goal: ${goal}
+
+            INSTRUCTIONS:
+            1. BMI = weight(kg) / height(m)²
+              - Categories: Underweight <18.5 | Normal 18.5–24.9 | Overweight 25–29.9 | Obese ≥30
+            2. BMR via Mifflin-St Jeor:
+              - Male: (10 × weight) + (6.25 × height) - (5 × age) + 5
+              - Female: (10 × weight) + (6.25 × height) - (5 × age) - 161
+            3. TDEE = BMR × 1.55 (moderately active baseline)
+            4. Adjust calories by goal:
+              - Weight loss: TDEE - 400 to 500 (min 1200 female / 1500 male)
+              - Muscle gain: TDEE + 200 to 300
+              - Maintenance: TDEE
+            5. Macros:
+              - Protein (g): 1.8–2.2g per kg body weight
+              - Fat (g): 25–30% of calories ÷ 9
+              - Carbs (g): remaining calories ÷ 4
+              - Sugar (g): ≤10% of total calories ÷ 4
+              - Sodium (mg): 1500–2300 based on goal
+              - Fiber (g): 25–38 based on gender and calorie intake
+
+            Return ONLY this JSON:
+            {
+              "BMI": "24.5",
+              "Category": "Normal",
+              "calories": "2000",
+              "protein": "150",
+              "carbs": "250",
+              "fat": "67",
+              "sugar": "50",
+              "sodium": "2300",
+              "fiber": "30"
+            }`,
           },
         ],
         max_tokens: 200,
-        temperature: 0.3,
+        temperature: 0.1,
       }),
     });
 
@@ -109,7 +141,7 @@ Return ONLY this JSON (no markdown):
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
@@ -142,7 +174,7 @@ Return ONLY this JSON (no markdown):
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
@@ -178,7 +210,7 @@ Return ONLY this JSON (no markdown):
           bmi: parsed.BMI ? String(parsed.BMI) : null,
           bmi_category: parsed.Category ? String(parsed.Category) : null,
         },
-        { onConflict: "id" }
+        { onConflict: "id" },
       )
       .select()
       .single();
@@ -190,7 +222,7 @@ Return ONLY this JSON (no markdown):
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
@@ -207,7 +239,7 @@ Return ONLY this JSON (no markdown):
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      },
     );
   }
 });

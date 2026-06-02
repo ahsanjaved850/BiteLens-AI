@@ -7,11 +7,6 @@ export function useOnboardingDone() {
   useEffect(() => {
     const checkOnboarding = async () => {
       try {
-        // ✅ Use getSession() instead of getUser()
-        // getUser() makes a server call with the current access token,
-        // which FAILS when the token is expired (after ~1 hour).
-        // getSession() reads from local storage and auto-refreshes
-        // the token, so it works reliably even after hours of inactivity.
         const {
           data: { session },
         } = await supabase.auth.getSession();

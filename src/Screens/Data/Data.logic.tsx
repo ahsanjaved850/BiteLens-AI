@@ -8,6 +8,7 @@ import {
   InitialDetailsData,
   ModalType,
   ProfileData,
+  WeightLog,
 } from "./Data.static";
 
 export const useData = () => {
@@ -19,6 +20,12 @@ export const useData = () => {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [inputFocused, setInputFocused] = useState(false);
+  const [weightLogs, setWeightLogs] = useState<WeightLog[]>([]);
+  const getTodayStr = () => new Date().toISOString().split("T")[0];
+
+  const createWeightLogId = () => {
+    return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  };
 
   useEffect(() => {
     fetchData();
@@ -30,6 +37,24 @@ export const useData = () => {
 
       const data = await getProfile();
       setProfile(data);
+      if (data?.weight) {
+        const today = getTodayStr();
+        const currentWeight = Number(data.weight);
+
+        if (!Number.isNaN(currentWeight)) {
+          setWeightLogs((prev) => {
+            if (prev.length > 0) return prev;
+
+            return [
+              {
+                id: createWeightLogId(),
+                date: today,
+                weight: currentWeight,
+              },
+            ];
+          });
+        }
+      }
       const initialDetails = await getInitialDetails();
       setDetails(initialDetails);
     } catch (err: any) {
@@ -37,7 +62,6 @@ export const useData = () => {
     } finally {
       if (showRefreshing) setRefreshing(false);
     }
-   
   };
 
   const handleRefresh = () => {
@@ -89,6 +113,23 @@ export const useData = () => {
       // Get fresh profile data
       const updatedProfile = await getProfile();
 
+      if (modalType === "current") {
+        const today = getTodayStr();
+
+        setWeightLogs((prev) => {
+          return [
+            ...prev,
+            {
+              id: createWeightLogId(),
+              date: today,
+              weight: newWeight,
+            },
+          ].sort(
+            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+          );
+        });
+      }
+
       // Validate all required fields exist
       if (
         updatedProfile.weight &&
@@ -114,7 +155,7 @@ export const useData = () => {
           Number(updatedProfile.age),
           targetWeightForAnalysis,
           updatedProfile.gender,
-          updatedProfile.goal
+          updatedProfile.goal,
         );
       }
 
@@ -155,7 +196,7 @@ export const useData = () => {
     if (!profile?.weight || !profile?.target_weight) return 0;
 
     return Math.abs(
-      parseFloat(profile.weight) - parseFloat(profile.target_weight)
+      parseFloat(profile.weight) - parseFloat(profile.target_weight),
     ).toFixed(1);
   };
 
@@ -176,6 +217,7 @@ export const useData = () => {
     loading,
     refreshing,
     inputFocused,
+    weightLogs,
     progress: calculateProgress(),
     weightDifference: calculateWeightDifference(),
     handleRefresh,

@@ -40,3 +40,9 @@ export const MODAL_SUBTITLES = {
 } as const;
 
 export const WEIGHT_UNIT = "kg";
+
+export interface WeightLog {
+  id: string;
+  date: string;
+  weight: number;
+}

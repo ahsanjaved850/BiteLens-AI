@@ -18,10 +18,6 @@ interface FloatingCircleProps {
   opacity?: number;
 }
 
-/**
- * A soft circle that floats up and down endlessly.
- * Used for the orange decorative blobs in the welcome slides.
- */
 export const FloatingCircle: React.FC<FloatingCircleProps> = ({
   size,
   color,
@@ -40,7 +36,7 @@ export const FloatingCircle: React.FC<FloatingCircleProps> = ({
         easing: Easing.inOut(Easing.quad),
       }),
       -1,
-      true
+      true,
     );
   }, [translateY, driftRange, duration]);
 
@@ -67,9 +63,6 @@ export const FloatingCircle: React.FC<FloatingCircleProps> = ({
   );
 };
 
-/**
- * A circular avatar for the floating profile photos in the welcome slides.
- */
 export const FloatingAvatar: React.FC<{
   size: number;
   source: { uri: string } | number;
@@ -86,7 +79,7 @@ export const FloatingAvatar: React.FC<{
         easing: Easing.inOut(Easing.quad),
       }),
       -1,
-      true
+      true,
     );
   }, [translateY, driftRange, duration]);
 

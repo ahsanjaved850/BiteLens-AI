@@ -41,7 +41,6 @@ yarn-error.*
 
 # generated native folders
 ios/
-ios 2/
 android/
 
 *.ipa

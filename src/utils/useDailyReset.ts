@@ -1,28 +1,15 @@
 import { useCallback, useEffect, useRef } from "react";
 import { AppState, AppStateStatus } from "react-native";
 
-// ─── useDailyReset ────────────────────────────────────────────────────────
-// Calls onReset() whenever the calendar date changes.
-// Works two ways:
-//   1. App comes to foreground — compares today's date to the last known date.
-//      Covers: user opens app the next morning, phone wakes from sleep, etc.
-//   2. Midnight timer — fires exactly at 00:00 if the app is open all night.
-//      Covers: edge case where app stays active across midnight.
-//
-// Usage:
-//   useDailyReset(() => refetchTodayNutrition());
-
 export const useDailyReset = (onReset: () => void) => {
   const lastDateRef = useRef<string>(getTodayString());
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onResetRef = useRef(onReset);
 
-  // Keep callback ref fresh so hook doesn't need onReset in deps
   useEffect(() => {
     onResetRef.current = onReset;
   }, [onReset]);
 
-  // ── Check if date has changed ────────────────────────────────────────
   const checkDateChange = useCallback(() => {
     const today = getTodayString();
     if (today !== lastDateRef.current) {
@@ -31,7 +18,6 @@ export const useDailyReset = (onReset: () => void) => {
     }
   }, []);
 
-  // ── Midnight timer — fires at exactly 00:00 ──────────────────────────
   const scheduleMidnightTimer = useCallback(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
 
@@ -50,7 +36,6 @@ export const useDailyReset = (onReset: () => void) => {
     }, msUntilMidnight);
   }, []);
 
-  // ── AppState listener — fires when app comes to foreground ───────────
   useEffect(() => {
     scheduleMidnightTimer();
 
@@ -72,5 +57,4 @@ export const useDailyReset = (onReset: () => void) => {
   }, [checkDateChange, scheduleMidnightTimer]);
 };
 
-// ─── Helper ───────────────────────────────────────────────────────────────
 const getTodayString = (): string => new Date().toISOString().split("T")[0]; // "YYYY-MM-DD"

@@ -6,7 +6,7 @@ import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 
 const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get("window");
 
-// ─── Stats ─────────────────────────────────────────────────────────────────
+//  Stats
 const STATS = [
   { value: "1K+", label: "Total Users" },
   { value: "100k+", label: "Total Food Scanned" },
@@ -19,13 +19,13 @@ interface Props {
   onLogin: () => void;
 }
 
-// ─── Laurel SVG as text emoji block ────────────────────────────────────────
+//  Laurel SVG as text emoji block
 // Uses the wheat emoji which looks identical to the reference laurel
 const Laurel = ({ flip = false }: { flip?: boolean }) => (
   <Text style={[st.laurel, flip && { transform: [{ scaleX: -1 }] }]}>🌾</Text>
 );
 
-// ─── Single stat row ───────────────────────────────────────────────────────
+//  Single stat row
 const StatRow: React.FC<{
   value: string;
   label: string;
@@ -44,7 +44,7 @@ const StatRow: React.FC<{
   </Animated.View>
 );
 
-// ─── Main Component ────────────────────────────────────────────────────────
+//  Main Component─
 export const Slide3: React.FC<Props> = ({
   isActive,
   onGetStarted,
@@ -87,7 +87,7 @@ export const Slide3: React.FC<Props> = ({
       )}
 
       <View style={st.content}>
-        {/* ── Headline ── */}
+        {/*─ Headline─ */}
         {isActive && (
           <Animated.View
             entering={FadeInDown.duration(600)}
@@ -99,7 +99,7 @@ export const Slide3: React.FC<Props> = ({
           </Animated.View>
         )}
 
-        {/* ── Stats — laurel on each side, clean dividers ── */}
+        {/*─ Stats — laurel on each side, clean dividers─ */}
         {isActive && (
           <View style={st.statsBlock}>
             {STATS.map((s, i) => (
@@ -120,7 +120,7 @@ export const Slide3: React.FC<Props> = ({
           </View>
         )}
 
-        {/* ── CTAs ── */}
+        {/*─ CTAs─ */}
         {isActive && (
           <Animated.View
             entering={FadeInUp.duration(500).delay(900)}
@@ -151,7 +151,7 @@ export const Slide3: React.FC<Props> = ({
   );
 };
 
-// ─── Styles ────────────────────────────────────────────────────────────────
+//  Styles
 const st = StyleSheet.create({
   container: {
     width: SCREEN_W,
@@ -166,7 +166,7 @@ const st = StyleSheet.create({
     justifyContent: "space-between",
   },
 
-  // ── Headline ────────────────────────────────────────────────────
+  //─ Headline
   headlineBlock: {
     alignItems: "center",
   },
@@ -192,7 +192,7 @@ const st = StyleSheet.create({
     lineHeight: 56,
   },
 
-  // ── Stats ────────────────────────────────────────────────────────
+  //─ Stats─
   statsBlock: {
     gap: 0,
   },
@@ -230,7 +230,7 @@ const st = StyleSheet.create({
     marginHorizontal: 16,
   },
 
-  // ── CTAs ────────────────────────────────────────────────────────
+  //─ CTAs─
   ctaBlock: {
     alignItems: "center",
     gap: 18,

@@ -3,7 +3,7 @@ import { ConfigContext, ExpoConfig } from "@expo/config";
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: "Orca AI",
-  slug: "orca_ai",
+  slug: "calai_vegan",
   scheme: "orca",
   version: "1.1.2",
   orientation: "portrait",

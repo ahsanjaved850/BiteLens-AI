@@ -1,6 +1,5 @@
 import { StyleSheet } from "react-native";
 
-// ─── Theme Palette ─────────────────────────────────────────────────────────
 export const GRADIENT = {
   top: "#FFE0C2",
   mid: "#FFF0E4",
@@ -29,13 +28,11 @@ const C = {
 };
 
 export const mealDetailStyles = StyleSheet.create({
-  // ─── Shell ─────────────────────────────────────────────────────────────
   container: {
     flex: 1,
     backgroundColor: C.bg,
   },
 
-  // ─── Scroll ────────────────────────────────────────────────────────────
   scrollView: {
     flex: 1,
   },
@@ -43,18 +40,23 @@ export const mealDetailStyles = StyleSheet.create({
     paddingBottom: 48,
   },
 
-  // ─── Hero Image — full bleed to top of screen ──────────────────────────
-  // The image goes edge-to-edge including behind the status bar.
-  // The back button floats absolutely on top of it.
   imageContainer: {
     width: "100%",
-    height: 320,
+    height: 340,
     backgroundColor: C.bgCardAlt,
   },
   mealImage: {
     width: "100%",
     height: "100%",
     resizeMode: "cover",
+  },
+  // Gradient overlay on top of image for text readability
+  imageGradientOverlay: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 160,
   },
   imagePlaceholder: {
     width: "100%",
@@ -64,24 +66,48 @@ export const mealDetailStyles = StyleSheet.create({
     backgroundColor: C.bgCardAlt,
   },
   imagePlaceholderIcon: {
-    width: 88,
-    height: 88,
-    borderRadius: 28,
+    width: 96,
+    height: 96,
+    borderRadius: 32,
     backgroundColor: C.primaryLight,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
     borderColor: C.primaryMuted,
     shadowColor: "#F47B20",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    elevation: 6,
   },
 
-  // ─── Back Button — absolutely over the image ──────────────────────────
-  // position: absolute + top set inline from insets in the component.
-  // zIndex: 20 ensures it's always above the image and info card overlap.
+  heroTextOverlay: {
+    position: "absolute",
+    bottom: 52,
+    left: 20,
+    right: 20,
+  },
+  heroMealName: {
+    fontSize: 28,
+    fontWeight: "800",
+    color: "#FFFFFF",
+    letterSpacing: -0.8,
+    textShadowColor: "rgba(0,0,0,0.35)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 8,
+    marginBottom: 6,
+  },
+  heroTimeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+  },
+  heroTimeText: {
+    fontSize: 13,
+    color: "rgba(255,255,255,0.82)",
+    fontWeight: "500",
+  },
+
   backButton: {
     position: "absolute",
     left: 16,
@@ -101,7 +127,282 @@ export const mealDetailStyles = StyleSheet.create({
     borderColor: "rgba(240,222,208,0.8)",
   },
 
-  // ─── Info Card — overlaps image from below ────────────────────────────
+  // ─── Pull-up tab card (sits just below image, overlaps slightly) ──────
+  pullUpCard: {
+    backgroundColor: C.bg,
+    marginHorizontal: 0,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    marginTop: -32,
+    paddingTop: 20,
+    paddingHorizontal: 20,
+    paddingBottom: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 16,
+    elevation: 10,
+  },
+  pullUpHandle: {
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: C.border,
+    alignSelf: "center",
+    marginBottom: 20,
+  },
+
+  caloriesCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: C.primary,
+    marginHorizontal: 20,
+    marginBottom: 16,
+    padding: 20,
+    borderRadius: 26,
+    shadowColor: "#F47B20",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 20,
+    elevation: 8,
+  },
+  caloriesIconContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.18)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 18,
+    borderWidth: 1.5,
+    borderColor: "rgba(255,255,255,0.25)",
+  },
+  caloriesInfo: {
+    flex: 1,
+  },
+  caloriesLabel: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: "rgba(255,255,255,0.75)",
+    textTransform: "uppercase",
+    letterSpacing: 1.4,
+    marginBottom: 4,
+  },
+  caloriesValue: {
+    fontSize: 42,
+    fontWeight: "800",
+    color: "#FFFFFF",
+    letterSpacing: -2,
+    lineHeight: 46,
+  },
+  caloriesUnit: {
+    fontSize: 15,
+    color: "rgba(255,255,255,0.75)",
+    fontWeight: "600",
+  },
+  caloriesBadge: {
+    backgroundColor: "rgba(255,255,255,0.2)",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+    alignSelf: "flex-start",
+    marginTop: 8,
+  },
+  caloriesBadgeText: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: "#FFFFFF",
+    letterSpacing: 0.3,
+  },
+
+  section: {
+    paddingHorizontal: 20,
+    marginTop: 20,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 14,
+  },
+  sectionDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: C.primary,
+  },
+  sectionTitle: {
+    fontSize: 11,
+    fontWeight: "800",
+    color: C.primary,
+    textTransform: "uppercase",
+    letterSpacing: 1.4,
+  },
+
+  macroGrid: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  macroCard: {
+    flex: 1,
+    backgroundColor: C.bgCard,
+    borderRadius: 22,
+    paddingTop: 16, // remove the 0, give it proper top padding
+    paddingBottom: 16,
+    paddingHorizontal: 12,
+    alignItems: "center",
+    shadowColor: "#F47B20",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: C.border,
+    overflow: "hidden", // keep this so the glow clips nicely
+  },
+  macroCardAccent: {
+    width: 40,
+    height: 40,
+    borderRadius: 13,
+    marginBottom: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    opacity: 0.18, // will be overridden inline anyway, just a base
+  },
+  macroIcon3d: {
+    width: 52,
+    height: 52,
+    marginBottom: 10,
+  },
+  macroLabel: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: C.textSec,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+    marginBottom: 3,
+  },
+  macroValue: {
+    fontSize: 22,
+    fontWeight: "800",
+    color: C.textDark,
+    letterSpacing: -0.5,
+  },
+  macroUnit: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: C.textSec,
+  },
+
+  nutrientsList: {
+    backgroundColor: C.bgCard,
+    borderRadius: 22,
+    overflow: "hidden",
+    shadowColor: "#F47B20",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 14,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: C.border,
+  },
+  nutrientRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: C.borderLight,
+  },
+  nutrientLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  nutrientIconWrapper: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: C.primaryLight,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: C.primaryMuted,
+  },
+  nutrientIcon3d: {
+    width: 30,
+    height: 30,
+  },
+  nutrientLabel: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: C.textDark,
+  },
+  nutrientSubLabel: {
+    fontSize: 11,
+    color: C.textLight,
+    fontWeight: "500",
+    marginTop: 1,
+  },
+  // Value shown as a pill
+  nutrientValuePill: {
+    backgroundColor: C.primaryLight,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: C.primaryMuted,
+  },
+  nutrientValue: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: C.primary,
+  },
+
+  aiNotice: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: C.primaryLight,
+    marginHorizontal: 20,
+    marginTop: 20,
+    padding: 16,
+    borderRadius: 18,
+    gap: 12,
+    borderWidth: 1,
+    borderColor: C.primaryMuted,
+    borderLeftWidth: 4,
+    borderLeftColor: C.primary,
+  },
+  aiNoticeBadge: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    backgroundColor: C.primaryMuted,
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
+  aiNoticeText: {
+    flex: 1,
+    fontSize: 12,
+    fontWeight: "500",
+    color: C.textSec,
+    lineHeight: 18,
+  },
+
+  errorContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 32,
+  },
+  errorText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: C.textLight,
+  },
+
   infoCard: {
     backgroundColor: C.bgCard,
     padding: 22,
@@ -134,102 +435,12 @@ export const mealDetailStyles = StyleSheet.create({
     color: C.textLight,
     fontWeight: "500",
   },
-
-  // ─── Calories Card ─────────────────────────────────────────────────────
-  caloriesCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: C.bgCardAlt,
-    marginHorizontal: 16,
-    marginBottom: 12,
-    padding: 20,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: C.border,
-    shadowColor: "#F47B20",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 14,
-    elevation: 4,
-  },
-  caloriesIconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 18,
-    backgroundColor: C.primaryLight,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 16,
-    shadowColor: "#F47B20",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 3,
-    borderWidth: 1.5,
-    borderColor: C.primaryMuted,
-  },
-  caloriesInfo: {
-    flex: 1,
-  },
-  caloriesLabel: {
-    fontSize: 11,
-    fontWeight: "700",
-    color: C.primary,
-    textTransform: "uppercase",
-    letterSpacing: 1.2,
-    marginBottom: 4,
-  },
-  caloriesValue: {
-    fontSize: 38,
-    fontWeight: "800",
-    color: C.textDark,
-    letterSpacing: -1.5,
-    lineHeight: 42,
-  },
-  caloriesUnit: {
-    fontSize: 14,
-    color: C.textSec,
-    fontWeight: "600",
-  },
-
-  // ─── Section ───────────────────────────────────────────────────────────
-  section: {
-    paddingHorizontal: 16,
-    marginTop: 16,
-  },
-  sectionTitle: {
-    fontSize: 11,
-    fontWeight: "700",
-    color: C.primary,
-    textTransform: "uppercase",
-    letterSpacing: 1.2,
-    marginBottom: 12,
-  },
-
-  // ─── Macro Cards ───────────────────────────────────────────────────────
-  macroGrid: {
-    flexDirection: "row",
-    gap: 10,
-  },
-  macroCard: {
-    flex: 1,
-    backgroundColor: C.bgCard,
-    borderRadius: 22,
-    padding: 16,
-    alignItems: "center",
-    shadowColor: "#F47B20",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.09,
-    shadowRadius: 12,
-    elevation: 4,
-    borderWidth: 1,
-    borderColor: C.border,
-  },
-  // 3D image replacing the Ionicons coloured square
-  macroIcon3d: {
-    width: 52,
-    height: 52,
-    marginBottom: 10,
+  nutrientAccentBar: {
+    width: 4,
+    height: 36,
+    borderRadius: 4,
+    backgroundColor: C.primary,
+    marginRight: 4,
   },
   macroIcon: {
     width: 48,
@@ -238,126 +449,7 @@ export const mealDetailStyles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
   },
-  macroLabel: {
-    fontSize: 10,
-    fontWeight: "700",
-    color: C.textSec,
-    textTransform: "uppercase",
-    letterSpacing: 0.8,
-    marginBottom: 4,
-  },
-  macroValue: {
-    fontSize: 24,
-    fontWeight: "800",
-    color: C.textDark,
-    letterSpacing: -0.5,
-  },
-
-  // ─── Additional Nutrients ───────────────────────────────────────────────
-  nutrientsList: {
-    backgroundColor: C.bgCard,
-    borderRadius: 22,
-    overflow: "hidden",
-    shadowColor: "#F47B20",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.09,
-    shadowRadius: 14,
-    elevation: 4,
-    borderWidth: 1,
-    borderColor: C.border,
-  },
-  nutrientRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: C.borderLight,
-  },
-  nutrientLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  nutrientAccentBar: {
-    width: 4,
-    height: 36,
-    borderRadius: 4,
-    backgroundColor: C.primary,
-    marginRight: 4,
-  },
-  // 3D image for additional nutrients rows
-  nutrientIcon3d: {
-    width: 40,
-    height: 40,
-  },
-  nutrientIconSmall: {
-    width: 40,
-    height: 40,
-    borderRadius: 13,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  nutrientLabel: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: C.textDark,
-  },
-  nutrientValue: {
-    fontSize: 16,
-    fontWeight: "800",
-    color: C.primary,
-  },
-
-  // ─── AI Notice ─────────────────────────────────────────────────────────
-  aiNotice: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: C.primaryLight,
-    marginHorizontal: 16,
-    marginTop: 20,
-    padding: 14,
-    borderRadius: 16,
-    gap: 10,
-    borderWidth: 1,
-    borderColor: C.primaryMuted,
-    borderLeftWidth: 4,
-    borderLeftColor: C.primary,
-  },
-  aiNoticeText: {
-    flex: 1,
-    fontSize: 12,
-    fontWeight: "500",
-    color: C.textSec,
-    lineHeight: 18,
-  },
-
-  // ─── Error ─────────────────────────────────────────────────────────────
-  errorContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 32,
-  },
-  errorText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: C.textLight,
-  },
-
-  // ─── Ingredients (compatibility) ────────────────────────────────────────
   ingredientsHeader: {
     flexDirection: "row",
     alignItems: "center",
@@ -402,5 +494,12 @@ export const mealDetailStyles = StyleSheet.create({
     color: C.textLight,
     fontStyle: "italic",
     textAlign: "center",
+  },
+  nutrientIconSmall: {
+    width: 40,
+    height: 40,
+    borderRadius: 13,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

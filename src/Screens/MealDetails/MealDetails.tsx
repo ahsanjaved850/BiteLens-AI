@@ -1,50 +1,55 @@
 import { NUTRITION_ICONS } from "@/src/Screens/Home/Home.static";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
-import {
-  Image,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useMealDetails } from "./MealDetails.logic";
 import { MACROS_CONFIG, SECTION_TITLES, UI_TEXT } from "./MealDetails.static";
 import { mealDetailStyles } from "./mealDetails.style";
 
-export const MealDetails = () => {
-  const { meal, handleBack, formatTime, getNutrients } = useMealDetails();
+// Per-macro top accent colors — matches macro brand colors
+const MACRO_ACCENT_COLORS: Record<string, string> = {
+  protein: "#EF4444",
+  carbs: "#3B82F6",
+  fat: "#F59E0B",
+};
 
-  /*
-   * insets.top = exact pixel height of the status bar / notch.
-   * We use it to position the back button so it sits just below
-   * the status bar on every device — no hardcoded values needed.
-   */
+// Nutrient sublabels for extra context
+const NUTRIENT_SUBLABELS: Record<string, string> = {
+  Sugar: "Simple carbs",
+  Sodium: "Salt content",
+  Fiber: "Dietary",
+};
+
+export const MealDetails = () => {
+  const { meal, handleBack, handleDelete, formatTime, getNutrients } =
+    useMealDetails();
+
   const insets = useSafeAreaInsets();
 
   if (!meal) {
     return (
-      <View style={[mealDetailStyles.container, mealDetailStyles.errorContainer]}>
-        <Text style={mealDetailStyles.errorText}>{UI_TEXT.ERROR_NOT_FOUND}</Text>
+      <View
+        style={[mealDetailStyles.container, mealDetailStyles.errorContainer]}
+      >
+        <Text style={mealDetailStyles.errorText}>
+          {UI_TEXT.ERROR_NOT_FOUND}
+        </Text>
       </View>
     );
   }
 
   const nutrients = getNutrients();
+  const calorieGoalHint =
+    meal.calories > 600
+      ? "High calorie"
+      : meal.calories > 300
+        ? "Moderate"
+        : "Light meal";
 
   return (
-    /*
-     * Layout strategy:
-     * ─ Root View fills the screen including under the status bar.
-     * ─ ScrollView starts at top:0 — image is full bleed to the very top.
-     * ─ Back button is position:absolute over the image, top = insets.top + 8.
-     *   This means it physically overlaps the image but is rendered AFTER the
-     *   ScrollView in the tree, so it gets its own touch layer above it.
-     * ─ No SafeAreaView needed — we handle insets manually for full control.
-     */
     <View style={mealDetailStyles.container}>
-
       <ScrollView
         style={mealDetailStyles.scrollView}
         contentContainerStyle={[
@@ -53,7 +58,7 @@ export const MealDetails = () => {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── Full-bleed Hero Image — goes all the way to top of screen ── */}
+        {/* ── Hero Image with gradient overlay + meal name on image ── */}
         <View style={mealDetailStyles.imageContainer}>
           {meal.meal_image ? (
             <Image
@@ -63,29 +68,46 @@ export const MealDetails = () => {
           ) : (
             <View style={mealDetailStyles.imagePlaceholder}>
               <View style={mealDetailStyles.imagePlaceholderIcon}>
-                <Ionicons name="restaurant" size={38} color="#F47B20" />
+                <Ionicons name="restaurant" size={42} color="#F47B20" />
               </View>
             </View>
           )}
-        </View>
 
-        {/* ── Info Card — surfaces over image ── */}
-        <View style={mealDetailStyles.infoCard}>
-          <Text style={mealDetailStyles.mealName}>{meal.name}</Text>
-          <View style={mealDetailStyles.timeContainer}>
-            <Ionicons name="time-outline" size={15} color="#B0BECA" />
-            <Text style={mealDetailStyles.timeText}>
-              {formatTime(meal.created_at)}
+          {/* Dark gradient so white text is legible on any image */}
+          <LinearGradient
+            colors={["transparent", "rgba(15,26,34,0.72)"]}
+            style={mealDetailStyles.imageGradientOverlay}
+          />
+
+          {/* Meal name + time rendered ON the image */}
+          <View style={mealDetailStyles.heroTextOverlay}>
+            <Text style={mealDetailStyles.heroMealName} numberOfLines={2}>
+              {meal.name}
             </Text>
+            <View style={mealDetailStyles.heroTimeRow}>
+              <Ionicons
+                name="time-outline"
+                size={13}
+                color="rgba(255,255,255,0.82)"
+              />
+              <Text style={mealDetailStyles.heroTimeText}>
+                {formatTime(meal.created_at)}
+              </Text>
+            </View>
           </View>
         </View>
 
-        {/* ── Calories Card ── */}
+        {/* ── Pull-up card with handle ── */}
+        <View style={mealDetailStyles.pullUpCard}>
+          <View style={mealDetailStyles.pullUpHandle} />
+        </View>
+
+        {/* ── Calories Hero Card — orange full-width ── */}
         <View style={mealDetailStyles.caloriesCard}>
           <View style={mealDetailStyles.caloriesIconContainer}>
             <Image
               source={NUTRITION_ICONS.calories}
-              style={{ width: 44, height: 44 }}
+              style={{ width: 46, height: 46 }}
               resizeMode="contain"
             />
           </View>
@@ -97,25 +119,45 @@ export const MealDetails = () => {
               {Math.round(meal.calories)}
               <Text style={mealDetailStyles.caloriesUnit}> kcal</Text>
             </Text>
+            <View style={mealDetailStyles.caloriesBadge}>
+              <Text style={mealDetailStyles.caloriesBadgeText}>
+                {calorieGoalHint}
+              </Text>
+            </View>
           </View>
         </View>
 
         {/* ── Macronutrients ── */}
         <View style={mealDetailStyles.section}>
-          <Text style={mealDetailStyles.sectionTitle}>
-            {SECTION_TITLES.MACRONUTRIENTS}
-          </Text>
+          <View style={mealDetailStyles.sectionHeader}>
+            <View style={mealDetailStyles.sectionDot} />
+            <Text style={mealDetailStyles.sectionTitle}>
+              {SECTION_TITLES.MACRONUTRIENTS}
+            </Text>
+          </View>
           <View style={mealDetailStyles.macroGrid}>
             {MACROS_CONFIG.map((macro) => (
               <View key={macro.key} style={mealDetailStyles.macroCard}>
+                {/* Colored glow circle behind the icon — replaces the top bar */}
+                <View
+                  style={{
+                    width: 58,
+                    height: 58,
+                    borderRadius: 19,
+                    opacity: 0.12,
+                    position: "absolute",
+                    top: 12,
+                  }}
+                />
                 <Image
                   source={NUTRITION_ICONS[macro.iconKey]}
-                  style={mealDetailStyles.macroIcon3d}
+                  style={[mealDetailStyles.macroIcon3d, { marginTop: 4 }]}
                   resizeMode="contain"
                 />
                 <Text style={mealDetailStyles.macroLabel}>{macro.label}</Text>
                 <Text style={mealDetailStyles.macroValue}>
-                  {Math.round(meal[macro.key])}g
+                  {Math.round(meal[macro.key])}
+                  <Text style={mealDetailStyles.macroUnit}>g</Text>
                 </Text>
               </View>
             ))}
@@ -124,9 +166,12 @@ export const MealDetails = () => {
 
         {/* ── Additional Nutrients ── */}
         <View style={mealDetailStyles.section}>
-          <Text style={mealDetailStyles.sectionTitle}>
-            {SECTION_TITLES.ADDITIONAL_NUTRIENTS}
-          </Text>
+          <View style={mealDetailStyles.sectionHeader}>
+            <View style={mealDetailStyles.sectionDot} />
+            <Text style={mealDetailStyles.sectionTitle}>
+              {SECTION_TITLES.ADDITIONAL_NUTRIENTS}
+            </Text>
+          </View>
           <View style={mealDetailStyles.nutrientsList}>
             {nutrients.map((nutrient, index) => (
               <View
@@ -137,55 +182,72 @@ export const MealDetails = () => {
                 ]}
               >
                 <View style={mealDetailStyles.nutrientLeft}>
-                  <View style={mealDetailStyles.nutrientAccentBar} />
-                  <Image
-                    source={NUTRITION_ICONS[nutrient.iconKey]}
-                    style={mealDetailStyles.nutrientIcon3d}
-                    resizeMode="contain"
-                  />
-                  <Text style={mealDetailStyles.nutrientLabel}>
-                    {nutrient.label}
+                  {/* Icon inside a warm rounded square */}
+                  <View style={mealDetailStyles.nutrientIconWrapper}>
+                    <Image
+                      source={NUTRITION_ICONS[nutrient.iconKey]}
+                      style={mealDetailStyles.nutrientIcon3d}
+                      resizeMode="contain"
+                    />
+                  </View>
+                  <View>
+                    <Text style={mealDetailStyles.nutrientLabel}>
+                      {nutrient.label}
+                    </Text>
+                    <Text style={mealDetailStyles.nutrientSubLabel}>
+                      {NUTRIENT_SUBLABELS[nutrient.label] ?? ""}
+                    </Text>
+                  </View>
+                </View>
+
+                {/* Value as a pill */}
+                <View style={mealDetailStyles.nutrientValuePill}>
+                  <Text style={mealDetailStyles.nutrientValue}>
+                    {nutrient.value}
                   </Text>
                 </View>
-                <Text style={mealDetailStyles.nutrientValue}>
-                  {nutrient.value}
-                </Text>
               </View>
             ))}
           </View>
         </View>
 
-        {/* ── AI Notice ── */}
+        {/* ── AI Notice — premium badge style ── */}
         <View style={mealDetailStyles.aiNotice}>
-          <Ionicons name="sparkles" size={16} color="#F47B20" />
-          <Text style={mealDetailStyles.aiNoticeText}>
-            {UI_TEXT.AI_NOTICE}
-          </Text>
+          <View style={mealDetailStyles.aiNoticeBadge}>
+            <Ionicons name="sparkles" size={17} color="#F47B20" />
+          </View>
+          <Text style={mealDetailStyles.aiNoticeText}>{UI_TEXT.AI_NOTICE}</Text>
         </View>
       </ScrollView>
 
-      {/*
-       * ── Back Button — rendered AFTER ScrollView so it sits above it in z-order.
-       *
-       * Key insight: in React Native, siblings rendered later in JSX paint on top.
-       * By placing this View after <ScrollView>, it naturally overlays the image
-       * without needing zIndex fighting.
-       *
-       * top = insets.top + 8 → always clears the status bar / notch precisely.
-       * This is the ONLY correct way to do a floating action button on a
-       * full-bleed image screen in React Native.
-       */}
+      {/* ── Back Button ── */}
       <TouchableOpacity
         style={[
           mealDetailStyles.backButton,
-          { top: insets.top + 8 },
+          { top: insets.top + 8, backgroundColor: "#F47B20" },
         ]}
         onPress={handleBack}
         activeOpacity={0.85}
       >
-        <Ionicons name="arrow-back" size={22} color="#0F1A22" />
+        <Ionicons name="arrow-back" size={22} color="#FFFFFF" />
       </TouchableOpacity>
 
+      {/* ── Delete Button ── */}
+      <TouchableOpacity
+        style={[
+          mealDetailStyles.backButton,
+          {
+            top: insets.top + 8,
+            left: undefined,
+            right: 16,
+            backgroundColor: "#F47B20",
+          },
+        ]}
+        onPress={handleDelete}
+        activeOpacity={0.85}
+      >
+        <Ionicons name="trash-outline" size={20} color="#FFFFFF" />
+      </TouchableOpacity>
     </View>
   );
 };
