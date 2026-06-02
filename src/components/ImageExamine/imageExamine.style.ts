@@ -2,7 +2,6 @@ import { Dimensions, StyleSheet } from "react-native";
 
 const { width: SW } = Dimensions.get("window");
 
-// ─── Theme tokens — identical to the rest of the app ──────────────────────
 const C = {
   bg: "#FFFFFF",
   bgCard: "#FFFAF6",
@@ -34,7 +33,6 @@ export const imageExamineStyles = StyleSheet.create({
     gap: 14,
   },
 
-  // ─── Instruction banner ─────────────────────────────────────────────────
   // Warm on-brand — replaces the cold blue box
   instructionContainer: {
     backgroundColor: C.bgCardAlt,
@@ -71,7 +69,6 @@ export const imageExamineStyles = StyleSheet.create({
     fontWeight: "500",
   },
 
-  // ─── Two-card grid (Camera + Gallery) ──────────────────────────────────
   optionsGrid: {
     flexDirection: "row",
     gap: 12,
@@ -133,8 +130,8 @@ export const imageExamineStyles = StyleSheet.create({
   },
 
   optionTitle: {
-    fontSize: 14,
-    fontWeight: "800",
+    fontSize: 16,
+    fontWeight: "600",
     color: C.textDark,
     textAlign: "center",
     letterSpacing: -0.3,
@@ -147,7 +144,6 @@ export const imageExamineStyles = StyleSheet.create({
     fontWeight: "500",
   },
 
-  // ─── "Recommended" badge on camera card ─────────────────────────────────
   recommendedBadge: {
     backgroundColor: C.primary,
     borderRadius: 20,
@@ -162,7 +158,6 @@ export const imageExamineStyles = StyleSheet.create({
     textTransform: "uppercase",
   },
 
-  // ─── Legacy row button (kept for compatibility) ─────────────────────────
   optionButton: {
     flexDirection: "row",
     alignItems: "center",
@@ -197,7 +192,6 @@ export const imageExamineStyles = StyleSheet.create({
     color: C.textLight,
   },
 
-  // ─── Image Preview ──────────────────────────────────────────────────────
   // Full-width, tall — feels premium like a story card
   imagePreviewContainer: {
     borderRadius: 24,
@@ -274,10 +268,10 @@ export const imageExamineStyles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(255, 250, 246, 0.92)",
+    backgroundColor: "rgba(255, 250, 246, 0.88)",
     alignItems: "center",
     justifyContent: "center",
-    gap: 14,
+    paddingHorizontal: 24,
   },
   processingIconWrap: {
     width: 68,
@@ -295,19 +289,21 @@ export const imageExamineStyles = StyleSheet.create({
     elevation: 5,
   },
   processingText: {
-    fontSize: 14,
-    fontWeight: "700",
+    fontSize: 16,
+    fontWeight: "800",
     color: C.textDark,
-    letterSpacing: -0.2,
+    letterSpacing: -0.3,
     textAlign: "center",
+    marginTop: 8,
   },
   processingSubtext: {
     fontSize: 12,
     color: C.textSec,
-    fontWeight: "500",
+    fontWeight: "600",
+    marginTop: 4,
+    textAlign: "center",
   },
 
-  // ─── Tips banner ─────────────────────────────────────────────────────────
   // Warm orange-tinted — replaces the yellow box
   tipsContainer: {
     backgroundColor: C.primaryLight,
@@ -335,7 +331,6 @@ export const imageExamineStyles = StyleSheet.create({
     fontWeight: "500",
   },
 
-  // ─── Cancel Button ────────────────────────────────────────────────────────
   // Active: orange bg — clearly tappable, on-brand.
   // Disabled (processing): grey bg — signals "not available right now".
   cancelButton: {
@@ -364,5 +359,78 @@ export const imageExamineStyles = StyleSheet.create({
   },
   cancelButtonTextDisabled: {
     color: "#9AA0A6", // muted grey text on grey button
+  },
+
+  premiumProcessingWrap: {
+    width: 128,
+    height: 150,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 2,
+  },
+  processingPulseRing: {
+    position: "absolute",
+    width: 104,
+    height: 104,
+    borderRadius: 52,
+    backgroundColor: C.primary,
+  },
+  processingGlowCard: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: "rgba(255, 243, 232, 0.98)",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#F47B20",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.28,
+    shadowRadius: 24,
+    elevation: 10,
+    borderWidth: 1.5,
+    borderColor: C.primaryMuted,
+  },
+  processingOuterRing: {
+    position: "absolute",
+    width: 112,
+    height: 112,
+    borderRadius: 56,
+    borderWidth: 3,
+    borderColor: C.primary,
+    borderTopColor: "rgba(244, 123, 32, 0.08)",
+    borderRightColor: "rgba(244, 123, 32, 0.28)",
+    borderBottomColor: C.primary,
+    borderLeftColor: "rgba(244, 123, 32, 0.18)",
+  },
+  processingCore: {
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    backgroundColor: C.white,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: C.borderLight,
+  },
+  processingScanLine: {
+    position: "absolute",
+    width: 62,
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: C.primary,
+    opacity: 0.45,
+  },
+  processingDotsRow: {
+    position: "absolute",
+    bottom: 0,
+    flexDirection: "row",
+    gap: 6,
+  },
+  processingDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: C.primary,
   },
 });

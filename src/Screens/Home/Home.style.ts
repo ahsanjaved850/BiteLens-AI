@@ -2,11 +2,6 @@ import { Dimensions, StyleSheet } from "react-native";
 
 const { width: SW } = Dimensions.get("window");
 
-// ─── Theme Palette ──────────────────────────────────────────────────────────
-// Mirrors Login screen: peach #FFE0C2 → white #FFFFFF gradient language
-// Primary accent: #F47B20 (vibrant warm orange)
-// Cards: warm off-white surfaces, peach-tinted borders, orange-glow shadows
-
 export const GRADIENT = {
   top: "#FFE0C2",
   mid: "#FFF0E4",
@@ -45,7 +40,6 @@ const C = {
 };
 
 export const homeStyles = StyleSheet.create({
-  // ─── Shell ───────────────────────────────────────────────────────────────
   container: {
     flex: 1,
     backgroundColor: C.bgPeach,
@@ -59,7 +53,6 @@ export const homeStyles = StyleSheet.create({
     paddingBottom: 120,
   },
 
-  // ─── Header ──────────────────────────────────────────────────────────────
   headerContainer: {
     paddingHorizontal: 20,
     paddingTop: 8,
@@ -107,7 +100,6 @@ export const homeStyles = StyleSheet.create({
     fontWeight: "500",
   },
 
-  // ─── Daily Summary Card ──────────────────────────────────────────────────
   dailySummaryCard: {
     backgroundColor: C.bgCard,
     borderRadius: 28,
@@ -168,7 +160,6 @@ export const homeStyles = StyleSheet.create({
     letterSpacing: 2,
   },
 
-  // ─── Calorie Ring ────────────────────────────────────────────────────────
   progressContainer: {
     alignItems: "center",
     justifyContent: "center",
@@ -178,8 +169,6 @@ export const homeStyles = StyleSheet.create({
     width: 170,
     height: 170,
     borderRadius: 85,
-    borderWidth: 12,
-    borderColor: C.borderLight,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: C.bgCard,
@@ -193,15 +182,15 @@ export const homeStyles = StyleSheet.create({
     alignItems: "center",
   },
   calorieCount: {
-    fontSize: 44,
-    fontWeight: "800",
+    fontSize: 36,
+    fontWeight: "700",
     color: C.textDark,
     letterSpacing: -2,
   },
   calorieCanEatLabel: {
     fontSize: 13,
     color: C.textLight,
-    fontWeight: "600",
+    fontWeight: "500",
     marginTop: 2,
     letterSpacing: 0.3,
   },
@@ -230,10 +219,25 @@ export const homeStyles = StyleSheet.create({
     alignItems: "center",
   },
   calorieSubValue: {
-    fontSize: 22,
-    fontWeight: "800",
+    fontSize: 20,
+    fontWeight: "700",
     color: C.textDark,
     letterSpacing: -0.5,
+  },
+  calorieRingSvg: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+  },
+
+  calorieRingContent: {
+    position: "absolute",
+    width: 132,
+    height: 132,
+    borderRadius: 66,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: C.bgCard,
   },
   calorieSubLabel: {
     fontSize: 12,
@@ -248,7 +252,6 @@ export const homeStyles = StyleSheet.create({
     backgroundColor: C.border,
   },
 
-  // ─── Macro Summary Row ───────────────────────────────────────────────────
   macroSummaryRow: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -295,7 +298,6 @@ export const homeStyles = StyleSheet.create({
     fontWeight: "600",
   },
 
-  // ─── Nutrient Cards ──────────────────────────────────────────────────────
   macroSection: {
     marginTop: 0,
   },
@@ -352,7 +354,7 @@ export const homeStyles = StyleSheet.create({
   sodiumIcon: { backgroundColor: "#E9D5FF" },
   fiberIcon: { backgroundColor: "#D1FAE5" },
   nutrientsLabel: {
-    fontSize: 10,
+    fontSize: 9,
     color: C.textSec,
     fontWeight: "700",
     marginBottom: 4,
@@ -361,7 +363,7 @@ export const homeStyles = StyleSheet.create({
   },
   nutrientsValue: {
     fontSize: 24,
-    fontWeight: "800",
+    fontWeight: "700",
     color: C.textDark,
     marginBottom: 2,
     letterSpacing: -0.5,
@@ -369,7 +371,7 @@ export const homeStyles = StyleSheet.create({
   nutrientsTotal: {
     fontSize: 11,
     color: C.textLight,
-    fontWeight: "500",
+    fontWeight: "600",
   },
   nutrientsProgress: {
     marginTop: 10,
@@ -384,7 +386,6 @@ export const homeStyles = StyleSheet.create({
     borderRadius: 4,
   },
 
-  // ─── Floating AI Scan FAB — right-bottom, pill with icon + text ──────────
   floatingButtonWrap: {
     position: "absolute",
     right: 20,
@@ -424,7 +425,7 @@ export const homeStyles = StyleSheet.create({
     letterSpacing: 0.3,
   },
 
-  // ─── Legacy Add Meal ─────────────────────────────────────────────────────
+  // ─── Legacy Add Meal
   addMealContainer: {
     alignItems: "center",
     marginVertical: 12,
@@ -453,7 +454,7 @@ export const homeStyles = StyleSheet.create({
     color: C.textSec,
   },
 
-  // ─── Meal History ────────────────────────────────────────────────────────
+  // ─── Meal History
   mealHistorySection: {
     marginTop: 16,
   },
@@ -541,7 +542,7 @@ export const homeStyles = StyleSheet.create({
   mealName: {
     fontSize: 16,
     color: C.textDark,
-    fontWeight: "800",
+    fontWeight: "700",
     marginBottom: 3,
     letterSpacing: -0.3,
   },
@@ -573,7 +574,7 @@ export const homeStyles = StyleSheet.create({
     fontWeight: "600",
   },
 
-  // ─── Empty State ─────────────────────────────────────────────────────────
+  // ─── Empty State
   emptyStateContainer: {
     alignItems: "center",
     justifyContent: "center",
@@ -609,7 +610,7 @@ export const homeStyles = StyleSheet.create({
     lineHeight: 21,
   },
 
-  // ─── Modal ───────────────────────────────────────────────────────────────
+  // ─── Modal
   modalOverlay: {
     flex: 1,
     justifyContent: "flex-end",
@@ -638,8 +639,8 @@ export const homeStyles = StyleSheet.create({
     borderRadius: 4,
   },
   modalTitle: {
-    fontSize: 22,
-    fontWeight: "800",
+    fontSize: 24,
+    fontWeight: "600",
     marginBottom: 20,
     textAlign: "center",
     color: C.textDark,
@@ -660,7 +661,7 @@ export const homeStyles = StyleSheet.create({
     color: C.textSec,
   },
 
-  // ─── Loading ─────────────────────────────────────────────────────────────
+  // ─── Loading
   loadingOverlay: {
     flex: 1,
     justifyContent: "center",
@@ -699,5 +700,79 @@ export const homeStyles = StyleSheet.create({
     fontSize: 13,
     color: C.textLight,
     marginTop: 8,
+  },
+  root: {
+    paddingVertical: 12,
+    backgroundColor: "#FFFFFF",
+  } as const,
+  scrollContent: {
+    paddingHorizontal: 16,
+    gap: 7,
+    alignItems: "center" as const,
+  },
+  cell: {
+    width: 56,
+    alignItems: "center" as const,
+    gap: 3,
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+    borderRadius: 16,
+  },
+  cellSelected: {
+    shadowColor: "#F47B20",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.14,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  cellFuture: {
+    opacity: 0.3,
+  },
+  dayName: {
+    fontSize: 11,
+    fontWeight: "400" as const,
+    color: "#7A8A98",
+    letterSpacing: 0.2,
+  },
+  dayNameSelected: {
+    color: "#F47B20",
+    fontWeight: "600" as const,
+  },
+  dayNameFaded: {
+    color: "#B0BECA",
+  },
+  circle: {
+    width: 30,
+    height: 30,
+    borderRadius: 20,
+    alignItems: "center" as const,
+    justifyContent: "center" as const,
+    borderWidth: 1.5,
+    borderColor: "#E0D0C0",
+    borderStyle: "dashed" as const,
+  },
+  circleSelected: {
+    borderStyle: "solid" as const,
+    borderColor: "#f47c20b8",
+  },
+  circleToday: {
+    borderStyle: "solid" as const,
+    borderColor: "#F47B20",
+    borderWidth: 2,
+  },
+  circleFaded: {
+    borderColor: "#E8E0D8",
+  },
+  dayNum: {
+    fontSize: 14,
+    fontWeight: "500" as const,
+    color: "#0F1A22",
+    letterSpacing: -0.5,
+  },
+  dayNumSelected: {
+    color: "#F47B20",
+  },
+  dayNumFaded: {
+    color: "#C0B8B0",
   },
 });

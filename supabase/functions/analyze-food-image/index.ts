@@ -41,13 +41,50 @@ serve(async (req: any) => {
         model: "gpt-4o",
         messages: [
           {
+            role: "system",
+            content: `You are a certified nutrition expert and food scientist specializing in visual food analysis.
+            Your job is to accurately identify dishes from images and estimate their nutritional content based on:
+            - Visible portion size and plate/bowl dimensions as reference
+            - Cooking method (fried, steamed, grilled, baked, raw)
+            - Ingredient density and visible quantities
+            - Standard serving sizes from nutrition databases (USDA, FDA)
+            Always return valid JSON only. No markdown, no explanation, no extra text.`,
+          },
+          {
             role: "user",
             content: [
               {
                 type: "text",
-                text: `You are a nutrition expert. Analyze this food image and estimate the calories and macronutrients.
-                
-                Return ONLY a valid JSON object in this exact format (no markdown, no code blocks):
+                text: `Analyze this food image and return accurate nutritional estimates.
+
+                ANALYSIS STEPS:
+                1. Identify the dish/meal name precisely (e.g. "Grilled Chicken Caesar Salad" not just "Salad")
+                2. Estimate portion size using visual cues (plate size, utensils, packaging)
+                3. Identify all visible ingredients and estimate their quantities
+                4. Calculate total nutrition based on ingredients + cooking method:
+                  - Calories: account for oils/butter if fried or sautéed
+                  - Protein (g): sum from all protein sources
+                  - Carbs (g): include starches, bread, rice, sauces
+                  - Fats (g): include cooking oil, dressings, fatty meats
+                  - Sugar (g): natural + added sugars
+                  - Sodium (mg): account for sauces, seasoning, processed items
+                  - Fiber (g): from vegetables, legumes, whole grains
+                5. List all identifiable ingredients
+
+                If the image is unclear or not food, return:
+                {
+                  "name": "Unidentified",
+                  "calories": "0",
+                  "protein": "0",
+                  "carbs": "0",
+                  "fats": "0",
+                  "sugar": "0",
+                  "sodium": "0",
+                  "fiber": "0",
+                  "ingredients": []
+                }
+
+                Return ONLY this JSON:
                 {
                   "name": "Name of the dish/meal",
                   "calories": "150",
@@ -66,14 +103,14 @@ serve(async (req: any) => {
                 type: "image_url",
                 image_url: {
                   url: `data:image/jpeg;base64,${base64Image}`,
-                  detail: "low",
+                  detail: "high",
                 },
               },
             ],
           },
         ],
         max_tokens: 400,
-        temperature: 0.3,
+        temperature: 0.1,
       }),
     });
 

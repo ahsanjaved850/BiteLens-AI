@@ -50,9 +50,6 @@ import { FaceChange } from "../../components/OnboardingFeatures/GoalInfo/FaceCha
 import { GoalInfo } from "../../components/OnboardingFeatures/GoalInfo/GoalInfo";
 import { TransformationReviews } from "../../components/OnboardingFeatures/GoalInfo/TransformationReviews";
 
-// ────────────────────────────────────────────────────────────────────
-// Types
-// ────────────────────────────────────────────────────────────────────
 export interface PageValidationState {
   [key: number]: boolean;
 }
@@ -63,22 +60,8 @@ export interface OnboardingPage {
   requiresValidation: boolean;
 }
 
-// ────────────────────────────────────────────────────────────────────
-// Pages : 33-slide flow (Orca)
-//
-// Chapter 0 (0–2): Orca 1-2-3 Approach : branded chapter intro
-//   • Scan meals → Calorie deficit → Macros
-//   • All 3 share the "Orca 1-2-3 Approach" header
-//
-// Chapter 1 (3–4): Hook & validate pain
-// Chapter 2 (5–8): Relate & empathize
-// Chapter 3 (9–14): Behavior & knowledge assessment
-// Chapter 4 (15–19): Educate & build trust
-// Chapter 5 (20–28): Personalize via data collection
-// Chapter 6 (29–32): Payoff, motivation, completion
-// ────────────────────────────────────────────────────────────────────
 export const PAGES: OnboardingPage[] = [
-  // ── Chapter 0: Orca 1-2-3 Approach (0–2) ──
+  // Chapter 0: Orca 1-2-3 Approach (0–2)
   { key: "1", component: AppIntro, requiresValidation: false }, //  0 : Scan meal with AI (ImageReel)
   { key: "2", component: AppIntro2, requiresValidation: false }, //  1 : Second intro slide (ImageReel)
   { key: "3", component: AppIntro3, requiresValidation: false }, //  2 : Third intro slide (ImageReel)
@@ -143,11 +126,6 @@ export const PAGES: OnboardingPage[] = [
   { key: "50", component: Completion, requiresValidation: false }, // 32 : Loading → done → navigate home
 ];
 
-// ────────────────────────────────────────────────────────────────────
-// Initial validation state
-// true  = page is passable immediately (no user input required)
-// false = user must interact before "Continue" is enabled
-// ────────────────────────────────────────────────────────────────────
 export const INITIAL_PAGE_VALIDATION: PageValidationState = {
   // Chapter 0: Orca 1-2-3 Approach
   0: true, // AppIntro1 : static
@@ -211,9 +189,6 @@ export const INITIAL_PAGE_VALIDATION: PageValidationState = {
   49: true, // Completion : auto-animates
 };
 
-// ────────────────────────────────────────────────────────────────────
-// Constants
-// ────────────────────────────────────────────────────────────────────
 export const BUTTON_TEXT = {
   NEXT: "Continue",
   GET_STARTED: "Get Started 🚀",

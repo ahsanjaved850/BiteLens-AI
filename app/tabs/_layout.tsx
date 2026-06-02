@@ -25,7 +25,7 @@ export default function TabLayout(): JSX.Element {
       })}
     >
       <Tabs.Screen name="home" options={{ title: "Home" }} />
-      <Tabs.Screen name="data" options={{ title: "Analytics" }} />
+      <Tabs.Screen name="data" options={{ title: "Progress" }} />
       <Tabs.Screen name="settings" options={{ title: "Settings" }} />
       <Tabs.Screen
         name="mealDetails"

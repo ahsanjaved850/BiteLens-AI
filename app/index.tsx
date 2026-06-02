@@ -24,9 +24,6 @@ export default function Index() {
         } = await supabase.auth.getSession();
 
         if (session?.user) {
-          // User has a session — check if they finished onboarding.
-          // onboarding flag is set true at the end of auth.signUp after
-          // all data has been flushed to Supabase.
           const { data: profile } = await supabase
             .from("profile")
             .select("onboarding")

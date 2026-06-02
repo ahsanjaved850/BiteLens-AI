@@ -1,9 +1,5 @@
 import { StyleSheet } from "react-native";
 
-// ─── Theme Palette ────────────────────────────────────────────────────────────
-// Identical to Home screen: peach gradient, warm card surfaces, orange accents
-// Primary: #F47B20 | Cards: #FFFAF6 | Borders: #F0DED0 | Shadow: #F47B20
-
 export const GRADIENT = {
   top: "#FFE0C2",
   mid: "#FFF0E4",
@@ -41,7 +37,6 @@ const C = {
 };
 
 export const dataStyles = StyleSheet.create({
-  // ─── Shell ───────────────────────────────────────────────────────────────
   container: {
     flex: 1,
     backgroundColor: C.bgPeach,
@@ -56,7 +51,7 @@ export const dataStyles = StyleSheet.create({
     paddingTop: 8,
   },
 
-  // ─── Header ──────────────────────────────────────────────────────────────
+  // ─── Header
   headerContainer: {
     paddingHorizontal: 20,
     paddingTop: 8,
@@ -76,7 +71,7 @@ export const dataStyles = StyleSheet.create({
     fontWeight: "500",
   },
 
-  // ─── Section Card ────────────────────────────────────────────────────────
+  //  Section Card
   section: {
     backgroundColor: C.bgCard,
     borderRadius: 28,
@@ -108,14 +103,13 @@ export const dataStyles = StyleSheet.create({
     marginTop: 2,
   },
 
-  // ─── Data Cards ──────────────────────────────────────────────────────────
+  // ─── Data Cards
   dataCard: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     borderRadius: 18,
-    padding: 16,
-    marginBottom: 10,
+    padding: 12,
     elevation: 2,
   },
   dataCardLeft: {
@@ -143,11 +137,12 @@ export const dataStyles = StyleSheet.create({
   updateButton: {
     backgroundColor: C.primary,
     paddingHorizontal: 22,
+    width: "30%",
     paddingVertical: 11,
     borderRadius: 50,
     minWidth: 80,
     alignItems: "center",
-    shadowColor: "#D96A12",
+    shadowColor: "#e27c29",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 10,
@@ -160,7 +155,7 @@ export const dataStyles = StyleSheet.create({
     letterSpacing: 0.2,
   },
 
-  // ─── BMI Card ────────────────────────────────────────────────────────────
+  // ─── BMI Card
   bmiCard: {
     borderRadius: 18,
     padding: 18,
@@ -173,31 +168,32 @@ export const dataStyles = StyleSheet.create({
     marginBottom: 12,
   },
   bmiScore: {
-    fontSize: 40,
-    fontWeight: "800",
+    fontSize: 35,
+    fontWeight: "700",
     color: C.textDark,
     letterSpacing: -1,
   },
   bmiCategory: {
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: "700",
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 20,
+    paddingHorizontal: 22,
+    width: "40%",
+    paddingVertical: 11,
+    borderRadius: 50,
     overflow: "hidden",
   },
-  bmiDescription: {
-    fontSize: 13,
-    color: C.textSec,
-    lineHeight: 20,
-    marginTop: 8,
-  },
+  // bmiDescription: {
+  //   fontSize: 13,
+  //   color: C.textSec,
+  //   lineHeight: 20,
+  //   marginTop: 8,
+  // },
   bmiScale: {
     flexDirection: "row",
     height: 8,
     borderRadius: 6,
     overflow: "hidden",
-    marginTop: 14,
+    marginTop: 6,
     gap: 3,
   },
   bmiScaleSegment: {
@@ -205,7 +201,7 @@ export const dataStyles = StyleSheet.create({
     borderRadius: 6,
   },
 
-  // ─── Weight Progress Card ─────────────────────────────────────────────────
+  // ─── Weight Progress Card
   weightProgressCard: {
     backgroundColor: C.bgCard,
     borderRadius: 28,
@@ -312,7 +308,7 @@ export const dataStyles = StyleSheet.create({
     fontWeight: "500",
   },
 
-  // ─── Nutrition Overview Card ──────────────────────────────────────────────
+  // ─── Nutrition Overview Card
   nutritionOverviewCard: {
     backgroundColor: C.bgCard,
     borderRadius: 28,
@@ -368,7 +364,7 @@ export const dataStyles = StyleSheet.create({
     fontWeight: "500",
   },
 
-  // ─── Modal ───────────────────────────────────────────────────────────────
+  // ─── Modal
   modalOverlay: {
     flex: 1,
     justifyContent: "center",
@@ -463,7 +459,7 @@ export const dataStyles = StyleSheet.create({
     letterSpacing: 0.3,
   },
 
-  // ─── Loading ─────────────────────────────────────────────────────────────
+  // ─── Loading
   loadingContainer: {
     padding: 20,
     alignItems: "center",
@@ -475,7 +471,7 @@ export const dataStyles = StyleSheet.create({
     fontWeight: "600",
   },
 
-  // ─── Citation / Disclaimer (moved from inline in Data.tsx) ────────────────
+  // ─── Citation / Disclaimer (moved from inline in Data.tsx)
   citationRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -542,5 +538,72 @@ export const dataStyles = StyleSheet.create({
     borderTopColor: C.border,
     paddingTop: 8,
     gap: 2,
+  },
+  // ─── Weight Tracker Graph Card
+  weightTrendCard: {
+    backgroundColor: C.bgCard,
+    borderRadius: 28,
+    padding: 22,
+    marginTop: 12,
+    shadowColor: "#F47B20",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 6,
+    borderWidth: 1,
+    borderColor: C.border,
+  },
+  weightTrackerTop: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-end",
+    gap: 12,
+  },
+  weightTrackerLabel: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: C.textSec,
+    marginBottom: 4,
+  },
+  weightTrackerValue: {
+    fontSize: 38, // was 42 — slightly smaller looks cleaner
+    fontWeight: "900",
+    color: C.textDark,
+    letterSpacing: -1.2,
+  },
+
+  weightTrackerUnit: {
+    fontSize: 24,
+    fontWeight: "800",
+    color: C.textDark,
+  },
+  weightTrackerDateBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: C.bgCardAlt, // add this
+    paddingHorizontal: 10, // add this
+    paddingVertical: 6, // add this
+    borderRadius: 20, // add this
+    borderWidth: 1, // add this
+    borderColor: C.border, // add this
+    flexShrink: 1,
+  },
+  weightTrackerDateText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "black",
+    textAlign: "right",
+  },
+  weightTrackerDivider: {
+    height: 1.3,
+    backgroundColor: C.divider,
+    marginTop: 18,
+    marginBottom: 16,
+  },
+  weightTrackerChartContainer: {
+    backgroundColor: C.bgCard,
+    borderRadius: 20,
+    overflow: "hidden",
   },
 });

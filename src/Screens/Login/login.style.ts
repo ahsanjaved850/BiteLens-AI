@@ -66,7 +66,7 @@ export const loginStyles = StyleSheet.create({
     paddingBottom: 24,
   },
 
-  // ── Logo wordmark ────────────────────────────────────────────
+  // ── Logo wordmark
   logoContainer: {
     alignItems: "center",
     marginBottom: 30,
@@ -209,7 +209,7 @@ export const loginStyles = StyleSheet.create({
     color: COLORS.textLight,
   },
 
-  // ─── Divider ─────────────────────────────────────────────────────
+  // ─── Divider
   dividerContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -227,7 +227,7 @@ export const loginStyles = StyleSheet.create({
     fontWeight: "500",
   },
 
-  // ─── Social Buttons ──────────────────────────────────────────────
+  // ─── Social Buttons
   socialButtonsContainer: {
     gap: 12,
     marginBottom: 32,
@@ -253,7 +253,7 @@ export const loginStyles = StyleSheet.create({
     color: COLORS.textDark,
   },
 
-  // ── Apple Sign In button wrapper ──────────────────────────────
+  // ── Apple Sign In button wrapper
   // Apple mandates black button — we make it full-width pill to match
   // the submit button height and shape for visual consistency.
   appleButtonContainer: {
@@ -263,7 +263,7 @@ export const loginStyles = StyleSheet.create({
     overflow: "hidden",
   },
 
-  // ─── Toggle ──────────────────────────────────────────────────────
+  // ─── Toggle
   toggleContainer: {
     flexDirection: "row",
     justifyContent: "center",
@@ -282,7 +282,7 @@ export const loginStyles = StyleSheet.create({
     color: COLORS.primary,
   },
 
-  // ─── Terms ───────────────────────────────────────────────────────
+  // ─── Terms
   termsContainer: {
     paddingTop: 16,
     paddingBottom: 8,

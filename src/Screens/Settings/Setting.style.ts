@@ -1,9 +1,5 @@
 import { StyleSheet } from "react-native";
 
-// ─── Theme Palette ────────────────────────────────────────────────────────────
-// Identical to Home / Data screens: peach gradient, warm surfaces, orange accent
-// Primary: #F47B20 | Cards: #FFFAF6 | Borders: #F0DED0 | Shadow: #F47B20
-
 export const GRADIENT = {
   top: "#FFE0C2",
   mid: "#FFF0E4",
@@ -40,7 +36,7 @@ const C = {
 };
 
 export const settingStyles = StyleSheet.create({
-  // ─── Shell ───────────────────────────────────────────────────────────────
+  // Shell
   container: {
     flex: 1,
     backgroundColor: C.bgPeach,
@@ -55,7 +51,7 @@ export const settingStyles = StyleSheet.create({
     paddingTop: 8,
   },
 
-  // ─── Header (wrapped in LinearGradient in Setting.tsx) ───────────────────
+  // Header (wrapped in LinearGradient in Setting.tsx)
   headerContainer: {
     paddingHorizontal: 20,
     paddingTop: 8,
@@ -75,7 +71,7 @@ export const settingStyles = StyleSheet.create({
     fontWeight: "500",
   },
 
-  // ─── Profile Card ────────────────────────────────────────────────────────
+  // Profile Card
   profileCard: {
     backgroundColor: C.bgCard,
     borderRadius: 28,
@@ -138,7 +134,7 @@ export const settingStyles = StyleSheet.create({
     color: C.text,
   },
 
-  // ─── Section Card ────────────────────────────────────────────────────────
+  // Section Card
   section: {
     backgroundColor: C.bgCard,
     borderRadius: 24,
@@ -160,12 +156,12 @@ export const settingStyles = StyleSheet.create({
   sectionTitle: {
     fontSize: 11,
     fontWeight: "700",
-    color: C.primary, // orange section labels — matches Login/Data
+    color: C.primary,
     textTransform: "uppercase",
     letterSpacing: 1.2,
   },
 
-  // ─── Setting Item ────────────────────────────────────────────────────────
+  // Setting Item
   settingItem: {
     flexDirection: "row",
     alignItems: "center",
@@ -187,7 +183,7 @@ export const settingStyles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 13,
-    backgroundColor: C.bgGray, // warm gray — matches Home nutrient icons
+    backgroundColor: C.bgGray,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
@@ -225,7 +221,7 @@ export const settingStyles = StyleSheet.create({
     color: C.textLight,
   },
 
-  // ─── Danger Zone ────────────────────────────────────────────────────────
+  // Danger Zone
   dangerSection: {
     backgroundColor: C.bgCard,
     borderRadius: 24,
@@ -280,7 +276,7 @@ export const settingStyles = StyleSheet.create({
     color: C.danger,
   },
 
-  // ─── Action Buttons ──────────────────────────────────────────────────────
+  // Action Buttons
   actionButton: {
     backgroundColor: C.primary,
     paddingVertical: 17,
@@ -308,7 +304,7 @@ export const settingStyles = StyleSheet.create({
     color: C.text,
   },
 
-  // ─── App Info ────────────────────────────────────────────────────────────
+  // App Info ───
   appInfoSection: {
     alignItems: "center",
     marginTop: 32,
@@ -336,7 +332,7 @@ export const settingStyles = StyleSheet.create({
     marginBottom: 4,
   },
 
-  // ─── Stats Card ──────────────────────────────────────────────────────────
+  // Stats Card ─
   statsCard: {
     backgroundColor: C.bgCard,
     borderRadius: 24,
@@ -383,7 +379,7 @@ export const settingStyles = StyleSheet.create({
     letterSpacing: 0.8,
   },
 
-  // ─── Disclaimer Modal (moved from inline in Setting.tsx) ──────────────────
+  // Disclaimer Modal (moved from inline in Setting.tsx)
   disclaimerContainer: {
     flex: 1,
     backgroundColor: C.bgCard,

@@ -17,8 +17,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useData } from "./Data.logic";
 import { MODAL_SUBTITLES, MODAL_TITLES, WEIGHT_UNIT } from "./Data.static";
 import { dataStyles, GRADIENT } from "./Data.style";
+import { WeightTrendCard } from "./WeightTrendCard";
 
-// ─── Citation sources (Apple Guideline 1.4.1 compliance) ─────────────────────
 const SOURCES = {
   BMI: {
     label: "WHO — Body Mass Index Classification",
@@ -38,8 +38,10 @@ const SOURCES = {
   },
 } as const;
 
-// ─── Citation Link — opens URL on tap ────────────────────────────────────────
-const CitationLink: React.FC<{ label: string; url: string }> = ({ label, url }) => (
+const CitationLink: React.FC<{ label: string; url: string }> = ({
+  label,
+  url,
+}) => (
   <TouchableOpacity
     onPress={() => Linking.openURL(url)}
     activeOpacity={0.6}
@@ -50,7 +52,6 @@ const CitationLink: React.FC<{ label: string; url: string }> = ({ label, url }) 
   </TouchableOpacity>
 );
 
-// ─── Main Component ───────────────────────────────────────────────────────────
 export const DataOverview = () => {
   const {
     details,
@@ -61,6 +62,7 @@ export const DataOverview = () => {
     loading,
     refreshing,
     inputFocused,
+    weightLogs,
     progress,
     weightDifference,
     handleRefresh,
@@ -88,14 +90,13 @@ export const DataOverview = () => {
      */
     <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
       <SafeAreaView style={dataStyles.container} edges={["top"]}>
-
         {/* ── Header with gradient ── */}
         <LinearGradient
           colors={[GRADIENT.top, GRADIENT.mid, GRADIENT.bottom]}
           locations={[0, 0.5, 1]}
           style={dataStyles.headerContainer}
         >
-          <Text style={dataStyles.headerTitle}>Analytics</Text>
+          <Text style={dataStyles.headerTitle}>Progress</Text>
         </LinearGradient>
 
         <ScrollView
@@ -111,7 +112,6 @@ export const DataOverview = () => {
           }
           showsVerticalScrollIndicator={false}
         >
-
           {/* ── Weight Management ── */}
           <View style={dataStyles.section}>
             <View style={dataStyles.sectionHeader}>
@@ -153,6 +153,13 @@ export const DataOverview = () => {
             </View>
           </View>
 
+          {/* ── Weight Trend Graph ── */}
+          <WeightTrendCard
+            logs={weightLogs}
+            currentWeight={profile?.weight}
+            goalWeight={profile?.target_weight}
+          />
+
           {/* ── BMI ── */}
           <View style={dataStyles.section}>
             <View style={dataStyles.sectionHeader}>
@@ -176,10 +183,30 @@ export const DataOverview = () => {
               </View>
 
               <View style={dataStyles.bmiScale}>
-                <View style={[dataStyles.bmiScaleSegment, { backgroundColor: "#3B82F6" }]} />
-                <View style={[dataStyles.bmiScaleSegment, { backgroundColor: "#2ECC71" }]} />
-                <View style={[dataStyles.bmiScaleSegment, { backgroundColor: "#F59E0B" }]} />
-                <View style={[dataStyles.bmiScaleSegment, { backgroundColor: "#EF4444" }]} />
+                <View
+                  style={[
+                    dataStyles.bmiScaleSegment,
+                    { backgroundColor: "#3B82F6" },
+                  ]}
+                />
+                <View
+                  style={[
+                    dataStyles.bmiScaleSegment,
+                    { backgroundColor: "#2ECC71" },
+                  ]}
+                />
+                <View
+                  style={[
+                    dataStyles.bmiScaleSegment,
+                    { backgroundColor: "#F59E0B" },
+                  ]}
+                />
+                <View
+                  style={[
+                    dataStyles.bmiScaleSegment,
+                    { backgroundColor: "#EF4444" },
+                  ]}
+                />
               </View>
             </View>
           </View>
@@ -207,7 +234,12 @@ export const DataOverview = () => {
 
               <View style={dataStyles.progressBarContainer}>
                 <View style={dataStyles.progressBar}>
-                  <View style={[dataStyles.progressBarFill, { width: `${progress}%` }]} />
+                  <View
+                    style={[
+                      dataStyles.progressBarFill,
+                      { width: `${progress}%` },
+                    ]}
+                  />
                 </View>
                 <Text style={dataStyles.progressPercentage}>
                   {weightDifference} {WEIGHT_UNIT} to go
@@ -225,14 +257,13 @@ export const DataOverview = () => {
 
             <View style={dataStyles.noteCard}>
               <Text style={dataStyles.noteText}>
-                -  Update your weight weekly to keep your nutrition plan accurate
+                - Update your weight weekly to keep your nutrition plan accurate
               </Text>
             </View>
           </View>
 
           {/* ── Health Disclaimer & Sources — collapsible dropdown ── */}
           <View style={dataStyles.disclaimerCard}>
-
             {/*
              * Tappable trigger row — toggles the dropdown.
              * Chevron icon rotates 180° when open to signal state clearly.
@@ -264,23 +295,33 @@ export const DataOverview = () => {
               <View style={dataStyles.disclaimerBody}>
                 <Text style={dataStyles.disclaimerText}>
                   Calculations in this app are based on established scientific
-                  formulas and guidelines. This information is for general wellness
-                  purposes only and does not constitute medical advice. Consult a
-                  healthcare professional before making significant changes to your
-                  diet or exercise routine.
+                  formulas and guidelines. This information is for general
+                  wellness purposes only and does not constitute medical advice.
+                  Consult a healthcare professional before making significant
+                  changes to your diet or exercise routine.
                 </Text>
 
                 <View style={dataStyles.sourcesContainer}>
-                  <CitationLink label={SOURCES.BMI.label} url={SOURCES.BMI.url} />
-                  <CitationLink label={SOURCES.TDEE.label} url={SOURCES.TDEE.url} />
-                  <CitationLink label={SOURCES.MACROS.label} url={SOURCES.MACROS.url} />
-                  <CitationLink label={SOURCES.WEIGHT.label} url={SOURCES.WEIGHT.url} />
+                  <CitationLink
+                    label={SOURCES.BMI.label}
+                    url={SOURCES.BMI.url}
+                  />
+                  <CitationLink
+                    label={SOURCES.TDEE.label}
+                    url={SOURCES.TDEE.url}
+                  />
+                  <CitationLink
+                    label={SOURCES.MACROS.label}
+                    url={SOURCES.MACROS.url}
+                  />
+                  <CitationLink
+                    label={SOURCES.WEIGHT.label}
+                    url={SOURCES.WEIGHT.url}
+                  />
                 </View>
               </View>
             )}
-
           </View>
-
         </ScrollView>
 
         {/* ── Weight Modal ── */}
@@ -293,14 +334,20 @@ export const DataOverview = () => {
           <View style={dataStyles.modalOverlay}>
             <View style={dataStyles.modalContent}>
               <Text style={dataStyles.modalTitle}>
-                {modalType === "current" ? MODAL_TITLES.CURRENT : MODAL_TITLES.GOAL}
+                {modalType === "current"
+                  ? MODAL_TITLES.CURRENT
+                  : MODAL_TITLES.GOAL}
               </Text>
               <Text style={dataStyles.modalSubtitle}>
-                {modalType === "current" ? MODAL_SUBTITLES.CURRENT : MODAL_SUBTITLES.GOAL}
+                {modalType === "current"
+                  ? MODAL_SUBTITLES.CURRENT
+                  : MODAL_SUBTITLES.GOAL}
               </Text>
 
               <View style={dataStyles.inputContainer}>
-                <Text style={dataStyles.inputLabel}>Weight ({WEIGHT_UNIT})</Text>
+                <Text style={dataStyles.inputLabel}>
+                  Weight ({WEIGHT_UNIT})
+                </Text>
                 <TextInput
                   style={[
                     dataStyles.textInput,
@@ -345,7 +392,6 @@ export const DataOverview = () => {
             </View>
           </View>
         </Modal>
-
       </SafeAreaView>
     </View>
   );

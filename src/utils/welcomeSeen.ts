@@ -3,12 +3,6 @@ import { useEffect, useState } from "react";
 
 const WELCOME_SEEN_KEY = "welcome_seen_v1";
 
-/**
- * Returns:
- *   - null  → still loading
- *   - true  → user has already seen the welcome carousel
- *   - false → first launch, show the welcome carousel
- */
 export const useWelcomeSeen = (): boolean | null => {
   const [seen, setSeen] = useState<boolean | null>(null);
 

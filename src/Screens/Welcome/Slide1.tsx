@@ -17,7 +17,7 @@ interface Props {
 export const Slide1: React.FC<Props> = ({ isActive }) => {
   return (
     <View style={styles.container}>
-      {/* ─── Decorative floating circles — orange family only ─── */}
+      {/*  Decorative floating circles — orange family only  */}
       <FloatingCircle
         size={150}
         color="#FF8A1F"
@@ -86,7 +86,7 @@ export const Slide1: React.FC<Props> = ({ isActive }) => {
         duration={4200}
       />
 
-      {/* ─── Headline ─── */}
+      {/*  Headline  */}
       {isActive && (
         <View style={styles.textBlock}>
           <Animated.Text

@@ -1,10 +1,12 @@
 import { ImageExamine } from "@/src/components/ImageExamine/ImageExamine";
 import { imageExamineStyles } from "@/src/components/ImageExamine/imageExamine.style";
+import { WeekStrip } from "@/src/Screens/Home/WeekStrip";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import {
   ActivityIndicator,
+  Animated,
   Image,
   Modal,
   RefreshControl,
@@ -17,9 +19,85 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
+import Svg, { Circle } from "react-native-svg";
 import { useHome } from "./Home.logic";
 import { MACRO_CARDS_CONFIG, NUTRITION_ICONS } from "./Home.static";
 import { GRADIENT, homeStyles } from "./Home.style";
+
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+
+const CalorieProgressRing: React.FC<{
+  percentage: number;
+  color: string;
+  children: React.ReactNode;
+}> = ({ percentage, color, children }) => {
+  const animatedProgress = React.useRef(new Animated.Value(0)).current;
+
+  const size = 170;
+  const strokeWidth = 12;
+  const radius = (size - strokeWidth) / 2;
+  const center = size / 2;
+  const circumference = 2 * Math.PI * radius;
+
+  const safePercentage = Math.max(0, Math.min(percentage, 100));
+
+  React.useEffect(() => {
+    const listenerId = animatedProgress.addListener(({ value }) => {
+      // setDotProgress(value);
+    });
+
+    Animated.timing(animatedProgress, {
+      toValue: safePercentage,
+      duration: 900,
+      useNativeDriver: false,
+    }).start();
+
+    return () => {
+      animatedProgress.removeListener(listenerId);
+    };
+  }, [safePercentage, animatedProgress]);
+
+  const strokeDashoffset = animatedProgress.interpolate({
+    inputRange: [0, 100],
+    outputRange: [circumference, 0],
+  });
+
+  return (
+    <View style={homeStyles.calorieRingOuter}>
+      <Svg width={size} height={size} style={homeStyles.calorieRingSvg}>
+        {/* Background track */}
+        <Circle
+          cx={center}
+          cy={center}
+          r={radius}
+          stroke="#F0DED0"
+          strokeWidth={strokeWidth}
+          fill="none"
+        />
+
+        {/* Animated progress ring */}
+        <AnimatedCircle
+          cx={center}
+          cy={center}
+          r={radius}
+          stroke={color}
+          strokeWidth={strokeWidth}
+          fill="none"
+          strokeLinecap="round"
+          strokeDasharray={`${circumference} ${circumference}`}
+          strokeDashoffset={strokeDashoffset}
+          rotation="-90"
+          originX={center}
+          originY={center}
+        />
+
+        {/* Moving circle on ring edge */}
+      </Svg>
+
+      <View style={homeStyles.calorieRingContent}>{children}</View>
+    </View>
+  );
+};
 
 export const Home = () => {
   const {
@@ -38,6 +116,10 @@ export const Home = () => {
     formatFullDateTime,
     getProgressColor,
     setLoadingAI,
+    selectedDate,
+    isToday,
+    formattedSelectedDate,
+    handleDateChange,
   } = useHome();
 
   const insets = useSafeAreaInsets();
@@ -81,11 +163,11 @@ export const Home = () => {
     calorieGoal > 0 ? Math.min((caloriesConsumed / calorieGoal) * 100, 100) : 0;
 
   const ringColor =
-    caloriePercent < 50
-      ? "#F47B20" // brand orange when just starting out
-      : caloriePercent < 80
-        ? "#F5A623" // warm amber mid-way
-        : caloriePercent < 100
+    caloriePercent < 25
+      ? "#F5A623" // brand orange when just starting out
+      : caloriePercent < 50
+        ? "#F47B20" // warm amber mid-way
+        : caloriePercent < 75
           ? "#2ECC71" // green when nearly at goal
           : "#EF4444"; // red if exceeded
 
@@ -103,12 +185,6 @@ export const Home = () => {
   }
 
   return (
-    /*
-     * Same pattern as LoginScreen:
-     * Outer View = white → owns the bottom home-indicator area (no peach bar)
-     * SafeAreaView edges={["top"]} = peach → top status bar stays on-brand
-     * LinearGradient on header: peach → cream → white, blends into scroll body
-     */
     <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
       <SafeAreaView style={homeStyles.container} edges={["top"]}>
         {/* ── Header: gradient background, 3D logo ── */}
@@ -118,12 +194,6 @@ export const Home = () => {
           style={homeStyles.headerContainer}
         >
           <View style={homeStyles.headerRow}>
-            {/*
-             * Logo wordmark — transparent background so it sits naturally
-             * on the peach gradient. Wide landscape ratio (180×56) lets
-             * the "orca" text read clearly. The orange drop shadow gives
-             * it a subtle lifted look without needing a card container.
-             */}
             <Text
               style={{
                 fontSize: 40,
@@ -134,10 +204,16 @@ export const Home = () => {
                 lineHeight: 48,
               }}
             >
-              orca
+              Orca
             </Text>
           </View>
         </LinearGradient>
+
+        {/* ── Week strip calendar ── */}
+        <WeekStrip
+          selectedDate={selectedDate}
+          onSelectDate={(date) => handleDateChange(date)}
+        />
 
         <ScrollView
           style={homeStyles.body}
@@ -169,11 +245,9 @@ export const Home = () => {
 
             {/* Ring */}
             <View style={homeStyles.progressContainer}>
-              <View
-                style={[
-                  homeStyles.calorieRingOuter,
-                  { borderColor: caloriePercent > 5 ? ringColor : "#F0DED0" },
-                ]}
+              <CalorieProgressRing
+                percentage={caloriePercent}
+                color={caloriePercent > 5 ? ringColor : "#F47B20"}
               >
                 <View style={homeStyles.calorieRingInner}>
                   <Text style={homeStyles.calorieCount}>
@@ -181,7 +255,7 @@ export const Home = () => {
                   </Text>
                   <Text style={homeStyles.calorieCanEatLabel}>Can Eat</Text>
                 </View>
-              </View>
+              </CalorieProgressRing>
 
               {/* Consumed / Goal */}
               <View style={homeStyles.calorieSubRow}>
@@ -465,27 +539,29 @@ export const Home = () => {
           </View>
         </ScrollView>
 
-        {/* ── Floating AI Scan FAB — right-bottom corner ── */}
-        <View
-          style={[
-            homeStyles.floatingButtonWrap,
-            { bottom: insets.bottom > 0 ? insets.bottom + 16 : 32 },
-          ]}
-          pointerEvents="box-none"
-        >
-          <TouchableOpacity
-            style={homeStyles.floatingAiButton}
-            onPress={handleAddMealPress}
-            activeOpacity={0.8}
-            accessibilityLabel="Scan meal with AI camera"
-            accessibilityRole="button"
+        {/* ── Floating AI Scan FAB — only on today ── */}
+        {isToday && (
+          <View
+            style={[
+              homeStyles.floatingButtonWrap,
+              { bottom: insets.bottom > 0 ? insets.bottom + 16 : 32 },
+            ]}
+            pointerEvents="box-none"
           >
-            <View style={homeStyles.floatingAiIconWrap}>
-              <Ionicons name="camera" size={20} color="#FFFFFF" />
-            </View>
-            <Text style={homeStyles.floatingAiText}>AI Scan</Text>
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity
+              style={homeStyles.floatingAiButton}
+              onPress={handleAddMealPress}
+              activeOpacity={0.8}
+              accessibilityLabel="Scan meal with AI camera"
+              accessibilityRole="button"
+            >
+              <View style={homeStyles.floatingAiIconWrap}>
+                <Ionicons name="camera" size={20} color="#FFFFFF" />
+              </View>
+              <Text style={homeStyles.floatingAiText}>AI Scan</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* ── Modal ── */}
         <Modal

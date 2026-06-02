@@ -23,11 +23,6 @@ const SLIDE_COUNT = 3;
 const AUTO_ADVANCE_MS = 1500;
 
 interface Props {
-  /**
-   * Which slide to land on initially.
-   *  - 0 = full carousel from the start (first-time users)
-   *  - 2 = land directly on slide 3 (returning users)
-   */
   startIndex?: number;
 }
 
@@ -37,9 +32,6 @@ export const WelcomeScreen: React.FC<Props> = ({ startIndex = 0 }) => {
   const [activeIndex, setActiveIndex] = useState(startIndex);
   const scrollX = useSharedValue(startIndex * SCREEN_W);
 
-  // When we start at slide 3 directly, the user has already seen the
-  // carousel — they're not here for the slideshow, they're here for the
-  // buttons. Disable auto-advance entirely in that mode.
   const isDirectMode = startIndex === SLIDE_COUNT - 1;
 
   const userInteractedRef = useRef(isDirectMode);
