@@ -12,20 +12,18 @@ import {
 } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 
-const { width: SW } = Dimensions.get("window");
+const { width: SW, height: SH } = Dimensions.get("window");
 
-// Animated SVG ring
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const RING_SIZE = SW * 0.62;
 const RADIUS = (RING_SIZE - 24) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
-// Demo calorie values — in production read from user profile
 const INTAKE_CAL = 1942;
 const GOAL_CAL = 2000;
 const REMAINING = Math.max(0, GOAL_CAL - INTAKE_CAL);
-const PROGRESS = Math.min(INTAKE_CAL / GOAL_CAL, 1); // 0→1
+const PROGRESS = Math.min(INTAKE_CAL / GOAL_CAL, 1);
 
 const CalorieRing: React.FC<{ animValue: Animated.Value }> = ({
   animValue,
@@ -37,7 +35,6 @@ const CalorieRing: React.FC<{ animValue: Animated.Value }> = ({
 
   return (
     <Svg width={RING_SIZE} height={RING_SIZE}>
-      {/* Track — warm peach */}
       <Circle
         cx={RING_SIZE / 2}
         cy={RING_SIZE / 2}
@@ -46,7 +43,6 @@ const CalorieRing: React.FC<{ animValue: Animated.Value }> = ({
         strokeWidth={14}
         fill="none"
       />
-      {/* Progress arc — brand orange */}
       <AnimatedCircle
         cx={RING_SIZE / 2}
         cy={RING_SIZE / 2}
@@ -64,94 +60,193 @@ const CalorieRing: React.FC<{ animValue: Animated.Value }> = ({
   );
 };
 
-//  Animated counter
-const useCountUp = (
-  target: number,
-  duration: number,
-  delay: number,
-  resetKey: number,
-) => {
+const useCountUp = (target: number, duration: number, resetKey: number) => {
   const [value, setValue] = useState(0);
   useEffect(() => {
-    setValue(0); // reset to 0 before replaying
-    const timeout = setTimeout(() => {
-      const start = Date.now();
-      const tick = () => {
-        const elapsed = Date.now() - start;
-        const progress = Math.min(elapsed / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        setValue(Math.round(eased * target));
-        if (progress < 1) requestAnimationFrame(tick);
-      };
-      requestAnimationFrame(tick);
-    }, delay);
-    return () => clearTimeout(timeout);
-  }, [target, duration, delay, resetKey]);
+    setValue(0);
+    if (resetKey === 0) return;
+    const start = Date.now();
+    const tick = () => {
+      const elapsed = Date.now() - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setValue(Math.round(eased * target));
+      if (progress < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }, [resetKey]);
   return value;
 };
 
-// Main Component
+const FloatingOrb: React.FC<{
+  size: number;
+  top: number;
+  left: number;
+  color: string;
+  delay: number;
+  amplitude: number;
+}> = ({ size, top, left, color, delay, amplitude }) => {
+  const drift = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(drift, {
+          toValue: 1,
+          duration: 3800 + delay * 400,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+        Animated.timing(drift, {
+          toValue: 0,
+          duration: 3800 + delay * 400,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+    const timer = setTimeout(() => loop.start(), delay * 300);
+    return () => {
+      clearTimeout(timer);
+      loop.stop();
+    };
+  }, []);
+
+  return (
+    <Animated.View
+      style={{
+        position: "absolute",
+        top,
+        left,
+        width: size,
+        height: size,
+        borderRadius: size / 2,
+        backgroundColor: color,
+        opacity: 0.15,
+        transform: [
+          {
+            translateY: drift.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0, -amplitude],
+            }),
+          },
+        ],
+      }}
+    />
+  );
+};
+
 interface AppIntro2Props {
   isActive?: boolean;
 }
 
 export const AppIntro2: React.FC<AppIntro2Props> = ({ isActive = true }) => {
-  const [animKey, setAnimKey] = React.useState(0);
-  const headerAnim = useRef(new Animated.Value(0)).current;
+  const [resetKey, setResetKey] = React.useState(0);
+
+  const eyebrowAnim = useRef(new Animated.Value(0)).current;
+  const headline1Anim = useRef(new Animated.Value(0)).current;
+  const headline2Anim = useRef(new Animated.Value(0)).current;
+  const subtitleAnim = useRef(new Animated.Value(0)).current;
   const cardAnim = useRef(new Animated.Value(0)).current;
   const noteAnim = useRef(new Animated.Value(0)).current;
+  const trustAnim = useRef(new Animated.Value(0)).current;
   const ringAnim = useRef(new Animated.Value(0)).current;
 
-  // Animated counters
-  const displayRemaining = useCountUp(REMAINING, 1200, 600, animKey);
-  const displayIntake = useCountUp(INTAKE_CAL, 1200, 600, animKey);
-  const displayGoal = useCountUp(GOAL_CAL, 1000, 600, animKey);
+  const displayRemaining = useCountUp(REMAINING, 1200, resetKey);
+  const displayIntake = useCountUp(INTAKE_CAL, 1200, resetKey);
+  const displayGoal = useCountUp(GOAL_CAL, 1000, resetKey);
 
   useEffect(() => {
-    if (!isActive) return;
+    if (!isActive) {
+      setResetKey(0);
+      return;
+    }
 
-    // Reset all animated values so they replay from scratch
-    headerAnim.setValue(0);
+    eyebrowAnim.setValue(0);
+    headline1Anim.setValue(0);
+    headline2Anim.setValue(0);
+    subtitleAnim.setValue(0);
     cardAnim.setValue(0);
     noteAnim.setValue(0);
+    trustAnim.setValue(0);
     ringAnim.setValue(0);
-    setAnimKey((k) => k + 1);
 
-    // ── UI entrance animations — useNativeDriver: true ──────────────
-    Animated.stagger(150, [
-      Animated.spring(headerAnim, {
+    // The entrance sequence runs top to bottom.
+    // After cardAnim lands and a short pause, ring + counters fire
+    // via a parallel branch — 1.5s before the sequence would otherwise end.
+    // noteAnim and trustAnim continue animating in alongside the ring/counters.
+    Animated.sequence([
+      Animated.spring(eyebrowAnim, {
         toValue: 1,
-        tension: 50,
+        tension: 60,
+        friction: 9,
+        useNativeDriver: true,
+      }),
+      Animated.delay(40),
+      Animated.spring(headline1Anim, {
+        toValue: 1,
+        tension: 52,
         friction: 8,
         useNativeDriver: true,
       }),
+      Animated.delay(30),
+      Animated.spring(headline2Anim, {
+        toValue: 1,
+        tension: 52,
+        friction: 8,
+        useNativeDriver: true,
+      }),
+      Animated.delay(30),
+      Animated.timing(subtitleAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.delay(100),
       Animated.spring(cardAnim, {
         toValue: 1,
         tension: 44,
         friction: 8,
         useNativeDriver: true,
       }),
-      Animated.spring(noteAnim, {
-        toValue: 1,
-        tension: 48,
-        friction: 8,
-        useNativeDriver: true,
-      }),
+      Animated.delay(80),
+      // Card is on screen. Run note + trust in parallel with ring/counters.
+      // Ring and counters start here — 1.5s earlier than waiting for the full sequence.
+      Animated.parallel([
+        Animated.sequence([
+          Animated.spring(noteAnim, {
+            toValue: 1,
+            tension: 48,
+            friction: 8,
+            useNativeDriver: true,
+          }),
+          Animated.delay(220),
+          Animated.timing(trustAnim, {
+            toValue: 1,
+            duration: 360,
+            useNativeDriver: true,
+          }),
+        ]),
+        // Ring fires on JS thread (non-native required for SVG strokeDashoffset)
+        Animated.timing(ringAnim, {
+          toValue: 1,
+          duration: 1400,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: false,
+        }),
+      ]),
     ]).start();
 
-    // ── Ring animation — separate, useNativeDriver: false ────────────
-    // SVG strokeDashoffset cannot use the native driver.
-    // Delayed 500ms so the card is visible before the arc starts.
-    const ringTimeout = setTimeout(() => {
-      Animated.timing(ringAnim, {
-        toValue: 1,
-        duration: 1400,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: false,
-      }).start();
-    }, 500);
+    // Counters start at the same moment as the ring.
+    // setTimeout matches the delay to reach the Animated.parallel above:
+    // eyebrow spring (~400ms) + 40 + h1 spring (~400ms) + 30 + h2 spring (~400ms)
+    // + 30 + subtitle 300ms + 100 + card spring (~500ms) + 80 = ~2280ms
+    const counterDelay = 2280;
+    const counterTimer = setTimeout(() => {
+      setResetKey((k) => k + 1);
+    }, counterDelay);
 
-    return () => clearTimeout(ringTimeout);
+    return () => clearTimeout(counterTimer);
   }, [isActive]);
 
   return (
@@ -171,28 +266,94 @@ export const AppIntro2: React.FC<AppIntro2Props> = ({ isActive = true }) => {
         style={StyleSheet.absoluteFill}
       />
 
+      <FloatingOrb
+        size={200}
+        top={20}
+        left={SW * 0.55}
+        color={COLORS.primary}
+        delay={0}
+        amplitude={16}
+      />
+      <FloatingOrb
+        size={130}
+        top={SH * 0.3}
+        left={-45}
+        color={COLORS.primary}
+        delay={2}
+        amplitude={22}
+      />
+      <FloatingOrb
+        size={80}
+        top={SH * 0.65}
+        left={SW * 0.74}
+        color={COLORS.primary}
+        delay={1}
+        amplitude={12}
+      />
+
       <View style={s.content}>
-        {/* ── Headline ── */}
-        <Animated.Text
+        <Animated.View
           style={[
-            s.title,
+            s.eyebrowWrap,
             {
-              opacity: headerAnim,
+              opacity: eyebrowAnim,
               transform: [
                 {
-                  translateY: headerAnim.interpolate({
+                  translateY: eyebrowAnim.interpolate({
                     inputRange: [0, 1],
-                    outputRange: [20, 0],
+                    outputRange: [10, 0],
                   }),
                 },
               ],
             },
           ]}
         >
-          Stay below your target to{"\n"}create a calorie deficit
-        </Animated.Text>
+          <View style={s.eyebrowPill}>
+            <View style={s.eyebrowDot} />
+            <Text style={s.eyebrowText}>CALORIE TRACKER</Text>
+          </View>
+        </Animated.View>
 
-        {/* ── Calorie Ring Card ── */}
+        <View style={s.headlineBlock}>
+          <Animated.Text
+            style={[
+              s.headlineLine,
+              {
+                opacity: headline1Anim,
+                transform: [
+                  {
+                    translateY: headline1Anim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [20, 0],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            Stay below your
+          </Animated.Text>
+          <Animated.Text
+            style={[
+              s.headlineLine,
+              s.headlineAccent,
+              {
+                opacity: headline2Anim,
+                transform: [
+                  {
+                    translateY: headline2Anim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [20, 0],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            daily target.
+          </Animated.Text>
+        </View>
+
         <Animated.View
           style={[
             s.card,
@@ -209,11 +370,8 @@ export const AppIntro2: React.FC<AppIntro2Props> = ({ isActive = true }) => {
             },
           ]}
         >
-          {/* Ring + center text */}
           <View style={s.ringWrap}>
             <CalorieRing animValue={ringAnim} />
-
-            {/* Center label */}
             <View style={s.ringCenter}>
               <Text style={s.ringLabel}>You Can Eat</Text>
               <Text style={s.ringValue}>{displayRemaining}</Text>
@@ -221,10 +379,8 @@ export const AppIntro2: React.FC<AppIntro2Props> = ({ isActive = true }) => {
             </View>
           </View>
 
-          {/* Divider */}
           <View style={s.divider} />
 
-          {/* Intake / Goal row */}
           <View style={s.statsRow}>
             <View style={s.statItem}>
               <Text style={s.statLabel}>Calorie Intake</Text>
@@ -237,61 +393,79 @@ export const AppIntro2: React.FC<AppIntro2Props> = ({ isActive = true }) => {
             </View>
           </View>
         </Animated.View>
-
-        {/* ── Warning note ── */}
-        <Animated.View
-          style={[
-            s.noteCard,
-            {
-              opacity: noteAnim,
-              transform: [
-                {
-                  translateY: noteAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [16, 0],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          <View style={s.noteTextWrap}>
-            <Text style={s.noteText}>
-              Watch out, you're about to hit your{" "}
-              <Text style={s.noteHighlight}>Calorie Limit</Text>
-            </Text>
-          </View>
-          <Text style={s.noteEmoji}>🧐</Text>
-        </Animated.View>
       </View>
     </View>
   );
 };
 
-// ─── Styles ────────────────────────────────────────────────────────────────
 const s = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: COLORS.backgroundGradientTop,
+    overflow: "hidden",
   },
   content: {
     flex: 1,
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.lg,
+    alignItems: "center",
   },
 
-  // ─── Title ────────────────────────────────────────────────────────
-  title: {
-    fontSize: 28,
+  eyebrowWrap: {
+    marginBottom: SPACING.sm,
+  },
+  eyebrowPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: COLORS.primary,
+    opacity: 0.9,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 20,
+  },
+  eyebrowDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+    backgroundColor: "#FFFFFF",
+    opacity: 0.85,
+  },
+  eyebrowText: {
+    fontSize: 10,
+    fontWeight: "800",
+    letterSpacing: 1.5,
+    color: "#FFFFFF",
+    textTransform: "uppercase",
+  },
+
+  headlineBlock: {
+    alignItems: "center",
+    marginBottom: 50,
+  },
+  headlineLine: {
+    fontSize: 34,
     fontWeight: "700",
     color: COLORS.textDark,
-    letterSpacing: -0.8,
-    lineHeight: 38,
-    marginBottom: SPACING.xl,
+    letterSpacing: -1,
+    lineHeight: 44,
     textAlign: "center",
   },
+  headlineAccent: {
+    color: COLORS.primary,
+  },
 
-  // ─── Card ─────────────────────────────────────────────────────────
+  subtitle: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: COLORS.textSecondary,
+    textAlign: "center",
+    letterSpacing: 0.1,
+    lineHeight: 20,
+    marginBottom: SPACING.lg,
+    paddingHorizontal: SPACING.md,
+  },
+
   card: {
     backgroundColor: "#FFFAF6",
     borderRadius: 28,
@@ -306,9 +480,9 @@ const s = StyleSheet.create({
     shadowRadius: 20,
     elevation: 6,
     marginBottom: SPACING.lg,
+    width: "100%",
   },
 
-  // ─── Ring ─────────────────────────────────────────────────────────
   ringWrap: {
     width: RING_SIZE,
     height: RING_SIZE,
@@ -341,7 +515,6 @@ const s = StyleSheet.create({
     marginTop: 2,
   },
 
-  // ─── Stats row ────────────────────────────────────────────────────
   divider: {
     width: "100%",
     height: 1,
@@ -376,7 +549,6 @@ const s = StyleSheet.create({
     backgroundColor: "#F0DED0",
   },
 
-  // ─── Warning note card ────────────────────────────────────────────
   noteCard: {
     flexDirection: "row",
     alignItems: "center",
@@ -390,6 +562,8 @@ const s = StyleSheet.create({
     shadowOpacity: 0.07,
     shadowRadius: 10,
     elevation: 2,
+    width: "100%",
+    marginBottom: SPACING.md,
   },
   noteTextWrap: {
     flex: 1,
@@ -407,5 +581,24 @@ const s = StyleSheet.create({
   },
   noteEmoji: {
     fontSize: 44,
+  },
+
+  trustRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  trustDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: COLORS.primary,
+    opacity: 0.35,
+  },
+  trustText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: COLORS.textSecondary,
+    letterSpacing: 0.2,
   },
 });

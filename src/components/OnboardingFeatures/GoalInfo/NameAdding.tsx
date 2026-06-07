@@ -39,7 +39,7 @@ export const NameAdding: React.FC<NameAddingProps> = ({
   const [name, setName] = useState<string>("");
   const [isFocused, setIsFocused] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSubmittedNameRef = useRef<string>("");
   const onValidationChangeRef = useRef(onValidationChange);
 

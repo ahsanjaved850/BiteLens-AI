@@ -29,7 +29,7 @@ export function Auth({ onLogin, mode = "signin" }: AuthProps) {
         try {
           const credential = await AppleAuthentication.signInAsync({
             requestedScopes: [
-              AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+              // Only request email — name comes from onboarding
               AppleAuthentication.AppleAuthenticationScope.EMAIL,
             ],
           });
@@ -47,75 +47,22 @@ export function Auth({ onLogin, mode = "signin" }: AuthProps) {
           });
 
           if (error) throw error;
-          if (!user) {
+          if (!user)
             throw new Error(
               "Apple authentication succeeded, but no Supabase user was returned.",
             );
-          }
-
-          const nameParts = credential.fullName
-            ? [
-                credential.fullName.givenName,
-                credential.fullName.middleName,
-                credential.fullName.familyName,
-              ].filter(Boolean)
-            : [];
-
-          const appleFullName =
-            nameParts.length > 0 ? nameParts.join(" ") : null;
-
-          // Apple only returns the user's full name the first time they
-          // authenticate, so persist it in Supabase auth metadata immediately.
-          if (appleFullName) {
-            const { error: updateUserError } = await supabase.auth.updateUser({
-              data: {
-                full_name: appleFullName,
-                given_name: credential.fullName?.givenName ?? null,
-                family_name: credential.fullName?.familyName ?? null,
-              },
-            });
-
-            if (updateUserError) {
-              console.error(
-                "Error updating Apple user metadata:",
-                updateUserError.message,
-              );
-            }
-          }
 
           if (isSignup) {
-            // First-time Apple signup → mirror the email/pw signUp() flow:
-            // flush onboarding data, run dataAnalysis, link RevenueCat, etc.
-            const fullName =
-              appleFullName ||
-              user.user_metadata?.full_name ||
-              user.user_metadata?.name ||
-              null;
-
-            await finalizeNewAccount(user, fullName);
+            // Name will be picked up from od.full_name in AsyncStorage
+            await finalizeNewAccount(user);
           } else {
-            // Returning Apple sign-in → just make sure the profile row exists
-            // and link RevenueCat. No onboarding-data flush — there is no
-            // onboarding data for a returning user.
-            const fullName =
-              appleFullName ||
-              user.user_metadata?.full_name ||
-              user.user_metadata?.name ||
-              null;
-
+            // Returning sign-in — just ensure profile row exists, no name touch
             const { error: profileError } = await supabase
               .from("profile")
-              .upsert(
-                {
-                  id: user.id,
-                  full_name: fullName,
-                },
-                { onConflict: "id" },
-              );
+              .upsert({ id: user.id }, { onConflict: "id" });
 
             if (profileError) throw profileError;
 
-            // Link RevenueCat for the returning user
             try {
               const Purchases = (await import("react-native-purchases"))
                 .default;
@@ -127,12 +74,9 @@ export function Auth({ onLogin, mode = "signin" }: AuthProps) {
 
           onLogin?.();
         } catch (e: any) {
-          if (e?.code === "ERR_REQUEST_CANCELED") {
-            return;
-          }
+          if (e?.code === "ERR_REQUEST_CANCELED") return;
 
           console.error("Apple auth error:", e?.message || e);
-
           Alert.alert(
             isSignup ? "Apple Signup Failed" : "Apple Login Failed",
             e?.message || "Something went wrong. Please try again.",

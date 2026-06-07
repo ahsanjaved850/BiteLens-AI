@@ -3,6 +3,7 @@ import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback, useEffect, useState } from "react";
 import {
+  Image,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -11,23 +12,44 @@ import {
   View,
 } from "react-native";
 
-interface MealsPerDayProps {
+interface AchievedProps {
   onValidationChange?: (isValid: boolean) => void;
 }
 
 const OPTIONS = [
-  { label: "Being Proud of Myself", value: "2" },
-  { label: "Feel great about myself", value: "3" },
-  { label: "I'm the King/Queen of the World", value: "4" },
-  { label: "Believe in myself", value: "5" },
-  { label: "feel empowered", value: "6" },
-  { label: "Worry less about my body", value: "7" },
+  {
+    label: "Being Proud of Myself",
+    value: "2",
+    icon: require("@/assets/images/icons/achieve1.png"),
+  },
+  {
+    label: "Feel great about myself",
+    value: "3",
+    icon: require("@/assets/images/icons/achieve2.png"),
+  },
+  {
+    label: "Believe in myself",
+    value: "5",
+    icon: require("@/assets/images/icons/achieve3.png"),
+  },
+  {
+    label: "feel empowered",
+    value: "6",
+    icon: require("@/assets/images/icons/achieve4.png"),
+  },
+  {
+    label: "Worry less about my body",
+    value: "7",
+    icon: require("@/assets/images/icons/achieve5.png"),
+  },
 ] as const;
 
-export const Achieved: React.FC<MealsPerDayProps> = ({
-  onValidationChange,
-}) => {
+const BEHIND_TEXT =
+  "Your Emotional Goal: The feeling you're chasing after reaching your goal is more powerful than the goal itself — it's what keeps you going on hard days. Understanding the emotional outcome you want lets us frame your progress in a way that feels personally meaningful, not just numbers on a scale.";
+
+export const Achieved: React.FC<AchievedProps> = ({ onValidationChange }) => {
   const [selected, setSelected] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     onValidationChange?.(selected !== null);
@@ -37,6 +59,8 @@ export const Achieved: React.FC<MealsPerDayProps> = ({
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setSelected(value);
   }, []);
+
+  const previewText = BEHIND_TEXT.slice(0, 38) + "...";
 
   return (
     <View style={s.root}>
@@ -61,14 +85,29 @@ export const Achieved: React.FC<MealsPerDayProps> = ({
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* ── Title ── */}
+        {/*  Title  */}
         <Text style={s.title}>
-          {" "}
           After reaching your goal, {"\n"}how would you feel {"\n"} about
           yourself?
         </Text>
 
-        {/* ── Options ── */}
+        {/*  Behind the question card  */}
+        <TouchableOpacity
+          style={s.behindCard}
+          onPress={() => setExpanded((v) => !v)}
+          activeOpacity={0.75}
+        >
+          <Text style={s.behindEmoji}>🧐</Text>
+          <View style={s.behindBody}>
+            <Text style={s.behindTitle}>Behind the question</Text>
+            <Text style={s.behindText}>
+              {expanded ? BEHIND_TEXT : previewText}
+              {!expanded && <Text style={s.behindMore}> More</Text>}
+            </Text>
+          </View>
+        </TouchableOpacity>
+
+        {/*  Options  */}
         <View style={s.options}>
           {OPTIONS.map((opt) => {
             const isSelected = selected === opt.value;
@@ -89,6 +128,11 @@ export const Achieved: React.FC<MealsPerDayProps> = ({
                         : "transparent",
                     },
                   ]}
+                />
+                <Image
+                  source={opt.icon}
+                  style={s.iconImage}
+                  resizeMode="contain"
                 />
                 <Text
                   style={[s.optionLabel, isSelected && s.optionLabelSelected]}
@@ -118,29 +162,30 @@ const s = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.lg,
-    paddingBottom: SPACING.lg,
+    paddingBottom: SPACING.xxxl,
   },
 
-  // ─── Title ───────────────────────────────────────────────────────
+  //  Title
   title: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: "700",
     color: COLORS.textDark,
     letterSpacing: -0.8,
     lineHeight: 38,
-    marginBottom: SPACING.sm,
+    marginBottom: SPACING.lg,
+    textAlign: "center",
   },
 
-  // ─── Behind the question card ────────────────────────────────────
+  //  Behind the question card
   behindCard: {
     flexDirection: "row",
     alignItems: "flex-start",
-    backgroundColor: "#FFFAF6",
+    backgroundColor: "#fffaf600",
     borderRadius: 20,
     padding: SPACING.md,
-    marginBottom: SPACING.xl,
-    borderWidth: 1,
-    borderColor: "#F0DED0",
+    marginBottom: SPACING.sm,
+    borderWidth: 2,
+    borderColor: "#fafafa",
     shadowColor: "#F47B20",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.07,
@@ -156,7 +201,7 @@ const s = StyleSheet.create({
   },
   behindTitle: {
     fontSize: 14,
-    fontWeight: "700",
+    fontWeight: "600",
     color: COLORS.textDark,
     marginBottom: 4,
   },
@@ -168,13 +213,13 @@ const s = StyleSheet.create({
   },
   behindMore: {
     color: COLORS.primary,
-    fontWeight: "700",
+    fontWeight: "600",
   },
 
-  // ─── Options ─────────────────────────────────────────────────────
+  //  Options
   options: {
     gap: 16,
-    marginTop: SPACING.xxxl,
+    marginTop: SPACING.xxl,
   },
   optionRow: {
     flexDirection: "row",
@@ -183,7 +228,7 @@ const s = StyleSheet.create({
     borderRadius: 18,
     borderWidth: 1.5,
     borderColor: "#F0DED0",
-    minHeight: 64,
+    minHeight: 70,
     overflow: "hidden",
     shadowColor: "#F47B20",
     shadowOffset: { width: 0, height: 3 },
@@ -204,16 +249,22 @@ const s = StyleSheet.create({
     borderRadius: 4,
   },
 
+  iconImage: {
+    width: 60,
+    height: 60,
+    marginHorizontal: SPACING.sm,
+  },
+
   optionLabel: {
     flex: 1,
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "500",
     color: COLORS.textDark,
-    paddingHorizontal: SPACING.md,
+    paddingRight: SPACING.md,
     letterSpacing: -0.2,
   },
   optionLabelSelected: {
-    fontWeight: "800",
+    fontWeight: "600",
     color: COLORS.textDark,
   },
 

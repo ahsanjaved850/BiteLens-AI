@@ -1,4 +1,5 @@
 import { presentPaywall } from "@/src/utils/presentPaywall";
+import { requestAppReview } from "@/src/utils/requestReview";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import { useRef, useState } from "react";
@@ -49,6 +50,11 @@ export const useOnboarding = () => {
 
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
+    // 👇 Fire review when leaving a flagged slide
+    if (PAGES[currentIndex].triggerReview) {
+      requestAppReview(); // no await — don't delay the slide transition
+    }
+
     if (currentIndex < PAGES.length - 1) {
       flatListRef.current?.scrollToIndex({
         index: currentIndex + 1,
@@ -79,8 +85,13 @@ export const useOnboarding = () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
     if (currentIndex > 0) {
+      let target = currentIndex - 1;
+      while (target > 0 && PAGES[target].skipOnBack) {
+        target -= 1;
+      }
+
       flatListRef.current?.scrollToIndex({
-        index: currentIndex - 1,
+        index: target,
         animated: true,
       });
     }

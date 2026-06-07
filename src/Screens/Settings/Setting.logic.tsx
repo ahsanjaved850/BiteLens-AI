@@ -36,7 +36,7 @@ export const useSetting = () => {
     try {
       await deleteUserData();
       await signOut();
-      router.replace("/auth/login");
+      router.replace("/auth/");
     } catch (err) {
       console.log("Error deleting account: ", err);
       Alert.alert("Error", "Failed to delete account. Please try again.");

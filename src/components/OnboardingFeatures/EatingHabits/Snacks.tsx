@@ -3,6 +3,7 @@ import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback, useEffect, useState } from "react";
 import {
+  Image,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -16,15 +17,39 @@ interface SnacksProps {
 }
 
 const OPTIONS = [
-  { label: "When hungry", value: "2" },
-  { label: "During watching entertainment", value: "3" },
-  { label: "When bored", value: "4" },
-  { label: "While working / studying", value: "5" },
-  { label: "to relieve stress", value: "6" },
+  {
+    label: "When hungry",
+    value: "2",
+    icon: require("@/assets/images/icons/snacks1.png"),
+  },
+  {
+    label: "During watching entertainment",
+    value: "3",
+    icon: require("@/assets/images/icons/snacks2.png"),
+  },
+  {
+    label: "When bored",
+    value: "4",
+    icon: require("@/assets/images/icons/snacks4.png"),
+  },
+  {
+    label: "While working / studying",
+    value: "5",
+    icon: require("@/assets/images/icons/snacks3.png"),
+  },
+  {
+    label: "To relieve stress",
+    value: "6",
+    icon: require("@/assets/images/icons/snacks5.png"),
+  },
 ] as const;
+
+const BEHIND_TEXT =
+  "Snack Consumption Patterns: Understanding when you typically eat snacks can help us provide personalized advice to support healthier choices and better portion control.";
 
 export const Snacks: React.FC<SnacksProps> = ({ onValidationChange }) => {
   const [selected, setSelected] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     onValidationChange?.(selected !== null);
@@ -34,6 +59,8 @@ export const Snacks: React.FC<SnacksProps> = ({ onValidationChange }) => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setSelected(value);
   }, []);
+
+  const previewText = BEHIND_TEXT.slice(0, 38) + "...";
 
   return (
     <View style={s.root}>
@@ -58,10 +85,28 @@ export const Snacks: React.FC<SnacksProps> = ({ onValidationChange }) => {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* ── Title ── */}
-        <Text style={s.title}>What triggers your urge to snack?</Text>
+        {/*  Title  */}
+        <Text style={s.title}>
+          Under what circumstances {"\n"} you usually eat snacks?
+        </Text>
 
-        {/* ── Options ── */}
+        {/*  Behind the question card  */}
+        <TouchableOpacity
+          style={s.behindCard}
+          onPress={() => setExpanded((v) => !v)}
+          activeOpacity={0.75}
+        >
+          <Text style={s.behindEmoji}>🧐</Text>
+          <View style={s.behindBody}>
+            <Text style={s.behindTitle}>Behind the question</Text>
+            <Text style={s.behindText}>
+              {expanded ? BEHIND_TEXT : previewText}
+              {!expanded && <Text style={s.behindMore}> More</Text>}
+            </Text>
+          </View>
+        </TouchableOpacity>
+
+        {/*  Options  */}
         <View style={s.options}>
           {OPTIONS.map((opt) => {
             const isSelected = selected === opt.value;
@@ -82,6 +127,11 @@ export const Snacks: React.FC<SnacksProps> = ({ onValidationChange }) => {
                         : "transparent",
                     },
                   ]}
+                />
+                <Image
+                  source={opt.icon}
+                  style={s.iconImage}
+                  resizeMode="contain"
                 />
                 <Text
                   style={[s.optionLabel, isSelected && s.optionLabelSelected]}
@@ -114,19 +164,61 @@ const s = StyleSheet.create({
     paddingBottom: SPACING.xxxl,
   },
 
-  // ─── Title ───────────────────────────────────────────────────────
+  //  Title
   title: {
-    fontSize: 28,
-    fontWeight: "800",
+    fontSize: 30,
+    fontWeight: "700",
     color: COLORS.textDark,
     letterSpacing: -0.8,
     lineHeight: 38,
-    marginBottom: 130,
+    marginBottom: SPACING.lg,
+    textAlign: "center",
   },
 
-  // ─── Options ─────────────────────────────────────────────────────
+  //  Behind the question card
+  behindCard: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    backgroundColor: "#fffaf600",
+    borderRadius: 20,
+    padding: SPACING.md,
+    marginBottom: SPACING.xxxl,
+    borderWidth: 2,
+    borderColor: "#fafafa",
+    shadowColor: "#F47B20",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.07,
+    shadowRadius: 10,
+    elevation: 2,
+    gap: 12,
+  },
+  behindEmoji: {
+    fontSize: 36,
+  },
+  behindBody: {
+    flex: 1,
+  },
+  behindTitle: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: COLORS.textDark,
+    marginBottom: 4,
+  },
+  behindText: {
+    fontSize: 13,
+    fontWeight: "500",
+    color: COLORS.textSecondary,
+    lineHeight: 19,
+  },
+  behindMore: {
+    color: COLORS.primary,
+    fontWeight: "600",
+  },
+
+  //  Options
   options: {
     gap: 16,
+    marginTop: SPACING.sm,
   },
   optionRow: {
     flexDirection: "row",
@@ -135,7 +227,7 @@ const s = StyleSheet.create({
     borderRadius: 18,
     borderWidth: 1.5,
     borderColor: "#F0DED0",
-    minHeight: 64,
+    minHeight: 70,
     overflow: "hidden",
     shadowColor: "#F47B20",
     shadowOffset: { width: 0, height: 3 },
@@ -156,16 +248,22 @@ const s = StyleSheet.create({
     borderRadius: 4,
   },
 
+  iconImage: {
+    width: 60,
+    height: 60,
+    marginHorizontal: SPACING.sm,
+  },
+
   optionLabel: {
     flex: 1,
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "500",
     color: COLORS.textDark,
-    paddingHorizontal: SPACING.md,
+    paddingRight: SPACING.md,
     letterSpacing: -0.2,
   },
   optionLabelSelected: {
-    fontWeight: "800",
+    fontWeight: "600",
     color: COLORS.textDark,
   },
 

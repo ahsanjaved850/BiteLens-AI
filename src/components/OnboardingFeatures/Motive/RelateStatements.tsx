@@ -25,15 +25,18 @@ const STATEMENTS = [
 
 interface RelateStatementsProps {
   onValidationChange?: (isValid: boolean) => void;
+  onComplete?: () => void;
 }
 
 export const RelateStatements: React.FC<RelateStatementsProps> = ({
   onValidationChange,
+  onComplete,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
 
   const cardAnim = useRef(new Animated.Value(0)).current;
+  const isAnimatingRef = useRef(false);
 
   const currentStatement = STATEMENTS[currentIndex];
   const isLastStatement = currentIndex === STATEMENTS.length - 1;
@@ -59,28 +62,34 @@ export const RelateStatements: React.FC<RelateStatementsProps> = ({
 
   const handleAnswer = useCallback(
     async (answer: boolean) => {
+      if (isAnimatingRef.current || isComplete) return;
+      isAnimatingRef.current = true;
+
       await Haptics.impactAsync(
         answer
           ? Haptics.ImpactFeedbackStyle.Medium
           : Haptics.ImpactFeedbackStyle.Light,
       );
 
-      if (isLastStatement) {
-        setIsComplete(true);
-        return;
-      }
-
+      // Animate the current card out for EVERY answer, including the last one
       Animated.timing(cardAnim, {
         toValue: 2,
         duration: 250,
         useNativeDriver: true,
       }).start(() => {
-        setCurrentIndex((prev) => prev + 1);
+        isAnimatingRef.current = false;
+
+        if (isLastStatement) {
+          setIsComplete(true); // marks page valid via the existing effect
+          onComplete?.(); // auto-advance — no extra Continue tap needed
+          return;
+        }
+
+        setCurrentIndex((prev) => prev + 1); // fades the next image in
       });
     },
-    [cardAnim, isLastStatement],
+    [cardAnim, isLastStatement, isComplete, onComplete],
   );
-
   const progressDots = STATEMENTS.map((_, i) => {
     const isAnswered = isComplete || i < currentIndex;
     const isCurrent = !isComplete && i === currentIndex;
@@ -254,7 +263,7 @@ const styles = StyleSheet.create({
 
   noButtonText: {
     fontSize: 17,
-    fontWeight: "800",
+    fontWeight: "700",
     color: COLORS.textDark,
   },
 
@@ -269,7 +278,7 @@ const styles = StyleSheet.create({
 
   yesButtonText: {
     fontSize: 17,
-    fontWeight: "800",
+    fontWeight: "700",
     color: COLORS.white,
   },
 });

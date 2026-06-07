@@ -12,7 +12,6 @@ import { MealsPerDay } from "@/src/components/OnboardingFeatures/EatingHabits/Me
 import { Snacks } from "@/src/components/OnboardingFeatures/EatingHabits/Snacks";
 import { Completion } from "@/src/components/OnboardingFeatures/FinalStep/Completion";
 import { FinalYes } from "@/src/components/OnboardingFeatures/FinalStep/FinalYes";
-import { PersonalizedPlan } from "@/src/components/OnboardingFeatures/FinalStep/PersonalizedPlan";
 import { BirthYearPicker } from "@/src/components/OnboardingFeatures/GoalInfo/BirthYearPicker";
 import { CurrentWeight } from "@/src/components/OnboardingFeatures/GoalInfo/CurrentWeight";
 import { FitnessGoal } from "@/src/components/OnboardingFeatures/GoalInfo/FitnessGoal";
@@ -58,6 +57,8 @@ export interface OnboardingPage {
   key: string;
   component: ComponentType<any>;
   requiresValidation: boolean;
+  skipOnBack?: boolean;
+  triggerReview?: boolean;
 }
 
 export const PAGES: OnboardingPage[] = [
@@ -91,8 +92,13 @@ export const PAGES: OnboardingPage[] = [
   { key: "21", component: FoodComparison, requiresValidation: false }, // 17 : Same calories, different results
   { key: "22", component: Exercise, requiresValidation: false }, // 17 : Same calories, different results
   { key: "23", component: Eatout, requiresValidation: true }, // 17 : Same calories, different results
-  { key: "24", component: EatingPlace, requiresValidation: true }, // 17 : Same calories, different results
-  { key: "25", component: Approach, requiresValidation: false }, // 17 : Same calories, different results
+  {
+    key: "24",
+    component: EatingPlace,
+    requiresValidation: true,
+    triggerReview: true,
+  },
+  { key: "25", component: Approach, requiresValidation: false },
   { key: "26", component: Distraction, requiresValidation: false }, // 17 : Same calories, different results
   { key: "27", component: Snacks, requiresValidation: false }, // 18 : What triggers your snacking?
   { key: "28", component: GuiltSnacking, requiresValidation: false }, // 18 : What triggers your snacking?
@@ -116,14 +122,23 @@ export const PAGES: OnboardingPage[] = [
   // Chapter 4: Motive & Relate
   { key: "42", component: MotiveIntro, requiresValidation: false }, //  4 : "Sound familiar?" : validate past pain
   { key: "43", component: Motivation, requiresValidation: true }, //  4 : "Sound familiar?" : validate past pain
-  { key: "44", component: RelateStatements, requiresValidation: true }, //  4 : "Sound familiar?" : validate past pain
+  {
+    key: "44",
+    component: RelateStatements,
+    requiresValidation: true,
+    skipOnBack: true,
+  },
   { key: "45", component: SocialProofStats, requiresValidation: false }, //  4 : "Sound familiar?" : validate past pain
   { key: "46", component: Treat, requiresValidation: true }, //  4 : "Sound familiar?" : validate past pain
   { key: "47", component: Achieved, requiresValidation: true }, //  4 : "Sound familiar?" : validate past pain
 
-  { key: "48", component: PersonalizedPlan, requiresValidation: false }, // 31 : "Your personalized daily plan"
-  { key: "49", component: FinalYes, requiresValidation: false }, // 31 : "Your personalized daily plan"
-  { key: "50", component: Completion, requiresValidation: false }, // 32 : Loading → done → navigate home
+  {
+    key: "48",
+    component: FinalYes,
+    requiresValidation: false,
+    skipOnBack: true,
+  },
+  { key: "49", component: Completion, requiresValidation: false }, // 32 : Loading → done → navigate home
 ];
 
 export const INITIAL_PAGE_VALIDATION: PageValidationState = {
@@ -184,9 +199,8 @@ export const INITIAL_PAGE_VALIDATION: PageValidationState = {
   45: false,
   46: false,
 
-  47: true, // PersonalizedPlan : static display
-  48: true, // FinalYes : static display
-  49: true, // Completion : auto-animates
+  47: true, // FinalYes : static display
+  48: true, // Completion : auto-animates
 };
 
 export const BUTTON_TEXT = {

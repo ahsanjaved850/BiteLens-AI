@@ -14,10 +14,14 @@ interface PastExperienceProps {
   onValidationChange?: (isValid: boolean) => void;
 }
 
+const BEHIND_TEXT =
+  "Past Experience: Understanding your previous experiences with dieting and weight loss can help us tailor our approach to better support your unique journey and avoid past pitfalls.";
+
 export const PastExperience: React.FC<PastExperienceProps> = ({
   onValidationChange,
 }) => {
   const [selected, setSelected] = useState<"yes" | "no" | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     onValidationChange?.(selected !== null);
@@ -45,14 +49,30 @@ export const PastExperience: React.FC<PastExperienceProps> = ({
         style={StyleSheet.absoluteFill}
       />
 
-      {/* ── Title ── */}
-      <View style={s.titleWrap}>
+      {/* ── Top section: title + behind card ── */}
+      <View style={s.topSection}>
         <Text style={s.title}>
-          Have you tried weight loss method involing a restricted diet before?
+          Have you tried weight loss method involving a restricted diet before?
         </Text>
+
+        {/* Behind the question card */}
+        <TouchableOpacity
+          style={s.behindCard}
+          onPress={() => setExpanded((v) => !v)}
+          activeOpacity={0.75}
+        >
+          <Text style={s.behindEmoji}>🧐</Text>
+          <View style={s.behindBody}>
+            <Text style={s.behindTitle}>Behind the question</Text>
+            <Text style={s.behindText}>
+              {expanded ? BEHIND_TEXT : BEHIND_TEXT.slice(0, 38) + "..."}
+              {!expanded && <Text style={s.moreLink}> More</Text>}
+            </Text>
+          </View>
+        </TouchableOpacity>
       </View>
 
-      {/* ── Yes / No options pushed to bottom ── */}
+      {/* ── Yes / No — centered lower on screen ── */}
       <View style={s.optionsWrap}>
         {/* Yes */}
         <TouchableOpacity
@@ -68,6 +88,11 @@ export const PastExperience: React.FC<PastExperienceProps> = ({
           >
             Yes
           </Text>
+          {selected === "yes" && (
+            <View style={s.checkmark}>
+              <Text style={s.checkmarkText}>✓</Text>
+            </View>
+          )}
         </TouchableOpacity>
 
         {/* No */}
@@ -84,6 +109,11 @@ export const PastExperience: React.FC<PastExperienceProps> = ({
           >
             No
           </Text>
+          {selected === "no" && (
+            <View style={s.checkmark}>
+              <Text style={s.checkmarkText}>✓</Text>
+            </View>
+          )}
         </TouchableOpacity>
       </View>
     </View>
@@ -97,10 +127,10 @@ const s = StyleSheet.create({
     paddingHorizontal: SPACING.lg,
   },
 
-  // ─── Title ──────────────────────────────────────────────────────
-  titleWrap: {
+  // ─── Top: title + behind card ───────────────────────────────────
+  topSection: {
     marginTop: SPACING.xl,
-    marginBottom: SPACING.lg,
+    gap: SPACING.lg,
   },
   title: {
     fontSize: 28,
@@ -108,14 +138,55 @@ const s = StyleSheet.create({
     color: COLORS.textDark,
     letterSpacing: -0.8,
     lineHeight: 40,
+    textAlign: "center",
   },
 
-  // ─── Options — pinned to bottom of screen ───────────────────────
-  optionsWrap: {
+  // Behind the question card
+  behindCard: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    backgroundColor: "#fffaf600",
+    borderRadius: 20,
+    padding: SPACING.md,
+    borderWidth: 2,
+    borderColor: "#fafafa",
+    shadowColor: "#F47B20",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.07,
+    shadowRadius: 10,
+    elevation: 2,
+    gap: 12,
+  },
+  behindEmoji: {
+    fontSize: 36,
+  },
+  behindBody: {
     flex: 1,
-    justifyContent: "center",
-    paddingBottom: SPACING.xl,
-    gap: 28,
+  },
+  behindTitle: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: COLORS.textDark,
+    marginBottom: 4,
+  },
+  behindText: {
+    fontSize: 13,
+    fontWeight: "500",
+    color: COLORS.textSecondary,
+    lineHeight: 19,
+  },
+  moreLink: {
+    color: COLORS.primary,
+    fontWeight: "600",
+  },
+
+  // ─── Options — lower center ──────────────────────────────────────
+  optionsWrap: {
+    position: "absolute",
+    bottom: SPACING.xxxl,
+    left: SPACING.lg,
+    right: SPACING.lg,
+    gap: 16,
   },
 
   optionRow: {
@@ -140,7 +211,6 @@ const s = StyleSheet.create({
     shadowOpacity: 0.14,
   },
 
-  // Coloured circle icon — green for Yes, red for No
   iconCircle: {
     width: 44,
     height: 44,
@@ -166,12 +236,29 @@ const s = StyleSheet.create({
   },
 
   optionLabel: {
-    fontSize: 18,
-    fontWeight: "700",
+    flex: 1,
+    fontSize: 17,
+    fontWeight: "500",
     color: COLORS.textDark,
     letterSpacing: -0.3,
   },
   optionLabelSelected: {
-    fontWeight: "700",
+    fontWeight: "600",
+  },
+
+  checkmark: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: COLORS.primary,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  checkmarkText: {
+    color: "#FFFFFF",
+    fontSize: 13,
+    fontWeight: "600",
   },
 });
+
+// Have you tried weight loss method involing a restricted diet before?

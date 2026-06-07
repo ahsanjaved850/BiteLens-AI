@@ -178,6 +178,7 @@ export const ws = {
     shadowOpacity: 0.14,
     shadowRadius: 12,
     elevation: 6,
+    backgroundColor: "#ffdebd74",
   },
   cellFuture: {
     opacity: 0.3,
@@ -190,7 +191,7 @@ export const ws = {
   },
   dayNameSelected: {
     fontSize: 12,
-    color: "#F47B20",
+    color: "#0f0f0f",
     fontWeight: "600" as const,
   },
   dayNameFaded: {
@@ -208,7 +209,7 @@ export const ws = {
   },
   circleSelected: {
     borderStyle: "solid" as const,
-    borderColor: "#f47c20b8",
+    borderColor: "#080808b8",
   },
   circleToday: {
     borderStyle: "solid" as const,
@@ -225,7 +226,7 @@ export const ws = {
     letterSpacing: -0.5,
   },
   dayNumSelected: {
-    color: "#F47B20",
+    color: "#000000",
   },
   dayNumFaded: {
     color: "#C0B8B0",

@@ -1,44 +1,53 @@
 import { COLORS, SPACING } from "@/src/Screens/Onboarding/Onboarding.style";
+import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useRef } from "react";
 import {
-    Animated,
-    Dimensions,
-    Image,
-    StatusBar,
-    StyleSheet,
-    Text,
-    View,
+  Animated,
+  Dimensions,
+  Image,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 
 const { width: SW, height: SH } = Dimensions.get("window");
 
 export const Exercise: React.FC = () => {
-  const wordmarkAnim = useRef(new Animated.Value(0)).current;
   const titleAnim = useRef(new Animated.Value(0)).current;
-  const phoneAnim = useRef(new Animated.Value(0)).current;
+  const imageAnim = useRef(new Animated.Value(0)).current;
+  const sourceAnim = useRef(new Animated.Value(0)).current;
+  const cardAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.stagger(140, [
-      Animated.spring(wordmarkAnim, {
+    Animated.spring(titleAnim, {
+      toValue: 1,
+      tension: 65,
+      friction: 9,
+      useNativeDriver: true,
+    }).start(() => {
+      Animated.spring(imageAnim, {
         toValue: 1,
-        tension: 60,
-        friction: 9,
-        useNativeDriver: true,
-      }),
-      Animated.spring(titleAnim, {
-        toValue: 1,
-        tension: 50,
-        friction: 8,
-        useNativeDriver: true,
-      }),
-      Animated.spring(phoneAnim, {
-        toValue: 1,
-        tension: 38,
+        tension: 42,
         friction: 7,
         useNativeDriver: true,
-      }),
-    ]).start();
+      }).start(() => {
+        Animated.spring(sourceAnim, {
+          toValue: 1,
+          tension: 48,
+          friction: 8,
+          useNativeDriver: true,
+        }).start(() => {
+          Animated.spring(cardAnim, {
+            toValue: 1,
+            tension: 52,
+            friction: 8,
+            useNativeDriver: true,
+          }).start();
+        });
+      });
+    });
   }, []);
 
   return (
@@ -48,10 +57,6 @@ export const Exercise: React.FC = () => {
         backgroundColor={COLORS.backgroundGradientTop}
       />
 
-      {/*
-       * Full-screen peach→cream→white gradient — identical to Home,
-       * Data, Settings, Login screens. One continuous brand language.
-       */}
       <LinearGradient
         colors={[
           COLORS.backgroundGradientTop,
@@ -63,7 +68,7 @@ export const Exercise: React.FC = () => {
       />
 
       <View style={s.content}>
-        {/* ── Bold headline — large, dark, center-aligned ── */}
+        {/* ── Headline ── */}
         <Animated.View
           style={{
             opacity: titleAnim,
@@ -71,31 +76,77 @@ export const Exercise: React.FC = () => {
               {
                 translateY: titleAnim.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [20, 0],
+                  outputRange: [32, 0],
                 }),
               },
             ],
           }}
         >
           <Text style={s.headline}>
-            Burn 500 calories a {"\n"} day effortlessly
+            Burn 500 calories{"\n"}
+            <Text style={s.headlineAccent}>a day, effortlessly.</Text>
           </Text>
         </Animated.View>
-        <Image
-          source={require("@/assets/images/Onboarding/exercise.png")}
-          resizeMode="cover"
-          style={{
-            width: SW * 0.9,
-            height: SH * 0.5,
-            marginTop: 45,
-          }}
-        />
+
+        {/* ── Image ── */}
+        <Animated.View
+          style={[
+            s.imageWrapper,
+            {
+              opacity: imageAnim,
+              transform: [
+                {
+                  translateY: imageAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [48, 0],
+                  }),
+                },
+                {
+                  scale: imageAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.93, 1],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          <Image
+            source={require("@/assets/images/Onboarding/exercise.png")}
+            resizeMode="cover"
+            style={s.image}
+          />
+        </Animated.View>
+
+        {/* ── Source badge ── */}
+        <Animated.View
+          style={[
+            s.sourceRow,
+            {
+              opacity: sourceAnim,
+              transform: [
+                {
+                  translateY: sourceAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [16, 0],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          <Ionicons name="shield-checkmark" size={13} color={COLORS.primary} />
+          <Text style={s.sourceText}>
+            Based on research by the{" "}
+            <Text style={s.sourceBold}>American Council on Exercise (ACE)</Text>{" "}
+            — combining cardio & strength burns ~500 kcal/day for most adults.
+          </Text>
+        </Animated.View>
       </View>
     </View>
   );
 };
 
-// ─── Styles ────────────────────────────────────────────────────────────────
 const s = StyleSheet.create({
   root: {
     flex: 1,
@@ -105,30 +156,79 @@ const s = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     paddingHorizontal: SPACING.lg,
-    paddingTop: SPACING.sm,
+    paddingTop: SPACING.md,
+    gap: 10,
   },
-  wordmark: {
-    fontSize: 36,
-    fontWeight: "900",
-    color: COLORS.textDark,
-    letterSpacing: -1.5,
-    includeFontPadding: false,
-    marginBottom: SPACING.md,
-  },
+
+  /* Headline */
   headline: {
-    fontSize: 28,
-    fontWeight: "800",
+    fontSize: 32,
+    fontWeight: "700",
     color: COLORS.textDark,
     textAlign: "center",
-    letterSpacing: -0.8,
-    lineHeight: 38,
-    marginBottom: SPACING.lg,
+    letterSpacing: -1,
+    lineHeight: 42,
   },
-  subtitle: {
-    fontSize: 14,
+  headlineAccent: {
+    color: COLORS.primary,
+  },
+
+  /* Image */
+  imageWrapper: {
+    width: SW * 0.96,
+    height: SH * 0.45,
+    borderRadius: 22,
+    marginVertical: 40,
+  },
+  image: {
+    width: "100%",
+    height: "110%",
+    padding: 10,
+  },
+
+  /* Source badge */
+  sourceRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 6,
+    width: "100%",
+    paddingHorizontal: 4,
+  },
+  sourceText: {
+    flex: 1,
+    fontSize: 11,
     fontWeight: "500",
-    color: "black",
-    textAlign: "center",
+    color: COLORS.textSecondary,
+    lineHeight: 16,
+  },
+  sourceBold: {
+    fontWeight: "700",
+    color: COLORS.textDark,
+  },
+
+  /* Insight card */
+  insightCard: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 10,
+    backgroundColor: "rgba(255,255,255,0.72)",
+    borderRadius: 18,
+    padding: 14,
+    width: "100%",
+    borderWidth: 1,
+    borderColor: "rgba(230,185,150,0.45)",
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.primary,
+  },
+  insightText: {
+    flex: 1,
+    fontSize: 13,
+    fontWeight: "500",
+    color: COLORS.textSecondary,
     lineHeight: 20,
+  },
+  insightBold: {
+    fontWeight: "700",
+    color: COLORS.textDark,
   },
 });

@@ -1,5 +1,9 @@
-import { getInitialDetails, getProfile } from "@/backend/getData";
-import { updateWeightStats } from "@/backend/sendData";
+import {
+  getInitialDetails,
+  getProfile,
+  getWeightLogs,
+} from "@/backend/getData";
+import { logWeight, updateWeightStats } from "@/backend/sendData";
 import { dataAnalysis } from "@/src/utils/dataAnalysis";
 import * as Haptics from "expo-haptics";
 import { useEffect, useState } from "react";
@@ -37,24 +41,11 @@ export const useData = () => {
 
       const data = await getProfile();
       setProfile(data);
-      if (data?.weight) {
-        const today = getTodayStr();
-        const currentWeight = Number(data.weight);
 
-        if (!Number.isNaN(currentWeight)) {
-          setWeightLogs((prev) => {
-            if (prev.length > 0) return prev;
+      // ── CHANGED: fetch real weight history from DB instead of seeding fake state ──
+      const logs = await getWeightLogs();
+      setWeightLogs(logs);
 
-            return [
-              {
-                id: createWeightLogId(),
-                date: today,
-                weight: currentWeight,
-              },
-            ];
-          });
-        }
-      }
       const initialDetails = await getInitialDetails();
       setDetails(initialDetails);
     } catch (err: any) {
@@ -109,6 +100,11 @@ export const useData = () => {
 
       // Update weight in database
       await updateWeightStats(currentWeight, goalWeight);
+
+      // ── CHANGED: persist new weight entry to weight_logs table ──
+      if (modalType === "current") {
+        await logWeight(currentWeight);
+      }
 
       // Get fresh profile data
       const updatedProfile = await getProfile();

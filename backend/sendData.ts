@@ -46,6 +46,20 @@ export const updateWeightStats = async (
   return data;
 };
 
+// Inserts a new row into weight_logs — always INSERT, never upsert.
+// Called every time the user logs their current weight.
+export const logWeight = async (weight: string) => {
+  const userId = await getCurrentUser();
+  const { error } = await supabase
+    .from("weight_logs")
+    .insert({ user_id: userId, weight });
+
+  if (error) {
+    console.error("Error logging weight:", error.message);
+    throw error;
+  }
+};
+
 export const sendInitialDetails = async (
   BMI: number,
   Category: string,
@@ -117,10 +131,6 @@ export const updateGoal = async (goal: string) => {
   return data;
 };
 
-// ─── updateDailyIntake ────────────────────────────────────────────────────
-// Uses composite PK (id, date).
-// Each calendar day gets its own row — totals accumulate within a day.
-// On a new day the existing row for that date doesn't exist → starts at 0.
 export const updateDailyIntake = async (
   mealCalories: number,
   mealProtein: number,
@@ -131,9 +141,8 @@ export const updateDailyIntake = async (
   mealFiber: number,
 ) => {
   const userId = await getCurrentUser();
-  const today = new Date().toISOString().split("T")[0]; // "YYYY-MM-DD"
+  const today = new Date().toISOString().split("T")[0];
 
-  // Step 1: Read today's existing row by (id, date)
   const { data: existing, error: fetchError } = await supabase
     .from("daily_intake")
     .select("*")
@@ -146,7 +155,6 @@ export const updateDailyIntake = async (
     throw fetchError;
   }
 
-  // Step 2: Accumulate on top of what already exists today
   const row = {
     id: userId,
     date: today,
@@ -160,8 +168,6 @@ export const updateDailyIntake = async (
     created_at: new Date().toISOString(),
   };
 
-  // Step 3: Upsert on composite PK (id, date)
-  // First meal today → INSERT. Subsequent meals → UPDATE.
   const { data, error } = await supabase
     .from("daily_intake")
     .upsert(row, { onConflict: "id,date", ignoreDuplicates: false })
