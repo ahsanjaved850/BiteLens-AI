@@ -4,6 +4,7 @@ import React, { useEffect, useRef } from "react";
 import {
   Animated,
   Dimensions,
+  Easing,
   Image,
   StatusBar,
   StyleSheet,
@@ -14,32 +15,91 @@ import {
 const { width: SW, height: SH } = Dimensions.get("window");
 
 export const GoalInfo: React.FC = () => {
-  const wordmarkAnim = useRef(new Animated.Value(0)).current;
-  const titleAnim = useRef(new Animated.Value(0)).current;
-  const phoneAnim = useRef(new Animated.Value(0)).current;
+  const chipAnim = useRef(new Animated.Value(0)).current;
+  const headlineAnim = useRef(new Animated.Value(0)).current;
+  const subAnim = useRef(new Animated.Value(0)).current;
+  const imageAnim = useRef(new Animated.Value(0)).current;
+  const pill1Anim = useRef(new Animated.Value(0)).current;
+  const pill2Anim = useRef(new Animated.Value(0)).current;
+  const floatAnim = useRef(new Animated.Value(0)).current;
+  const shimmerAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.stagger(140, [
-      Animated.spring(wordmarkAnim, {
+    Animated.stagger(100, [
+      Animated.spring(chipAnim, {
         toValue: 1,
-        tension: 60,
-        friction: 9,
+        tension: 70,
+        friction: 10,
         useNativeDriver: true,
       }),
-      Animated.spring(titleAnim, {
+      Animated.spring(headlineAnim, {
+        toValue: 1,
+        tension: 55,
+        friction: 8,
+        useNativeDriver: true,
+      }),
+      Animated.spring(subAnim, {
         toValue: 1,
         tension: 50,
         friction: 8,
         useNativeDriver: true,
       }),
-      Animated.spring(phoneAnim, {
+      Animated.spring(pill1Anim, {
+        toValue: 1,
+        tension: 45,
+        friction: 7,
+        useNativeDriver: true,
+      }),
+      Animated.spring(pill2Anim, {
+        toValue: 1,
+        tension: 45,
+        friction: 7,
+        useNativeDriver: true,
+      }),
+      Animated.spring(imageAnim, {
         toValue: 1,
         tension: 38,
         friction: 7,
         useNativeDriver: true,
       }),
     ]).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatAnim, {
+          toValue: 1,
+          duration: 2600,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatAnim, {
+          toValue: 0,
+          duration: 2600,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+      ]),
+    ).start();
+
+    Animated.loop(
+      Animated.timing(shimmerAnim, {
+        toValue: 1,
+        duration: 2200,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }),
+    ).start();
   }, []);
+
+  const floatY = floatAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -10],
+  });
+
+  const shimmerX = shimmerAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-SW * 0.6, SW * 0.6],
+  });
 
   return (
     <View style={s.root}>
@@ -48,10 +108,6 @@ export const GoalInfo: React.FC = () => {
         backgroundColor={COLORS.backgroundGradientTop}
       />
 
-      {/*
-       * Full-screen peach→cream→white gradient — identical to Home,
-       * Data, Settings, Login screens. One continuous brand language.
-       */}
       <LinearGradient
         colors={[
           COLORS.backgroundGradientTop,
@@ -62,60 +118,312 @@ export const GoalInfo: React.FC = () => {
         style={StyleSheet.absoluteFill}
       />
 
+      <View style={s.decorCircleSmall} />
+      <View style={s.decorDot1} />
+      <View style={s.decorDot2} />
+      <View style={s.decorDot3} />
+
       <View style={s.content}>
-        {/* ── Bold headline — large, dark, center-aligned ── */}
+        <Animated.View
+          style={[
+            s.sectionChip,
+            {
+              opacity: chipAnim,
+              transform: [
+                {
+                  translateY: chipAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [-16, 0],
+                  }),
+                },
+                {
+                  scale: chipAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.85, 1],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          <View style={s.chipDot} />
+          <Text style={s.chipText}>Section 1 of 4</Text>
+        </Animated.View>
+
         <Animated.View
           style={{
-            opacity: titleAnim,
+            opacity: headlineAnim,
             transform: [
               {
-                translateY: titleAnim.interpolate({
+                translateY: headlineAnim.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [20, 0],
+                  outputRange: [24, 0],
                 }),
               },
             ],
           }}
         >
-          <Text style={s.headline}>Lets learn more about{"\n"}your goals.</Text>
+          <View style={s.headlineWrapper}>
+            <Text style={s.headlineLine1}>Let's learn</Text>
+            <View style={s.headlineAccentRow}>
+              <Text style={s.headlineLine2}>your </Text>
+              <View style={s.accentPill}>
+                <Text style={s.accentPillText}>Goals</Text>
+                <Animated.View
+                  style={[s.shimmer, { transform: [{ translateX: shimmerX }] }]}
+                />
+              </View>
+            </View>
+          </View>
         </Animated.View>
-        <Image
-          source={require("@/assets/images/Onboarding/goal.png")}
-          resizeMode="cover"
-          style={{ width: SW * 1, height: SH * 0.6, marginTop: 10 }}
-        />
+
+        <Animated.Text
+          style={[
+            s.subText,
+            {
+              opacity: subAnim,
+              transform: [
+                {
+                  translateY: subAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [16, 0],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          A few quick questions to personalise{"\n"}everything just for you ✦
+        </Animated.Text>
+
+        <Animated.View
+          style={[
+            s.imageContainer,
+            {
+              opacity: imageAnim,
+              transform: [
+                {
+                  translateY: imageAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [40, 0],
+                  }),
+                },
+                {
+                  scale: imageAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.92, 1],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          <View style={s.imageGlowRing} />
+          <Image
+            source={require("@/assets/images/Onboarding/goal.png")}
+            resizeMode="cover"
+            style={s.heroImage}
+          />
+        </Animated.View>
       </View>
     </View>
   );
 };
 
-// ─── Styles ────────────────────────────────────────────────────────────────
+const ACCENT_PEACH = "#FF6B4A";
+const PILL_BG = "rgba(255,107,74,0.10)";
+const CHIP_BG = "rgba(255,107,74,0.12)";
+const GLOW_COLOR = "rgba(255,120,80,0.18)";
+
 const s = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: COLORS.backgroundGradientTop,
+    overflow: "hidden",
   },
+
+  decorCircleSmall: {
+    position: "absolute",
+    width: SW * 0.38,
+    height: SW * 0.38,
+    borderRadius: SW * 0.19,
+    backgroundColor: "rgba(255,107,74,0.06)",
+    bottom: SH * 0.28,
+    left: -SW * 0.1,
+  },
+  decorDot1: {
+    position: "absolute",
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: ACCENT_PEACH,
+    opacity: 0.35,
+    top: SH * 0.14,
+    left: SW * 0.08,
+  },
+  decorDot2: {
+    position: "absolute",
+    width: 5,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: ACCENT_PEACH,
+    opacity: 0.25,
+    top: SH * 0.22,
+    right: SW * 0.1,
+  },
+  decorDot3: {
+    position: "absolute",
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    borderWidth: 2,
+    borderColor: ACCENT_PEACH,
+    opacity: 0.2,
+    top: SH * 0.09,
+    right: SW * 0.22,
+  },
+
   content: {
     flex: 1,
     alignItems: "center",
     paddingHorizontal: SPACING.lg,
-    paddingTop: SPACING.sm,
+    paddingTop: SH * 0.01,
   },
-  wordmark: {
-    fontSize: 36,
-    fontWeight: "700",
-    color: COLORS.textDark,
-    letterSpacing: -1.5,
-    includeFontPadding: false,
+
+  sectionChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: CHIP_BG,
+    borderWidth: 1,
+    borderColor: "rgba(255,107,74,0.22)",
+    borderRadius: 100,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
     marginBottom: SPACING.md,
+    gap: 6,
   },
-  headline: {
-    fontSize: 28,
-    fontWeight: "700",
+  chipDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: ACCENT_PEACH,
+  },
+  chipText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: ACCENT_PEACH,
+    letterSpacing: 0.4,
+  },
+
+  headlineWrapper: {
+    alignItems: "center",
+    marginBottom: SPACING.sm,
+  },
+  headlineLine1: {
+    fontSize: 38,
+    fontWeight: "800",
+    color: COLORS.textDark,
+    letterSpacing: -1.2,
+    lineHeight: 44,
+    includeFontPadding: false,
+  },
+  headlineAccentRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  headlineLine2: {
+    fontSize: 38,
+    fontWeight: "800",
+    color: COLORS.textDark,
+    letterSpacing: -1.2,
+    lineHeight: 44,
+    includeFontPadding: false,
+  },
+  accentPill: {
+    backgroundColor: ACCENT_PEACH,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 2,
+    overflow: "hidden",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  accentPillText: {
+    fontSize: 38,
+    fontWeight: "800",
+    color: "#FFFFFF",
+    letterSpacing: -1.2,
+    lineHeight: 44,
+    includeFontPadding: false,
+  },
+  shimmer: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    width: 40,
+    backgroundColor: "rgba(255,255,255,0.22)",
+    transform: [{ skewX: "-20deg" }],
+  },
+
+  subText: {
+    fontSize: 15,
+    fontWeight: "400",
     color: COLORS.textDark,
     textAlign: "center",
-    letterSpacing: -0.8,
-    lineHeight: 38,
-    marginBottom: SPACING.lg,
+    lineHeight: 23,
+    opacity: 0.62,
+    letterSpacing: 0.1,
+    marginBottom: SPACING.md,
+  },
+
+  pillRow: {
+    flexDirection: "row",
+    gap: 12,
+    marginBottom: SPACING.md,
+  },
+  floatingPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 7,
+    backgroundColor: PILL_BG,
+    borderWidth: 1,
+    borderColor: "rgba(255,107,74,0.18)",
+    borderRadius: 100,
+    paddingHorizontal: 16,
+    paddingVertical: 9,
+  },
+  floatingPillAlt: {
+    backgroundColor: "rgba(255,107,74,0.06)",
+    borderColor: "rgba(255,107,74,0.12)",
+  },
+  pillEmoji: {
+    fontSize: 16,
+  },
+  pillLabel: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: COLORS.textDark,
+    letterSpacing: 0.1,
+  },
+
+  imageContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    position: "relative",
+  },
+  imageGlowRing: {
+    position: "absolute",
+    width: SW * 0.75,
+    height: SW * 0.75,
+    borderRadius: SW * 0.375,
+
+    top: SH * 0.04,
+    alignSelf: "center",
+  },
+  heroImage: {
+    width: SW * 0.99,
+    height: SH * 0.48,
+    borderRadius: 24,
   },
 });

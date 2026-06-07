@@ -1,12 +1,9 @@
-import {
-  COLORS,
-  SPACING,
-  TYPOGRAPHY,
-} from "@/src/Screens/Onboarding/Onboarding.style";
+import { COLORS, SPACING } from "@/src/Screens/Onboarding/Onboarding.style";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback, useEffect, useState } from "react";
 import {
+  Image,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -19,58 +16,72 @@ interface HealthConcernsProps {
   onValidationChange?: (isValid: boolean) => void;
 }
 
-const CONTENT = {
-  header: {
-    title: "Any health concerns?",
+const OPTIONS = [
+  {
+    label: "I don't have any of these",
+    value: "2",
+    icon: require("@/assets/images/icons/health1.png"),
   },
-  behindQuestion:
-    "Safe Exercise Recommendations based on your health profile...",
-  options: [
-    { label: "I don't have any of these", emoji: "🤷" },
-    { label: "Hypertension", emoji: "💧" },
-    { label: "High Cholesterol", emoji: "🩺" },
-    { label: "Obesity", emoji: "🍪" },
-    { label: "Diabetes", emoji: "💉" },
-    { label: "Heart Disease", emoji: "❤️" },
-    { label: "Food Allergies", emoji: "⚠️" },
-  ],
-} as const;
+  {
+    label: "Hypertension",
+    value: "3",
+    icon: require("@/assets/images/icons/health2.png"),
+  },
+  {
+    label: "High Cholesterol",
+    value: "4",
+    icon: require("@/assets/images/icons/health3.png"),
+  },
+  {
+    label: "Obesity",
+    value: "5",
+    icon: require("@/assets/images/icons/health4.png"),
+  },
+  {
+    label: "Diabetes",
+    value: "6",
+    icon: require("@/assets/images/icons/health5.png"),
+  },
+  {
+    label: "Heart Disease",
+    value: "7",
+    icon: require("@/assets/images/icons/health6.png"),
+  },
+  {
+    label: "Food Allergies",
+    value: "8",
+    icon: require("@/assets/images/icons/health7.png"),
+  },
+] as const;
+
+const BEHIND_TEXT =
+  "Safe Exercise Recommendations: Your health conditions directly influence what types of exercise are safe and effective for you. Sharing this helps us suggest workouts that support your wellbeing without putting you at risk.";
 
 export const HealthConcerns: React.FC<HealthConcernsProps> = ({
   onValidationChange,
 }) => {
-  const [selected, setSelected] = useState<string[]>([]);
+  const [selected, setSelected] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
-    const isValid = selected.length > 0;
-    onValidationChange?.(isValid);
+    onValidationChange?.(selected !== null);
   }, [selected]);
 
-  const handlePress = useCallback(async (label: string, isNone?: boolean) => {
+  const handlePress = useCallback(async (value: string) => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-
-    setSelected((prev) => {
-      if (isNone) {
-        // If "none" is tapped, clear everything and select only "none"
-        return prev.includes(label) ? [] : [label];
-      }
-
-      // If any other option is tapped, remove "none" if present
-      const withoutNone = prev.filter((s) => s !== "I don't have any of these");
-
-      if (withoutNone.includes(label)) {
-        return withoutNone.filter((s) => s !== label);
-      }
-      return [...withoutNone, label];
-    });
+    setSelected(value);
   }, []);
 
+  const previewText = BEHIND_TEXT.slice(0, 38) + "...";
+
   return (
-    <View style={styles.safeArea}>
+    <View style={s.root}>
       <StatusBar
         barStyle="dark-content"
         backgroundColor={COLORS.backgroundGradientTop}
       />
+
+      {/* Peach → cream → white gradient */}
       <LinearGradient
         colors={[
           COLORS.backgroundGradientTop,
@@ -80,157 +91,204 @@ export const HealthConcerns: React.FC<HealthConcernsProps> = ({
         locations={[0, 0.45, 1]}
         style={StyleSheet.absoluteFill}
       />
-      <View style={styles.screenContainer}>
-        {/* Header */}
-        <View style={styles.headerSection}>
-          <Text style={styles.headerTitle}>{CONTENT.header.title}</Text>
-        </View>
 
-        {/* Options */}
-        <ScrollView
-          contentContainerStyle={styles.optionsContainer}
-          showsVerticalScrollIndicator={false}
+      <ScrollView
+        contentContainerStyle={s.content}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/*  Title  */}
+        <Text style={s.title}>Any health concerns?</Text>
+
+        {/*  Behind the question card  */}
+        <TouchableOpacity
+          style={s.behindCard}
+          onPress={() => setExpanded((v) => !v)}
+          activeOpacity={0.75}
         >
-          {CONTENT.options.map((option) => {
-            const isSelected = selected.includes(option.label);
+          <Text style={s.behindEmoji}>🧐</Text>
+          <View style={s.behindBody}>
+            <Text style={s.behindTitle}>Behind the question</Text>
+            <Text style={s.behindText}>
+              {expanded ? BEHIND_TEXT : previewText}
+              {!expanded && <Text style={s.behindMore}> More</Text>}
+            </Text>
+          </View>
+        </TouchableOpacity>
+
+        {/*  Options  */}
+        <View style={s.options}>
+          {OPTIONS.map((opt) => {
+            const isSelected = selected === opt.value;
             return (
               <TouchableOpacity
-                key={option.label}
-                onPress={() => handlePress(option.label)}
-                style={[
-                  styles.optionRow,
-                  isSelected && styles.optionRowSelected,
-                ]}
-                activeOpacity={0.7}
+                key={opt.value}
+                style={[s.optionRow, isSelected && s.optionRowSelected]}
+                onPress={() => handlePress(opt.value)}
+                activeOpacity={0.75}
               >
-                <Text style={styles.optionEmoji}>{option.emoji}</Text>
-                <Text
-                  style={[
-                    styles.optionLabel,
-                    isSelected && styles.optionLabelSelected,
-                  ]}
-                >
-                  {option.label}
-                </Text>
+                {/* Left orange accent bar — appears on selection */}
                 <View
                   style={[
-                    styles.checkbox,
-                    isSelected && styles.checkboxSelected,
+                    s.accentBar,
+                    {
+                      backgroundColor: isSelected
+                        ? COLORS.primary
+                        : "transparent",
+                    },
                   ]}
+                />
+                <Image
+                  source={opt.icon}
+                  style={s.iconImage}
+                  resizeMode="contain"
+                />
+                <Text
+                  style={[s.optionLabel, isSelected && s.optionLabelSelected]}
                 >
-                  {isSelected && <Text style={styles.checkboxText}>✓</Text>}
-                </View>
+                  {opt.label}
+                </Text>
+                {isSelected && (
+                  <View style={s.checkmark}>
+                    <Text style={s.checkmarkText}>✓</Text>
+                  </View>
+                )}
               </TouchableOpacity>
             );
           })}
-        </ScrollView>
-      </View>
+        </View>
+      </ScrollView>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  safeArea: {
+const s = StyleSheet.create({
+  root: {
     flex: 1,
     backgroundColor: COLORS.backgroundGradientTop,
   },
-  screenContainer: {
-    flex: 1,
+  content: {
+    flexGrow: 1,
     paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.lg,
+    paddingBottom: SPACING.xxxl,
   },
-  headerSection: {
-    alignItems: "center",
-    marginTop: SPACING.lg,
-    marginBottom: SPACING.md,
-  },
-  headerTitle: {
+
+  //  Title
+  title: {
     fontSize: 30,
     fontWeight: "700",
     color: COLORS.textDark,
-    textAlign: "center",
     letterSpacing: -0.8,
+    lineHeight: 38,
+    marginBottom: SPACING.lg,
+    textAlign: "center",
   },
-  behindQuestion: {
+
+  //  Behind the question card
+  behindCard: {
     flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: COLORS.backgroundGray,
-    borderRadius: 14,
+    alignItems: "flex-start",
+    backgroundColor: "#fffaf600",
+    borderRadius: 20,
     padding: SPACING.md,
-    marginBottom: SPACING.md,
+    marginBottom: SPACING.sm,
+    borderWidth: 2,
+    borderColor: "#fafafa",
+    shadowColor: "#F47B20",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.07,
+    shadowRadius: 10,
+    elevation: 2,
+    gap: 12,
   },
   behindEmoji: {
-    fontSize: 28,
-    marginRight: SPACING.sm,
+    fontSize: 36,
+  },
+  behindBody: {
+    flex: 1,
   },
   behindTitle: {
-    ...TYPOGRAPHY.bodySemibold,
+    fontSize: 14,
+    fontWeight: "600",
     color: COLORS.textDark,
+    marginBottom: 4,
   },
   behindText: {
-    ...TYPOGRAPHY.small,
+    fontSize: 13,
+    fontWeight: "500",
     color: COLORS.textSecondary,
+    lineHeight: 19,
   },
-  moreLink: {
-    ...TYPOGRAPHY.small,
+  behindMore: {
     color: COLORS.primary,
     fontWeight: "600",
-    marginLeft: SPACING.sm,
   },
-  optionsContainer: {
-    marginTop: 70,
-    gap: 12,
-    paddingBottom: SPACING.xxxl,
+
+  //  Options
+  options: {
+    gap: 15,
+    marginTop: SPACING.xxl,
   },
   optionRow: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#FFFAF6",
-    borderRadius: 16,
-    padding: SPACING.lg,
+    borderRadius: 18,
     borderWidth: 1.5,
     borderColor: "#F0DED0",
+    minHeight: 70,
+    overflow: "hidden",
     shadowColor: "#F47B20",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
     elevation: 2,
-    fontSize: 14,
   },
   optionRowSelected: {
     borderColor: COLORS.primary,
     backgroundColor: "#FFF3E8",
-    shadowOpacity: 0.12,
+    shadowOpacity: 0.14,
   },
-  optionEmoji: {
-    fontSize: 28,
-    marginRight: SPACING.md,
+
+  // Left orange accent bar — same as meal cards on Home
+  accentBar: {
+    width: 4,
+    alignSelf: "stretch",
+    borderRadius: 4,
   },
+
+  iconImage: {
+    width: 60,
+    height: 60,
+    marginHorizontal: SPACING.sm,
+  },
+
   optionLabel: {
-    ...TYPOGRAPHY.body,
-    color: COLORS.text,
-    fontWeight: "600",
     flex: 1,
+    fontSize: 16,
+    fontWeight: "500",
+    color: COLORS.textDark,
+    paddingRight: SPACING.md,
+    letterSpacing: -0.2,
   },
   optionLabelSelected: {
-    color: COLORS.textDark,
     fontWeight: "600",
+    color: COLORS.textDark,
   },
-  checkbox: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    borderWidth: 2,
-    borderColor: "#F0DED0",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  checkboxSelected: {
+
+  checkmark: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: SPACING.md,
   },
-  checkboxText: {
-    color: COLORS.white,
+  checkmarkText: {
+    color: "#FFFFFF",
     fontSize: 14,
-    fontWeight: "700",
+    fontWeight: "800",
   },
 });

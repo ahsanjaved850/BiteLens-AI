@@ -259,6 +259,7 @@ const s = StyleSheet.create({
     letterSpacing: -0.8,
     lineHeight: 38,
     marginBottom: SPACING.xl,
+    textAlign: "center",
   },
 
   // Stats card

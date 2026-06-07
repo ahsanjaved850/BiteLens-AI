@@ -26,13 +26,10 @@ export const signIn = async (email: string, password: string) => {
   return data.user;
 };
 
-export const finalizeNewAccount = async (
-  user: { id: string; email?: string | null },
-
-  fullNameOverride?: string | null,
-) => {
-  //  Save session to AsyncStorage
-
+export const finalizeNewAccount = async (user: {
+  id: string;
+  email?: string | null;
+}) => {
   const { data: sessionData } = await supabase.auth.getSession();
   if (sessionData?.session) {
     await AsyncStorage.setItem("session", JSON.stringify(sessionData.session));
@@ -40,23 +37,36 @@ export const finalizeNewAccount = async (
 
   const od = await getOnboardingData();
 
-  const fullName = fullNameOverride ?? od.full_name ?? null;
-
   const { error: profileError } = await supabase.from("profile").upsert({
     id: user.id,
-    full_name: fullName,
+    full_name: od.full_name ?? null,
     gender: od.gender ?? null,
     goal: od.goal ?? null,
     age: od.age ?? null,
     height: od.height ?? null,
     weight: od.weight ?? null,
     target_weight: od.target_weight ?? null,
-    onboarding: false, // flipped to true after dataAnalysis succeeds
+    onboarding: false,
   });
 
   if (profileError) {
     console.error("Profile flush failed:", profileError.message);
     throw profileError;
+  }
+
+  // ── ADDED: seed first weight_logs entry from onboarding weight ──
+  if (od.weight) {
+    const { error: weightLogError } = await supabase
+      .from("weight_logs")
+      .insert({
+        user_id: user.id,
+        weight: od.weight.toString(),
+      });
+
+    if (weightLogError) {
+      // Non-fatal — log but don't block signup
+      console.warn("Initial weight log failed:", weightLogError.message);
+    }
   }
 
   if (
@@ -103,7 +113,6 @@ export const finalizeNewAccount = async (
 };
 
 //  Sign Up (email + password)
-
 export const signUp = async (email: string, password: string) => {
   const { data, error } = await supabase.auth.signUp({ email, password });
   if (error) throw error;

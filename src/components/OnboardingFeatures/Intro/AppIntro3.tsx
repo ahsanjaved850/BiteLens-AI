@@ -3,6 +3,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
+  Dimensions,
   Easing,
   StatusBar,
   StyleSheet,
@@ -10,28 +11,28 @@ import {
   View,
 } from "react-native";
 
-// ─── Macro data ────────────────────────────────────────────────────────────
-// Fat is set above limit (55/50g) to trigger the warning state
+const { width: SW, height: SH } = Dimensions.get("window");
+
 const MACROS = [
   {
     label: "Fat",
     value: 55,
     goal: 50,
-    barColor: "#FF6B00", // vivid orange-red — over limit
+    barColor: "#FF6B00",
     isOver: true,
   },
   {
     label: "Net Carbs",
     value: 160,
     goal: 180,
-    barColor: "#00C48C", // vivid teal-green
+    barColor: "#00C48C",
     isOver: false,
   },
   {
     label: "Protein",
     value: 20,
     goal: 72,
-    barColor: "#FF3B5C", // vivid red — critically low
+    barColor: "#FF3B5C",
     isOver: false,
     isLow: true,
   },
@@ -39,37 +40,28 @@ const MACROS = [
     label: "Fiber",
     value: 24,
     goal: 30,
-    barColor: "#845EF7", // vivid purple
+    barColor: "#845EF7",
     isOver: false,
   },
 ] as const;
 
-// ─── Animated counter hook ─────────────────────────────────────────────────
-const useCountUp = (
-  target: number,
-  duration: number,
-  delay: number,
-  resetKey: number,
-) => {
+const useCountUp = (target: number, duration: number, resetKey: number) => {
   const [val, setVal] = useState(0);
   useEffect(() => {
-    setVal(0); // reset before replaying
-    const t = setTimeout(() => {
-      const start = Date.now();
-      const tick = () => {
-        const p = Math.min((Date.now() - start) / duration, 1);
-        const eased = 1 - Math.pow(1 - p, 3);
-        setVal(Math.round(eased * target));
-        if (p < 1) requestAnimationFrame(tick);
-      };
-      requestAnimationFrame(tick);
-    }, delay);
-    return () => clearTimeout(t);
+    setVal(0);
+    if (resetKey === 0) return;
+    const start = Date.now();
+    const tick = () => {
+      const p = Math.min((Date.now() - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setVal(Math.round(eased * target));
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
   }, [resetKey]);
   return val;
 };
 
-// ─── Single macro row ──────────────────────────────────────────────────────
 const MacroRow: React.FC<{
   label: string;
   value: number;
@@ -93,7 +85,7 @@ const MacroRow: React.FC<{
   resetKey = 0,
   bgAnim,
 }) => {
-  const displayVal = useCountUp(value, 1000, 500, resetKey);
+  const displayVal = useCountUp(value, 1000, resetKey);
   const progress = Math.min(value / goal, 1);
 
   const barWidth = barAnim.interpolate({
@@ -101,7 +93,6 @@ const MacroRow: React.FC<{
     outputRange: ["0%", `${progress * 100}%`],
   });
 
-  // Always use Animated.View so TypeScript is happy — bg color animates when bgAnim provided
   const animatedBg = bgAnim
     ? bgAnim.interpolate({
         inputRange: [0, 1],
@@ -117,7 +108,6 @@ const MacroRow: React.FC<{
         animatedBg ? { backgroundColor: animatedBg } : null,
       ]}
     >
-      {/* Label + value */}
       <View style={row.top}>
         <View style={row.labelWrap}>
           <View
@@ -136,8 +126,6 @@ const MacroRow: React.FC<{
           <Text style={row.goal}>/{goal}g</Text>
         </View>
       </View>
-
-      {/* Progress bar track */}
       <View
         style={[
           row.track,
@@ -177,150 +165,228 @@ const row = StyleSheet.create({
     alignItems: "center",
     marginBottom: 10,
   },
-  labelWrap: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  colorDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-  },
+  labelWrap: { flexDirection: "row", alignItems: "center", gap: 8 },
+  colorDot: { width: 10, height: 10, borderRadius: 5 },
   label: {
     fontSize: 14,
     fontWeight: "700",
     color: "#0F1A22",
     letterSpacing: -0.2,
   },
-  valueWrap: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 2,
-  },
-  warningIcon: {
-    fontSize: 13,
-  },
+  valueWrap: { flexDirection: "row", alignItems: "center", gap: 2 },
+  warningIcon: { fontSize: 13 },
   value: {
     fontSize: 15,
     fontWeight: "900",
     color: "#0F1A22",
     letterSpacing: -0.5,
   },
-  goal: {
-    fontSize: 13,
-    fontWeight: "500",
-    color: "#B0BECA",
-  },
-  track: {
-    height: 12,
-    borderRadius: 8,
-    overflow: "hidden",
-  },
-  fill: {
-    height: "100%",
-    borderRadius: 8,
-  },
+  goal: { fontSize: 13, fontWeight: "500", color: "#B0BECA" },
+  track: { height: 12, borderRadius: 8, overflow: "hidden" },
+  fill: { height: "100%", borderRadius: 8 },
 });
 
-// ─── Main Component ────────────────────────────────────────────────────────
+const FloatingOrb: React.FC<{
+  size: number;
+  top: number;
+  left: number;
+  color: string;
+  delay: number;
+  amplitude: number;
+}> = ({ size, top, left, color, delay, amplitude }) => {
+  const drift = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(drift, {
+          toValue: 1,
+          duration: 3800 + delay * 400,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+        Animated.timing(drift, {
+          toValue: 0,
+          duration: 3800 + delay * 400,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+    const timer = setTimeout(() => loop.start(), delay * 300);
+    return () => {
+      clearTimeout(timer);
+      loop.stop();
+    };
+  }, []);
+
+  return (
+    <Animated.View
+      style={{
+        position: "absolute",
+        top,
+        left,
+        width: size,
+        height: size,
+        borderRadius: size / 2,
+        backgroundColor: color,
+        opacity: 0.15,
+        transform: [
+          {
+            translateY: drift.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0, -amplitude],
+            }),
+          },
+        ],
+      }}
+    />
+  );
+};
+
 interface AppIntro3Props {
   isActive?: boolean;
 }
 
 export const AppIntro3: React.FC<AppIntro3Props> = ({ isActive = true }) => {
-  const [animKey, setAnimKey] = React.useState(0);
-  const headerAnim = useRef(new Animated.Value(0)).current;
+  const [resetKey, setResetKey] = React.useState(0);
+
+  const eyebrowAnim = useRef(new Animated.Value(0)).current;
+  const headline1Anim = useRef(new Animated.Value(0)).current;
+  const headline2Anim = useRef(new Animated.Value(0)).current;
+  const subtitleAnim = useRef(new Animated.Value(0)).current;
   const cardAnim = useRef(new Animated.Value(0)).current;
   const noteAnim = useRef(new Animated.Value(0)).current;
+  const trustAnim = useRef(new Animated.Value(0)).current;
 
-  // One bar anim per macro — must be non-native (width %)
   const barAnims = useRef(MACROS.map(() => new Animated.Value(0))).current;
-  // Background color animations — MUST stay useNativeDriver:false only
-  // Fresh refs that never touch the native driver
   const fatBgAnim = useRef(new Animated.Value(0)).current;
   const proteinBgAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    if (!isActive) return;
+    if (!isActive) {
+      setResetKey(0);
+      return;
+    }
 
-    // Reset everything
-    headerAnim.setValue(0);
+    eyebrowAnim.setValue(0);
+    headline1Anim.setValue(0);
+    headline2Anim.setValue(0);
+    subtitleAnim.setValue(0);
     cardAnim.setValue(0);
     noteAnim.setValue(0);
+    trustAnim.setValue(0);
     barAnims.forEach((a) => a.setValue(0));
-    // bg anims reset in separate useEffect below
-    setAnimKey((k) => k + 1);
+    fatBgAnim.setValue(0);
+    proteinBgAnim.setValue(0);
 
-    // Entrance — native driver
-    Animated.stagger(140, [
-      Animated.spring(headerAnim, {
+    // After cardAnim lands the sequence splits into Animated.parallel.
+    // Branch A: noteAnim and trustAnim continue the UI reveal.
+    // Branch B: bars start filling immediately — runs alongside Branch A.
+    // setResetKey (counters) and bg color anims fire via setTimeout
+    // matched to the same moment the parallel starts, since they need
+    // the JS thread and cannot live inside an Animated chain.
+    Animated.sequence([
+      Animated.spring(eyebrowAnim, {
         toValue: 1,
-        tension: 50,
+        tension: 60,
+        friction: 9,
+        useNativeDriver: true,
+      }),
+      Animated.delay(40),
+      Animated.spring(headline1Anim, {
+        toValue: 1,
+        tension: 52,
         friction: 8,
         useNativeDriver: true,
       }),
+      Animated.delay(30),
+      Animated.spring(headline2Anim, {
+        toValue: 1,
+        tension: 52,
+        friction: 8,
+        useNativeDriver: true,
+      }),
+      Animated.delay(30),
+      Animated.timing(subtitleAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.delay(100),
       Animated.spring(cardAnim, {
         toValue: 1,
         tension: 44,
         friction: 8,
         useNativeDriver: true,
       }),
-      Animated.spring(noteAnim, {
-        toValue: 1,
-        tension: 48,
-        friction: 8,
-        useNativeDriver: true,
-      }),
+      Animated.delay(80),
+      // Card is on screen. Split here — bars animate in parallel with note + trust.
+      Animated.parallel([
+        // Branch A: remaining UI elements
+        Animated.sequence([
+          Animated.spring(noteAnim, {
+            toValue: 1,
+            tension: 48,
+            friction: 8,
+            useNativeDriver: true,
+          }),
+          Animated.delay(220),
+          Animated.timing(trustAnim, {
+            toValue: 1,
+            duration: 360,
+            useNativeDriver: true,
+          }),
+        ]),
+        // Branch B: progress bars — non-native required for width %
+        Animated.stagger(
+          120,
+          barAnims.map((anim) =>
+            Animated.timing(anim, {
+              toValue: 1,
+              duration: 900,
+              easing: Easing.out(Easing.cubic),
+              useNativeDriver: false,
+            }),
+          ),
+        ),
+      ]),
     ]).start();
 
-    // Progress bars — non-native
-    const tBars = setTimeout(() => {
-      Animated.stagger(
-        120,
-        barAnims.map((anim) =>
-          Animated.timing(anim, {
-            toValue: 1,
-            duration: 900,
-            easing: Easing.out(Easing.cubic),
-            useNativeDriver: false,
-          }),
-        ),
-      ).start();
-    }, 500);
+    // Counters and bg anims fire via setTimeout timed to match
+    // when the Animated.parallel above starts (after cardAnim lands).
+    // Approximate time to reach the parallel branch:
+    // eyebrow spring (~400ms) + 40 + h1 spring (~400ms) + 30
+    // + h2 spring (~400ms) + 30 + subtitle 300ms + 100
+    // + card spring (~500ms) + 80 = ~2280ms
+    const parallelStart = 2280;
 
-    return () => {
-      clearTimeout(tBars);
-    };
-  }, [isActive]);
+    const counterTimer = setTimeout(() => {
+      setResetKey((k) => k + 1);
+    }, parallelStart);
 
-  // ── Background color animations — separate effect, useNativeDriver:false ONLY
-  useEffect(() => {
-    fatBgAnim.setValue(0);
-    proteinBgAnim.setValue(0);
-    if (!isActive) return;
-
-    const tFat = setTimeout(() => {
+    const fatTimer = setTimeout(() => {
       Animated.timing(fatBgAnim, {
         toValue: 1,
         duration: 500,
         easing: Easing.out(Easing.cubic),
         useNativeDriver: false,
       }).start();
-    }, 1300);
+    }, parallelStart + 400);
 
-    const tProtein = setTimeout(() => {
+    const proteinTimer = setTimeout(() => {
       Animated.timing(proteinBgAnim, {
         toValue: 1,
         duration: 500,
         easing: Easing.out(Easing.cubic),
         useNativeDriver: false,
       }).start();
-    }, 1650);
+    }, parallelStart + 750);
 
     return () => {
-      clearTimeout(tFat);
-      clearTimeout(tProtein);
+      clearTimeout(counterTimer);
+      clearTimeout(fatTimer);
+      clearTimeout(proteinTimer);
     };
   }, [isActive]);
 
@@ -341,28 +407,94 @@ export const AppIntro3: React.FC<AppIntro3Props> = ({ isActive = true }) => {
         style={StyleSheet.absoluteFill}
       />
 
+      <FloatingOrb
+        size={200}
+        top={20}
+        left={SW * 0.55}
+        color={COLORS.primary}
+        delay={0}
+        amplitude={16}
+      />
+      <FloatingOrb
+        size={130}
+        top={SH * 0.3}
+        left={-45}
+        color={COLORS.primary}
+        delay={2}
+        amplitude={22}
+      />
+      <FloatingOrb
+        size={80}
+        top={SH * 0.65}
+        left={SW * 0.74}
+        color={COLORS.primary}
+        delay={1}
+        amplitude={12}
+      />
+
       <View style={s.content}>
-        {/* ── Headline ── */}
-        <Animated.Text
+        <Animated.View
           style={[
-            s.title,
+            s.eyebrowWrap,
             {
-              opacity: headerAnim,
+              opacity: eyebrowAnim,
               transform: [
                 {
-                  translateY: headerAnim.interpolate({
+                  translateY: eyebrowAnim.interpolate({
                     inputRange: [0, 1],
-                    outputRange: [20, 0],
+                    outputRange: [10, 0],
                   }),
                 },
               ],
             },
           ]}
         >
-          Master your macros for{"\n"}balance nutrition
-        </Animated.Text>
+          <View style={s.eyebrowPill}>
+            <View style={s.eyebrowDot} />
+            <Text style={s.eyebrowText}>MACROS TRACKER</Text>
+          </View>
+        </Animated.View>
 
-        {/* ── Nutrition Facts Card ── */}
+        <View style={s.headlineBlock}>
+          <Animated.Text
+            style={[
+              s.headlineLine,
+              {
+                opacity: headline1Anim,
+                transform: [
+                  {
+                    translateY: headline1Anim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [20, 0],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            Master your macros,
+          </Animated.Text>
+          <Animated.Text
+            style={[
+              s.headlineLine,
+              s.headlineAccent,
+              {
+                opacity: headline2Anim,
+                transform: [
+                  {
+                    translateY: headline2Anim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [20, 0],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            stay balanced.
+          </Animated.Text>
+        </View>
+
         <Animated.View
           style={[
             s.outerCard,
@@ -379,12 +511,10 @@ export const AppIntro3: React.FC<AppIntro3Props> = ({ isActive = true }) => {
             },
           ]}
         >
-          {/* Orange header bar */}
           <View style={s.cardHeader}>
             <Text style={s.cardHeaderText}>Macros Facts</Text>
           </View>
 
-          {/* White inner card with macro rows */}
           <View style={s.innerCard}>
             {MACROS.map((macro, i) => (
               <MacroRow
@@ -397,7 +527,7 @@ export const AppIntro3: React.FC<AppIntro3Props> = ({ isActive = true }) => {
                 isLow={"isLow" in macro ? macro.isLow : false}
                 barAnim={barAnims[i]}
                 elevated={"isLow" in macro && macro.isLow}
-                resetKey={animKey}
+                resetKey={resetKey}
                 bgAnim={
                   "isLow" in macro && macro.isLow
                     ? proteinBgAnim
@@ -409,63 +539,83 @@ export const AppIntro3: React.FC<AppIntro3Props> = ({ isActive = true }) => {
             ))}
           </View>
         </Animated.View>
-
-        {/* ── Note card ── */}
-        <Animated.View
-          style={[
-            s.noteCard,
-            {
-              opacity: noteAnim,
-              transform: [
-                {
-                  translateY: noteAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [16, 0],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          <Text style={s.noteText}>
-            Watch out for the fats!{" "}
-            <Text style={s.noteHighlight}>Track smarter.</Text>
-          </Text>
-          <Text style={s.noteEmoji}>🧐</Text>
-        </Animated.View>
       </View>
     </View>
   );
 };
 
-// ─── Styles ────────────────────────────────────────────────────────────────
 const s = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: COLORS.backgroundGradientTop,
+    overflow: "hidden",
   },
   content: {
     flex: 1,
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.lg,
+    alignItems: "center",
   },
 
-  // Title
-  title: {
-    fontSize: 26,
-    fontWeight: "900",
+  eyebrowWrap: {
+    marginBottom: SPACING.sm,
+  },
+  eyebrowPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: COLORS.primary,
+    opacity: 0.9,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 20,
+  },
+  eyebrowDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+    backgroundColor: "#FFFFFF",
+    opacity: 0.85,
+  },
+  eyebrowText: {
+    fontSize: 10,
+    fontWeight: "800",
+    letterSpacing: 1.5,
+    color: "#FFFFFF",
+    textTransform: "uppercase",
+  },
+
+  headlineBlock: {
+    alignItems: "center",
+    marginBottom: 50,
+  },
+  headlineLine: {
+    fontSize: 34,
+    fontWeight: "700",
     color: COLORS.textDark,
-    letterSpacing: -0.8,
-    lineHeight: 34,
-    marginBottom: SPACING.md,
+    letterSpacing: -1,
+    lineHeight: 44,
     textAlign: "center",
   },
+  headlineAccent: {
+    color: COLORS.primary,
+  },
 
-  // Outer orange card — matches reference exactly
+  subtitle: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: COLORS.textSecondary,
+    textAlign: "center",
+    letterSpacing: 0.1,
+    lineHeight: 20,
+    marginBottom: SPACING.lg,
+    paddingHorizontal: SPACING.md,
+  },
+
   outerCard: {
     borderRadius: 24,
     overflow: "hidden",
-    marginBottom: SPACING.lg,
+    marginBottom: SPACING.sm,
     shadowColor: "#F47B20",
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.18,
@@ -473,6 +623,7 @@ const s = StyleSheet.create({
     elevation: 8,
     borderWidth: 8,
     borderColor: "#F47B20",
+    width: "100%",
   },
   cardHeader: {
     backgroundColor: COLORS.primary,
@@ -494,7 +645,6 @@ const s = StyleSheet.create({
     flexDirection: "column",
   },
 
-  // Note card
   noteCard: {
     flexDirection: "row",
     alignItems: "center",
@@ -508,7 +658,8 @@ const s = StyleSheet.create({
     shadowOpacity: 0.07,
     shadowRadius: 10,
     elevation: 2,
-    marginTop: SPACING.md,
+    width: "100%",
+    marginBottom: SPACING.sm,
   },
   noteText: {
     flex: 1,
@@ -524,5 +675,24 @@ const s = StyleSheet.create({
   },
   noteEmoji: {
     fontSize: 44,
+  },
+
+  trustRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  trustDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: COLORS.primary,
+    opacity: 0.35,
+  },
+  trustText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: COLORS.textSecondary,
+    letterSpacing: 0.2,
   },
 });

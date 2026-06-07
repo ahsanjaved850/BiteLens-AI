@@ -14,31 +14,43 @@ import {
 const { width: SW, height: SH } = Dimensions.get("window");
 
 export const YoyoEffect: React.FC = () => {
-  const wordmarkAnim = useRef(new Animated.Value(0)).current;
   const titleAnim = useRef(new Animated.Value(0)).current;
-  const phoneAnim = useRef(new Animated.Value(0)).current;
+  const imageAnim = useRef(new Animated.Value(0)).current;
+  const statsAnim = useRef(new Animated.Value(0)).current;
+  const cardAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.stagger(140, [
-      Animated.spring(wordmarkAnim, {
+    // Step 1 – Headline slides in
+    Animated.spring(titleAnim, {
+      toValue: 1,
+      tension: 65,
+      friction: 9,
+      useNativeDriver: true,
+    }).start(() => {
+      // Step 2 – Image rises in after headline settles
+      Animated.spring(imageAnim, {
         toValue: 1,
-        tension: 60,
-        friction: 9,
-        useNativeDriver: true,
-      }),
-      Animated.spring(titleAnim, {
-        toValue: 1,
-        tension: 50,
-        friction: 8,
-        useNativeDriver: true,
-      }),
-      Animated.spring(phoneAnim, {
-        toValue: 1,
-        tension: 38,
+        tension: 42,
         friction: 7,
         useNativeDriver: true,
-      }),
-    ]).start();
+      }).start(() => {
+        // Step 3 – Stat pills appear
+        Animated.spring(statsAnim, {
+          toValue: 1,
+          tension: 48,
+          friction: 8,
+          useNativeDriver: true,
+        }).start(() => {
+          // Step 4 – Insight card fades up last
+          Animated.spring(cardAnim, {
+            toValue: 1,
+            tension: 52,
+            friction: 8,
+            useNativeDriver: true,
+          }).start();
+        });
+      });
+    });
   }, []);
 
   return (
@@ -48,10 +60,6 @@ export const YoyoEffect: React.FC = () => {
         backgroundColor={COLORS.backgroundGradientTop}
       />
 
-      {/*
-       * Full-screen peach→cream→white gradient — identical to Home,
-       * Data, Settings, Login screens. One continuous brand language.
-       */}
       <LinearGradient
         colors={[
           COLORS.backgroundGradientTop,
@@ -63,7 +71,7 @@ export const YoyoEffect: React.FC = () => {
       />
 
       <View style={s.content}>
-        {/* ── Bold headline — large, dark, center-aligned ── */}
+        {/* ── Headline ── */}
         <Animated.View
           style={{
             opacity: titleAnim,
@@ -71,27 +79,52 @@ export const YoyoEffect: React.FC = () => {
               {
                 translateY: titleAnim.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [20, 0],
+                  outputRange: [32, 0],
                 }),
               },
             ],
           }}
         >
           <Text style={s.headline}>
-            Improper ways of weightloss{"\n"}always lead to {"\n"}bad cycle.
+            Improper ways of weightloss always lead {"\n"}
+            <Text style={s.headlineAccent}> to bad cycle!</Text>
           </Text>
         </Animated.View>
-        <Image
-          source={require("@/assets/images/Onboarding/cycle.png")}
-          resizeMode="cover"
-          style={{ width: SW * 0.95, height: SH * 0.41, marginTop: 20 }}
-        />
+
+        {/* ── Image ── */}
+        <Animated.View
+          style={[
+            s.imageWrapper,
+            {
+              opacity: imageAnim,
+              transform: [
+                {
+                  translateY: imageAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [48, 0],
+                  }),
+                },
+                {
+                  scale: imageAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.93, 1],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          <Image
+            source={require("@/assets/images/Onboarding/cycle.png")}
+            resizeMode="cover"
+            style={s.image}
+          />
+        </Animated.View>
       </View>
     </View>
   );
 };
 
-// ─── Styles ────────────────────────────────────────────────────────────────
 const s = StyleSheet.create({
   root: {
     flex: 1,
@@ -101,30 +134,89 @@ const s = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     paddingHorizontal: SPACING.lg,
-    paddingTop: SPACING.sm,
+    paddingTop: SPACING.md,
+    gap: 10,
   },
-  wordmark: {
-    fontSize: 36,
-    fontWeight: "700",
-    color: COLORS.textDark,
-    letterSpacing: -1.5,
-    includeFontPadding: false,
-    marginBottom: SPACING.md,
-  },
+
+  /* Headline */
   headline: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: "700",
     color: COLORS.textDark,
     textAlign: "center",
-    letterSpacing: -0.8,
-    lineHeight: 38,
-    marginBottom: SPACING.lg,
+    letterSpacing: -1,
+    lineHeight: 42,
   },
-  subtitle: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "black",
+  headlineAccent: {
+    color: COLORS.primary,
+  },
+
+  /* Image */
+  imageWrapper: {
+    width: SW * 0.96,
+    height: SH * 0.41,
+    marginVertical: 40,
+  },
+  image: {
+    width: "100%",
+    height: "100%",
+  },
+
+  /* Stats */
+  statsRow: {
+    flexDirection: "row",
+    gap: 12,
+    width: "100%",
+  },
+  statPill: {
+    flex: 1,
+    backgroundColor: "rgba(255,255,255,0.68)",
+    borderRadius: 14,
+    paddingVertical: 9,
+    paddingHorizontal: 10,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(230,185,150,0.4)",
+  },
+  statValue: {
+    fontSize: 20,
+    fontWeight: "800",
+    color: COLORS.primary,
+    letterSpacing: -0.5,
+    includeFontPadding: false,
+  },
+  statLabel: {
+    marginTop: 2,
+    fontSize: 10,
+    fontWeight: "600",
+    color: COLORS.textSecondary,
     textAlign: "center",
+    lineHeight: 13,
+  },
+
+  /* Insight card */
+  insightCard: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 10,
+    backgroundColor: "rgba(255,255,255,0.72)",
+    borderRadius: 18,
+    padding: 14,
+    width: "100%",
+    borderWidth: 1,
+    borderColor: "rgba(230,185,150,0.45)",
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.primary,
+  },
+  insightText: {
+    flex: 1,
+    fontSize: 13,
+    fontWeight: "500",
+    color: COLORS.textSecondary,
     lineHeight: 20,
+  },
+  insightBold: {
+    fontWeight: "700",
+    color: COLORS.textDark,
   },
 });

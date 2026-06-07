@@ -48,6 +48,14 @@ export function OnboardingScreen() {
           onValidationChange={(isValid: boolean) =>
             handleUpdateValidation(index, isValid)
           }
+          onComplete={() => {
+            if (index < PAGES.length - 1) {
+              flatListRef.current?.scrollToIndex({
+                index: index + 1,
+                animated: true,
+              });
+            }
+          }}
           startAnimation={
             index === PAGES.length - 1 ? startCompletionAnimation : false
           }

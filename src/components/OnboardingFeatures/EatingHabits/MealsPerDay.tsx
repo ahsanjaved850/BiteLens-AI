@@ -1,9 +1,6 @@
-import {
-  COLORS,
-  SPACING,
-} from "@/src/Screens/Onboarding/Onboarding.style";
-import { LinearGradient } from "expo-linear-gradient";
+import { COLORS, SPACING } from "@/src/Screens/Onboarding/Onboarding.style";
 import * as Haptics from "expo-haptics";
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   ScrollView,
@@ -19,11 +16,11 @@ interface MealsPerDayProps {
 }
 
 const OPTIONS = [
-  { label: "2 meals per day",  value: "2" },
-  { label: "3 meals per day",  value: "3" },
-  { label: "4 meals per day",  value: "4" },
-  { label: "5 meals per day",  value: "5" },
-  { label: "It depends",       value: "depends" },
+  { label: "2 meals per day", value: "2" },
+  { label: "3 meals per day", value: "3" },
+  { label: "4 meals per day", value: "4" },
+  { label: "5 meals per day", value: "5" },
+  { label: "It depends", value: "depends" },
 ] as const;
 
 const BEHIND_TEXT =
@@ -48,7 +45,10 @@ export const MealsPerDay: React.FC<MealsPerDayProps> = ({
 
   return (
     <View style={s.root}>
-      <StatusBar barStyle="dark-content" backgroundColor={COLORS.backgroundGradientTop} />
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor={COLORS.backgroundGradientTop}
+      />
 
       {/* Peach → cream → white gradient */}
       <LinearGradient
@@ -66,10 +66,10 @@ export const MealsPerDay: React.FC<MealsPerDayProps> = ({
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* ── Title ── */}
+        {/*  Title  */}
         <Text style={s.title}>How many meals do{"\n"}you have per day?</Text>
 
-        {/* ── Behind the question card ── */}
+        {/*  Behind the question card  */}
         <TouchableOpacity
           style={s.behindCard}
           onPress={() => setExpanded((v) => !v)}
@@ -80,24 +80,19 @@ export const MealsPerDay: React.FC<MealsPerDayProps> = ({
             <Text style={s.behindTitle}>Behind the question</Text>
             <Text style={s.behindText}>
               {expanded ? BEHIND_TEXT : previewText}
-              {!expanded && (
-                <Text style={s.behindMore}> More</Text>
-              )}
+              {!expanded && <Text style={s.behindMore}> More</Text>}
             </Text>
           </View>
         </TouchableOpacity>
 
-        {/* ── Options ── */}
+        {/*  Options  */}
         <View style={s.options}>
           {OPTIONS.map((opt) => {
             const isSelected = selected === opt.value;
             return (
               <TouchableOpacity
                 key={opt.value}
-                style={[
-                  s.optionRow,
-                  isSelected && s.optionRowSelected,
-                ]}
+                style={[s.optionRow, isSelected && s.optionRowSelected]}
                 onPress={() => handlePress(opt.value)}
                 activeOpacity={0.75}
               >
@@ -105,14 +100,15 @@ export const MealsPerDay: React.FC<MealsPerDayProps> = ({
                 <View
                   style={[
                     s.accentBar,
-                    { backgroundColor: isSelected ? COLORS.primary : "transparent" },
+                    {
+                      backgroundColor: isSelected
+                        ? COLORS.primary
+                        : "transparent",
+                    },
                   ]}
                 />
                 <Text
-                  style={[
-                    s.optionLabel,
-                    isSelected && s.optionLabelSelected,
-                  ]}
+                  style={[s.optionLabel, isSelected && s.optionLabelSelected]}
                 >
                   {opt.label}
                 </Text>
@@ -142,26 +138,27 @@ const s = StyleSheet.create({
     paddingBottom: SPACING.xxxl,
   },
 
-  // ─── Title ───────────────────────────────────────────────────────
+  //  Title
   title: {
     fontSize: 30,
-    fontWeight: "900",
+    fontWeight: "700",
     color: COLORS.textDark,
     letterSpacing: -0.8,
     lineHeight: 38,
     marginBottom: SPACING.lg,
+    textAlign: "center",
   },
 
-  // ─── Behind the question card ────────────────────────────────────
+  //  Behind the question card
   behindCard: {
     flexDirection: "row",
     alignItems: "flex-start",
-    backgroundColor: "#FFFAF6",
+    backgroundColor: "#fffaf600",
     borderRadius: 20,
     padding: SPACING.md,
     marginBottom: SPACING.xl,
-    borderWidth: 1,
-    borderColor: "#F0DED0",
+    borderWidth: 2,
+    borderColor: "#fafafa",
     shadowColor: "#F47B20",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.07,
@@ -177,7 +174,7 @@ const s = StyleSheet.create({
   },
   behindTitle: {
     fontSize: 14,
-    fontWeight: "700",
+    fontWeight: "600",
     color: COLORS.textDark,
     marginBottom: 4,
   },
@@ -189,12 +186,13 @@ const s = StyleSheet.create({
   },
   behindMore: {
     color: COLORS.primary,
-    fontWeight: "700",
+    fontWeight: "600",
   },
 
-  // ─── Options ─────────────────────────────────────────────────────
+  //  Options
   options: {
-    gap: 12,
+    gap: 14,
+    marginTop: SPACING.xxxl,
   },
   optionRow: {
     flexDirection: "row",
@@ -203,7 +201,7 @@ const s = StyleSheet.create({
     borderRadius: 18,
     borderWidth: 1.5,
     borderColor: "#F0DED0",
-    minHeight: 64,
+    minHeight: 70,
     overflow: "hidden",
     shadowColor: "#F47B20",
     shadowOffset: { width: 0, height: 3 },
@@ -227,13 +225,13 @@ const s = StyleSheet.create({
   optionLabel: {
     flex: 1,
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "500",
     color: COLORS.textDark,
     paddingHorizontal: SPACING.md,
     letterSpacing: -0.2,
   },
   optionLabelSelected: {
-    fontWeight: "800",
+    fontWeight: "600",
     color: COLORS.textDark,
   },
 

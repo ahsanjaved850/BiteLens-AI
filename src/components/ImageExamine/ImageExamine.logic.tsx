@@ -48,7 +48,7 @@ export const useImageExamine = ({
             text: ALERT_MESSAGES.PERMISSION_REQUIRED.settingsText,
             onPress: () => {},
           },
-        ]
+        ],
       );
     }
   };
@@ -72,7 +72,7 @@ export const useImageExamine = ({
             compress: IMAGE_MANIPULATION_OPTIONS.PRIMARY_COMPRESS,
             format: ImageManipulator.SaveFormat.JPEG,
             base64: false,
-          }
+          },
         );
 
         console.log("Image converted successfully:", manipulatedImage.uri);
@@ -80,7 +80,7 @@ export const useImageExamine = ({
       } catch (primaryError) {
         console.warn(
           "Primary conversion failed, trying fallback:",
-          primaryError
+          primaryError,
         );
 
         const fallbackImage = await ImageManipulator.manipulateAsync(uri, [], {
@@ -96,7 +96,7 @@ export const useImageExamine = ({
       console.error("Error converting image to JPEG:", error);
       console.log("Using original URI as last resort");
       throw new Error(
-        `Failed to process image format: ${error.message || "Unknown error"}`
+        `Failed to process image format: ${error.message || "Unknown error"}`,
       );
     }
   };
@@ -122,7 +122,7 @@ export const useImageExamine = ({
     } catch (error: any) {
       console.error("Error reading image as base64:", error);
       throw new Error(
-        `Failed to read image: ${error.message || "Unknown error"}`
+        `Failed to read image: ${error.message || "Unknown error"}`,
       );
     }
   };
@@ -158,7 +158,7 @@ export const useImageExamine = ({
       } catch (conversionError: any) {
         console.warn(
           "Image conversion failed, attempting direct read:",
-          conversionError
+          conversionError,
         );
         jpegUri = uri;
       }
@@ -182,6 +182,7 @@ export const useImageExamine = ({
 
       console.log("Saving meal to database...");
       const mealData = {
+        id: "",
         name: nutritionData.name,
         calories: parseFloat(nutritionData.calories),
         protein: parseFloat(nutritionData.protein),
@@ -245,7 +246,7 @@ export const useImageExamine = ({
       Alert.alert(
         ALERT_MESSAGES.GALLERY_ERROR.title,
         ALERT_MESSAGES.GALLERY_ERROR.message,
-        [{ text: ALERT_MESSAGES.GALLERY_ERROR.buttonText, style: "default" }]
+        [{ text: ALERT_MESSAGES.GALLERY_ERROR.buttonText, style: "default" }],
       );
     }
   };
@@ -276,7 +277,7 @@ export const useImageExamine = ({
       Alert.alert(
         ALERT_MESSAGES.CAMERA_ERROR.title,
         ALERT_MESSAGES.CAMERA_ERROR.message,
-        [{ text: ALERT_MESSAGES.CAMERA_ERROR.buttonText, style: "default" }]
+        [{ text: ALERT_MESSAGES.CAMERA_ERROR.buttonText, style: "default" }],
       );
     }
   };

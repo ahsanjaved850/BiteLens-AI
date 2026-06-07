@@ -1,12 +1,9 @@
-import {
-  COLORS,
-  SPACING,
-  TYPOGRAPHY,
-} from "@/src/Screens/Onboarding/Onboarding.style";
+import { COLORS, SPACING } from "@/src/Screens/Onboarding/Onboarding.style";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback, useEffect, useState } from "react";
 import {
+  Image,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -19,43 +16,77 @@ interface EatingStyleProps {
   onValidationChange?: (isValid: boolean) => void;
 }
 
-const CONTENT = {
-  header: {
-    title: "What's your preferred\neating style?",
+const OPTIONS = [
+  {
+    label: "I eat everything",
+    value: "2",
+    icon: require("@/assets/images/icons/style1.png"),
   },
-  options: [
-    { label: "I eat everything", emoji: "✅" },
-    { label: "Vegan", emoji: "🥦" },
-    { label: "Vegetarian", emoji: "🧀" },
-    { label: "Keto", emoji: "🥑" },
-    { label: "Paleo", emoji: "🥩" },
-    { label: "Mediterranean", emoji: "🫒" },
-    { label: "Alkaline", emoji: "🍎" },
-    { label: "Pescatarian", emoji: "🐟" },
-    { label: "Gluten-free", emoji: "🌾" },
-  ],
-} as const;
+  {
+    label: "Low-carb",
+    value: "3",
+    icon: require("@/assets/images/icons/style2.png"),
+  },
+  {
+    label: "Keto",
+    value: "4",
+    icon: require("@/assets/images/icons/style3.png"),
+  },
+  {
+    label: "Vegan",
+    value: "5",
+    icon: require("@/assets/images/icons/style4.png"),
+  },
+  {
+    label: "Vegetarian",
+    value: "6",
+    icon: require("@/assets/images/icons/style5.png"),
+  },
+  {
+    label: "Paleo",
+    value: "7",
+    icon: require("@/assets/images/icons/style6.png"),
+  },
+  {
+    label: "Pescatarian",
+    value: "8",
+    icon: require("@/assets/images/icons/style7.png"),
+  },
+  {
+    label: "Gluten-free",
+    value: "9",
+    icon: require("@/assets/images/icons/style8.png"),
+  },
+] as const;
+
+const BEHIND_TEXT =
+  "Eating Style: Your dietary pattern shapes every meal plan and food recommendation we make. Whether you avoid carbs, follow a plant-based diet, or eat everything, knowing your style lets us suggest meals that actually work for you — not ones you'd immediately skip.";
 
 export const EatingStyle: React.FC<EatingStyleProps> = ({
   onValidationChange,
 }) => {
-  const [selected, setSelected] = useState<string>("");
+  const [selected, setSelected] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
-    onValidationChange?.(selected.length > 0);
+    onValidationChange?.(selected !== null);
   }, [selected]);
 
-  const handlePress = useCallback(async (option: string) => {
+  const handlePress = useCallback(async (value: string) => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    setSelected(option);
+    setSelected(value);
   }, []);
 
+  const previewText = BEHIND_TEXT.slice(0, 38) + "...";
+
   return (
-    <View style={styles.safeArea}>
+    <View style={s.root}>
       <StatusBar
         barStyle="dark-content"
         backgroundColor={COLORS.backgroundGradientTop}
       />
+
+      {/* Peach → cream → white gradient */}
       <LinearGradient
         colors={[
           COLORS.backgroundGradientTop,
@@ -65,127 +96,204 @@ export const EatingStyle: React.FC<EatingStyleProps> = ({
         locations={[0, 0.45, 1]}
         style={StyleSheet.absoluteFill}
       />
-      <View style={styles.screenContainer}>
-        {/* Header */}
-        <View style={styles.headerSection}>
-          <Text style={styles.headerTitle}>{CONTENT.header.title}</Text>
-        </View>
 
-        {/* Options */}
-        <ScrollView
-          contentContainerStyle={styles.optionsContainer}
-          showsVerticalScrollIndicator={false}
+      <ScrollView
+        contentContainerStyle={s.content}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/*  Title  */}
+        <Text style={s.title}>What's your preferred {"\n"}eating style?</Text>
+
+        {/*  Behind the question card  */}
+        <TouchableOpacity
+          style={s.behindCard}
+          onPress={() => setExpanded((v) => !v)}
+          activeOpacity={0.75}
         >
-          {CONTENT.options.map((option) => {
-            const isSelected = selected === option.label;
+          <Text style={s.behindEmoji}>🧐</Text>
+          <View style={s.behindBody}>
+            <Text style={s.behindTitle}>Behind the question</Text>
+            <Text style={s.behindText}>
+              {expanded ? BEHIND_TEXT : previewText}
+              {!expanded && <Text style={s.behindMore}> More</Text>}
+            </Text>
+          </View>
+        </TouchableOpacity>
+
+        {/*  Options  */}
+        <View style={s.options}>
+          {OPTIONS.map((opt) => {
+            const isSelected = selected === opt.value;
             return (
               <TouchableOpacity
-                key={option.label}
-                onPress={() => handlePress(option.label)}
-                style={[
-                  styles.optionButton,
-                  isSelected && styles.optionButtonSelected,
-                ]}
-                activeOpacity={0.7}
+                key={opt.value}
+                style={[s.optionRow, isSelected && s.optionRowSelected]}
+                onPress={() => handlePress(opt.value)}
+                activeOpacity={0.75}
               >
-                <Text style={styles.optionEmoji}>{option.emoji}</Text>
-                <Text
+                {/* Left orange accent bar — appears on selection */}
+                <View
                   style={[
-                    styles.optionText,
-                    isSelected && styles.optionTextSelected,
+                    s.accentBar,
+                    {
+                      backgroundColor: isSelected
+                        ? COLORS.primary
+                        : "transparent",
+                    },
                   ]}
+                />
+                <Image
+                  source={opt.icon}
+                  style={s.iconImage}
+                  resizeMode="contain"
+                />
+                <Text
+                  style={[s.optionLabel, isSelected && s.optionLabelSelected]}
                 >
-                  {option.label}
+                  {opt.label}
                 </Text>
                 {isSelected && (
-                  <View style={styles.checkmark}>
-                    <Text style={styles.checkmarkText}>✓</Text>
+                  <View style={s.checkmark}>
+                    <Text style={s.checkmarkText}>✓</Text>
                   </View>
                 )}
               </TouchableOpacity>
             );
           })}
-        </ScrollView>
-      </View>
+        </View>
+      </ScrollView>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  safeArea: {
+const s = StyleSheet.create({
+  root: {
     flex: 1,
     backgroundColor: COLORS.backgroundGradientTop,
   },
-  screenContainer: {
-    flex: 1,
+  content: {
+    flexGrow: 1,
     paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.lg,
+    paddingBottom: SPACING.xxxl,
   },
-  headerSection: {
-    alignItems: "center",
-    marginTop: SPACING.xl,
-    marginBottom: SPACING.xxl,
-  },
-  headerTitle: {
+
+  //  Title
+  title: {
     fontSize: 30,
     fontWeight: "700",
     color: COLORS.textDark,
-    textAlign: "center",
     letterSpacing: -0.8,
     lineHeight: 38,
+    marginBottom: SPACING.lg,
+    textAlign: "center",
   },
-  optionsContainer: {
-    gap: 10,
-    paddingBottom: SPACING.xxxl,
+
+  //  Behind the question card
+  behindCard: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    backgroundColor: "#fffaf600",
+    borderRadius: 20,
+    padding: SPACING.md,
+    marginBottom: SPACING.xxxl,
+    borderWidth: 2,
+    borderColor: "#fafafa",
+    shadowColor: "#F47B20",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.07,
+    shadowRadius: 10,
+    elevation: 2,
+    gap: 1,
   },
-  optionButton: {
+  behindEmoji: {
+    fontSize: 36,
+  },
+  behindBody: {
+    flex: 1,
+  },
+  behindTitle: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: COLORS.textDark,
+    marginBottom: 4,
+  },
+  behindText: {
+    fontSize: 13,
+    fontWeight: "500",
+    color: COLORS.textSecondary,
+    lineHeight: 19,
+  },
+  behindMore: {
+    color: COLORS.primary,
+    fontWeight: "600",
+  },
+
+  //  Options
+  options: {
+    gap: 16,
+    marginTop: SPACING.sm,
+  },
+  optionRow: {
     flexDirection: "row",
     alignItems: "center",
-    padding: SPACING.md,
+    backgroundColor: "#FFFAF6",
     borderRadius: 18,
     borderWidth: 1.5,
     borderColor: "#F0DED0",
-    backgroundColor: "#FFFAF6",
-    minHeight: 64,
+    minHeight: 70,
+    overflow: "hidden",
     shadowColor: "#F47B20",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
     elevation: 2,
   },
-  optionButtonSelected: {
+  optionRowSelected: {
     borderColor: COLORS.primary,
     backgroundColor: "#FFF3E8",
-    shadowColor: "#F47B20",
-    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.14,
-    shadowRadius: 10,
-    elevation: 4,
   },
-  optionEmoji: {
-    fontSize: 28,
+
+  // Left orange accent bar — same as meal cards on Home
+  accentBar: {
+    width: 4,
+    alignSelf: "stretch",
+    borderRadius: 4,
+  },
+
+  iconImage: {
+    width: 60,
+    height: 60,
+    marginHorizontal: SPACING.sm,
+  },
+
+  optionLabel: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: "500",
+    color: COLORS.textDark,
+    paddingRight: SPACING.md,
+    letterSpacing: -0.2,
+  },
+  optionLabelSelected: {
+    fontWeight: "600",
+    color: COLORS.textDark,
+  },
+
+  checkmark: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: COLORS.primary,
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: SPACING.md,
   },
-  optionText: {
-    ...TYPOGRAPHY.body,
-    color: COLORS.text,
-    fontWeight: "500",
-    flex: 1,
-  },
-  optionTextSelected: {
-    color: COLORS.textDark,
-    fontWeight: "700",
-  },
-  checkmark: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    backgroundColor: COLORS.primary,
-    justifyContent: "center",
-    alignItems: "center",
-  },
   checkmarkText: {
-    color: COLORS.white,
+    color: "#FFFFFF",
     fontSize: 14,
-    fontWeight: "700",
+    fontWeight: "800",
   },
 });

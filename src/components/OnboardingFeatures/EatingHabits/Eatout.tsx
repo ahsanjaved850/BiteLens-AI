@@ -3,27 +3,48 @@ import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
-interface MealsPerDayProps {
+interface EatsOutProps {
   onValidationChange?: (isValid: boolean) => void;
 }
 
 const OPTIONS = [
-  { label: "1-2 meals per week", value: "2" },
-  { label: "3-5 meals per week", value: "3" },
-  { label: "6 or more meals per week", value: "4" },
-  { label: "occasionally", value: "5" },
+  {
+    label: "1-2 meals per week",
+    value: "2",
+    icon: require("@/assets/images/icons/eatout1.png"),
+  },
+  {
+    label: "3-5 meals per week",
+    value: "3",
+    icon: require("@/assets/images/icons/eatout2.png"),
+  },
+  {
+    label: "6 or more meals per week",
+    value: "4",
+    icon: require("@/assets/images/icons/eatout3.png"),
+  },
+  {
+    label: "occasionally",
+    value: "5",
+    icon: require("@/assets/images/icons/eatout4.png"),
+  },
 ] as const;
 
-export const Eatout: React.FC<MealsPerDayProps> = ({ onValidationChange }) => {
+const BEHIND_TEXT =
+  "Eating Out Patterns: Restaurant and takeaway meals often contain 2–3× more calories, sodium, and hidden fats than home-cooked food. Knowing how frequently you eat out helps us adjust your daily targets and suggest smarter choices when you do.";
+
+export const Eatout: React.FC<EatsOutProps> = ({ onValidationChange }) => {
   const [selected, setSelected] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     onValidationChange?.(selected !== null);
@@ -33,6 +54,8 @@ export const Eatout: React.FC<MealsPerDayProps> = ({ onValidationChange }) => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setSelected(value);
   }, []);
+
+  const previewText = BEHIND_TEXT.slice(0, 38) + "...";
 
   return (
     <View style={s.root}>
@@ -57,10 +80,26 @@ export const Eatout: React.FC<MealsPerDayProps> = ({ onValidationChange }) => {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* ── Title ── */}
-        <Text style={s.title}>How often do you eat out{"\n"}per week?</Text>
+        {/*  Title  */}
+        <Text style={s.title}>How often do you eat out{"\n"} per week?</Text>
 
-        {/* ── Options ── */}
+        {/*  Behind the question card  */}
+        <TouchableOpacity
+          style={s.behindCard}
+          onPress={() => setExpanded((v) => !v)}
+          activeOpacity={0.75}
+        >
+          <Text style={s.behindEmoji}>🧐</Text>
+          <View style={s.behindBody}>
+            <Text style={s.behindTitle}>Behind the question</Text>
+            <Text style={s.behindText}>
+              {expanded ? BEHIND_TEXT : previewText}
+              {!expanded && <Text style={s.behindMore}> More</Text>}
+            </Text>
+          </View>
+        </TouchableOpacity>
+
+        {/*  Options  */}
         <View style={s.options}>
           {OPTIONS.map((opt) => {
             const isSelected = selected === opt.value;
@@ -81,6 +120,11 @@ export const Eatout: React.FC<MealsPerDayProps> = ({ onValidationChange }) => {
                         : "transparent",
                     },
                   ]}
+                />
+                <Image
+                  source={opt.icon}
+                  style={s.iconImage}
+                  resizeMode="contain"
                 />
                 <Text
                   style={[s.optionLabel, isSelected && s.optionLabelSelected]}
@@ -113,19 +157,61 @@ const s = StyleSheet.create({
     paddingBottom: SPACING.xxxl,
   },
 
-  // ─── Title ───────────────────────────────────────────────────────
+  //  Title
   title: {
-    fontSize: 28,
-    fontWeight: "800",
+    fontSize: 30,
+    fontWeight: "700",
     color: COLORS.textDark,
     letterSpacing: -0.8,
     lineHeight: 38,
-    marginBottom: 130,
+    marginBottom: SPACING.lg,
+    textAlign: "center",
   },
 
-  // ─── Options ─────────────────────────────────────────────────────
+  //  Behind the question card
+  behindCard: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    backgroundColor: "#fffaf600",
+    borderRadius: 20,
+    padding: SPACING.md,
+    marginBottom: SPACING.xxxl,
+    borderWidth: 2,
+    borderColor: "#fafafa",
+    shadowColor: "#F47B20",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.07,
+    shadowRadius: 10,
+    elevation: 2,
+    gap: 12,
+  },
+  behindEmoji: {
+    fontSize: 36,
+  },
+  behindBody: {
+    flex: 1,
+  },
+  behindTitle: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: COLORS.textDark,
+    marginBottom: 4,
+  },
+  behindText: {
+    fontSize: 13,
+    fontWeight: "500",
+    color: COLORS.textSecondary,
+    lineHeight: 19,
+  },
+  behindMore: {
+    color: COLORS.primary,
+    fontWeight: "600",
+  },
+
+  //  Options
   options: {
     gap: 16,
+    marginTop: SPACING.xxxl,
   },
   optionRow: {
     flexDirection: "row",
@@ -134,7 +220,7 @@ const s = StyleSheet.create({
     borderRadius: 18,
     borderWidth: 1.5,
     borderColor: "#F0DED0",
-    minHeight: 64,
+    minHeight: 70,
     overflow: "hidden",
     shadowColor: "#F47B20",
     shadowOffset: { width: 0, height: 3 },
@@ -155,16 +241,22 @@ const s = StyleSheet.create({
     borderRadius: 4,
   },
 
+  iconImage: {
+    width: 60,
+    height: 60,
+    marginHorizontal: SPACING.sm,
+  },
+
   optionLabel: {
     flex: 1,
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "500",
     color: COLORS.textDark,
-    paddingHorizontal: SPACING.md,
+    paddingRight: SPACING.md,
     letterSpacing: -0.2,
   },
   optionLabelSelected: {
-    fontWeight: "800",
+    fontWeight: "600",
     color: COLORS.textDark,
   },
 

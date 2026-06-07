@@ -1,3 +1,4 @@
+import { WeightLog } from "@/src/Screens/Data/Data.static";
 import { supabase } from "@/src/utils/supabase";
 
 export const getProfile = async () => {
@@ -32,6 +33,29 @@ export const getInitialDetails = async () => {
   return data;
 };
 
+export const getWeightLogs = async (): Promise<WeightLog[]> => {
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+  if (userError) throw userError;
+  if (!user) throw new Error("Not authenticated");
+
+  const { data, error } = await supabase
+    .from("weight_logs")
+    .select("id, weight, logged_at")
+    .eq("user_id", user.id)
+    .order("logged_at", { ascending: true });
+
+  if (error) throw error;
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    date: row.logged_at.split("T")[0],
+    weight: Number(row.weight),
+  }));
+};
+
 export const deleteUserData = async () => {
   const {
     data: { user },
@@ -43,6 +67,7 @@ export const deleteUserData = async () => {
   await supabase.from("initial_details").delete().eq("id", user.id);
   await supabase.from("daily_meals").delete().eq("user_id", user.id);
   await supabase.from("daily_intake").delete().eq("id", user.id);
+  await supabase.from("weight_logs").delete().eq("user_id", user.id);
   return true;
 };
 
@@ -72,7 +97,7 @@ export const getTodayIntake = async (date?: string) => {
       "total_calories, total_carbs, total_protein, total_fat, total_sugar, total_sodium, total_fiber",
     )
     .eq("id", user.id)
-    .eq("date", targetDate) // ← exact date column match
+    .eq("date", targetDate)
     .maybeSingle();
 
   if (error) {
