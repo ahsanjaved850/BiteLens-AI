@@ -1,168 +1,86 @@
-# 🥗Orca AI
+<div align="center">
 
-> **Your AI-powered nutrition companion** snap a photo of any meal and instantly get a full nutritional breakdown, track your daily macros, and stay on top of your health goals.
+# Orca
+
+### AI-Powered Calorie & Weight Tracking for iOS
+
+_Lose weight smarter — track calories, monitor progress, and stay on target._
+
+</div>
 
 ---
 
-## 📱 Overview
+## Overview
 
-Orca AI is a cross-platform mobile application built with **React Native (Expo)** that combines AI-powered meal analysis with a clean, intuitive nutrition tracking experience. Users simply photograph their food, and the app uses a backend AI model (via Supabase Edge Functions) to identify the meal, estimate its nutritional content, and log everything automatically.
+Orca is an iOS application that helps users achieve their weight loss goals through intelligent calorie tracking, personalised nutrition targets, and visual weight progress monitoring. Built with React Native (Expo) and powered by Supabase on the backend, Orca provides a seamless and data-driven experience from onboarding through to goal completion.
 
 ---
 
-## ✨ Features
+## Features
+
+### 🎯 Personalised Onboarding
+
+- Collects user details: name, gender, age, height, current weight, target weight, and fitness goal
+- Persists onboarding data locally via AsyncStorage before account creation
+- Calculates BMI, TDEE, and personalised macro targets (calories, protein, carbs, fat, sugar, sodium, fiber) on signup using the **Mifflin-St Jeor equation**
+
+### 📊 Weight Progress Tracking
+
+- Visual SVG line graph showing weight trend over time
+- Every weight entry is stored as a timestamped row in `weight_logs` — full history preserved
+- First weight entry seeded automatically on signup from onboarding data
+- Goal weight displayed as a dashed reference line on the graph
+- Pull-to-refresh to sync latest data
+
+### 🍽️ Meal & Calorie Logging
+
+- Log meals with full nutritional breakdown: calories, protein, carbs, fat, sugar, sodium, fiber
+- AI-powered meal image scanning
+- Daily intake accumulates across multiple meals per day
+- Delete a meal and totals automatically decrement
+- Historical meal lookup by date
+
+### 📈 Body Metrics Dashboard
+
+- BMI score with colour-coded category (Underweight / Normal / Overweight / Obese)
+- Daily macro targets vs. actual intake
+- Weight progress bar showing distance to goal
+- Nutrition sourced from WHO, NIH, and peer-reviewed guidelines (cited in-app)
 
 ### 🔐 Authentication
 
-- Email and password sign-in and sign-up
-- Persistent session management with AsyncStorage
-- Secure, Supabase-backed authentication
-
-### 🚀 Onboarding
-
-- Multi-step onboarding flow (11 screens) collecting:
-  - Name, gender, age, height, weight, goal weight
-  - Fitness goal (e.g. lose weight, maintain, gain muscle)
-  - Lifestyle/activity level
-- Per-page validation with haptic feedback
-- Smooth horizontal scroll with dot indicators
-
-### 🏠 Home Screen
-
-- **Today's Summary** card showing real-time calorie consumption vs. goal
-- **Macronutrient breakdown** Protein, Carbs, Fats, Sugar, Sodium, Fiber each with color-coded progress bars
-- **Recent Meals** list with meal images, timestamps, and inline macro tags
-- Pull-to-refresh support
-- Add Meal floating action button
-
-### 📸 AI Meal Analysis (ImageExamine)
-
-- Take a photo with the camera or pick from the gallery
-- Image is converted to JPEG, compressed, and encoded as Base64
-- Sent to an AI model via a **Supabase Edge Function** (keeps API keys server-side and secure)
-- Returns: meal name, calories, protein, carbs, fats, sugar, sodium, fiber, and ingredients list
-- Meal image is uploaded to **Supabase Storage**
-- Full meal record is saved to the database automatically
-
-### 🍽️ Meal Details Screen
-
-- Full-screen meal image
-- Total calorie display
-- Macronutrient grid (Protein, Carbs, Fats)
-- Additional nutrients list (Sugar, Sodium, Fiber)
-- Ingredient list parsed from AI response
-- AI-generated disclaimer notice
-
-### 📊 Data Overview Screen
-
-- Current weight and goal weight with update/log modals
-- BMI score and category badge (Underweight / Normal / Overweight / Obese) with color coding
-- Weight progress bar showing distance to goal
-- Recalculates daily nutrition targets on weight update using `dataAnalysis` utility
-
-### ⚙️ Settings Screen
-
-- Profile card with user initials avatar
-- Personal information display (name, age, gender)
-- Physical details display (weight, height, goal weight)
-- Support & Legal links (Help Center, Terms & Conditions)
-- Danger Zone: account deletion with confirmation alert
+- Email & password sign up / sign in via Supabase Auth
+- Session persisted locally with AsyncStorage
+- RevenueCat integration for subscription management
+- Secure sign out with full session cleanup
 
 ---
 
-## 🏗️ Tech Stack
+## Key Design Decisions
 
-| Layer               | Technology                                        |
-| ------------------- | ------------------------------------------------- |
-| Framework           | React Native with Expo                            |
-| Navigation          | Expo Router + React Navigation                    |
-| Backend / Auth      | Supabase (Auth, Database, Storage)                |
-| AI Analysis         | Supabase Edge Functions (server-side API key)     |
-| State Management    | React Hooks (useState, useEffect, useFocusEffect) |
-| Session Persistence | AsyncStorage                                      |
-| Image Handling      | expo-image-picker, expo-image-manipulator         |
-| Haptics             | expo-haptics                                      |
-| Icons               | @expo/vector-icons (Ionicons)                     |
-| Styling             | React Native StyleSheet                           |
+**Weight history as immutable rows** — every weigh-in is a new `INSERT` into `weight_logs`, never an upsert. This preserves the full timeline needed to draw a smooth graph curve and enables future analytics (streaks, averages, trends).
+
+**Profile table stays as source of truth for current weight** — the `profile` table continues to be upserted with the latest weight for display purposes. `weight_logs` is purely historical.
+
+**Non-fatal weight log on signup** — if the initial `weight_logs` insert fails during account creation, signup still completes. A missing first graph point is a UX inconvenience; a broken signup flow is not acceptable.
+
+**Optimistic UI on weight log** — the graph updates immediately in state when a user logs their weight, before the DB re-fetch completes, so the experience feels instant.
 
 ---
 
-## 🗂️ Project Structure
+## Health Data Sources
 
-```
-src/
-├── Screens/
-│   ├── Home/
-│   │   ├── Home.tsx              # UI
-│   │   ├── Home.logic.tsx        # Custom hook (useHome)
-│   │   ├── Home.static.ts        # Constants, types, configs
-│   │   └── Home.style.ts         # StyleSheet
-│   ├── Data/
-│   │   ├── Data.tsx
-│   │   ├── Data.logic.tsx
-│   │   ├── Data.static.ts
-│   │   └── Data.style.ts
-│   ├── Login/
-│   │   ├── Login.tsx
-│   │   ├── Login.logic.tsx
-│   │   ├── Login.static.ts
-│   │   └── login.style.ts
-│   ├── Setting/
-│   │   ├── Setting.tsx
-│   │   ├── Setting.logic.tsx
-│   │   ├── Setting.static.ts
-│   │   └── Setting.style.ts
-│   ├── MealDetails/
-│   │   ├── MealDetails.tsx
-│   │   ├── MealDetails.logic.tsx
-│   │   ├── MealDetails.static.ts
-│   │   └── mealDetails.style.ts
-│   └── Onboarding/
-│       ├── Onboarding.tsx
-│       ├── Onboarding.logic.tsx
-│       ├── Onboarding.static.ts
-│       └── Onboarding.style.ts
-├── components/
-│   ├── ImageExamine/
-│   │   ├── ImageExamine.tsx
-│   │   ├── ImageExamine.logic.tsx
-│   │   ├── ImageExamine.static.ts
-│   │   └── imageExamine.style.ts
-│   └── OnboardingFeatures/
-│       ├── AppIntro.tsx
-│       ├── Demo.tsx
-│       ├── NameAdding.tsx
-│       ├── GenderSelection.tsx
-│       ├── BodyStatInput.tsx
-│       ├── PhysiqueInput.tsx
-│       ├── FitnessGoal.tsx
-│       ├── LifeStyle.tsx
-│       ├── MotivationSlide.tsx
-│       ├── OtherApps.tsx
-│       └── Completion.tsx
-└── utils/
-    └── supabase.ts               # Supabase client, meal helpers
+All health calculations in Orca are based on established scientific guidelines:
 
-backend/
-├── auth.ts                       # signIn, signUp, signOut, getSession
-├── getData.ts                    # getProfile, getInitialDetails, getTodayIntake
-└── sendData.ts                   # updateBodyStats, updateDailyIntake, etc.
-```
+- **BMI** — [WHO Body Mass Index Classification](https://www.who.int/data/gho/data/themes/topics/topic-details/GHO/body-mass-index)
+- **TDEE** — [Mifflin-St Jeor Equation (PubMed)](https://pubmed.ncbi.nlm.nih.gov/15883556/)
+- **Macronutrients** — [Dietary Reference Intakes — National Academies](https://nap.nationalacademies.org/catalog/10490)
+- **Weight Management** — [NIH Weight Management Guidelines](https://www.niddk.nih.gov/health-information/weight-management)
 
-Each screen follows a consistent **three-file pattern**:
-
-- `*.tsx` => pure UI, no business logic
-- `*.logic.tsx` => custom hook encapsulating all state and handlers
-- `*.static.ts` => constants, interfaces, and config objects
-- `*.style.ts` => StyleSheet definitions
+> **Disclaimer:** Information provided by Orca is for general wellness purposes only and does not constitute medical advice. Consult a healthcare professional before making significant changes to your diet or exercise routine.
 
 ---
 
-## 🗄️ Database Schema (Supabase)
+## License
 
-| Table             | Key Columns                                                                                                            |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `profile`         | id, full_name, age, gender, weight, height, target_weight, goal, onboarding                                            |
-| `initial_details` | id, calories, protein, carbs, fat, sugar, sodium, fiber, bmi, bmi_category                                             |
-| `daily_meals`     | id, user_id, name, calories, protein, carbs, fat, sugar, sodium, fiber, ingredients, meal_image, created_at            |
-| `daily_intake`    | id, user_id, total_calories, total_protein, total_carbs, total_fat, total_sugar, total_sodium, total_fiber, created_at |
+This project is private and proprietary. All rights reserved.
