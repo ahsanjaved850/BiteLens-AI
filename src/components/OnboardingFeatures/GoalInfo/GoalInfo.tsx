@@ -14,18 +14,37 @@ import {
 
 const { width: SW, height: SH } = Dimensions.get("window");
 
-export const GoalInfo: React.FC = () => {
+interface GoalInfoProps {
+  isActive?: boolean;
+}
+
+export const GoalInfo: React.FC<GoalInfoProps> = ({ isActive = true }) => {
   const chipAnim = useRef(new Animated.Value(0)).current;
   const headlineAnim = useRef(new Animated.Value(0)).current;
   const subAnim = useRef(new Animated.Value(0)).current;
   const imageAnim = useRef(new Animated.Value(0)).current;
-  const pill1Anim = useRef(new Animated.Value(0)).current;
-  const pill2Anim = useRef(new Animated.Value(0)).current;
   const floatAnim = useRef(new Animated.Value(0)).current;
   const shimmerAnim = useRef(new Animated.Value(0)).current;
 
+  const floatLoopRef = useRef<Animated.CompositeAnimation | null>(null);
+  const shimmerLoopRef = useRef<Animated.CompositeAnimation | null>(null);
+
   useEffect(() => {
-    Animated.stagger(100, [
+    // Stop previous loops if this screen re-renders or becomes inactive.
+    floatLoopRef.current?.stop();
+    shimmerLoopRef.current?.stop();
+
+    // Reset all values so animation can replay when this slide becomes visible.
+    chipAnim.setValue(0);
+    headlineAnim.setValue(0);
+    subAnim.setValue(0);
+    imageAnim.setValue(0);
+    floatAnim.setValue(0);
+    shimmerAnim.setValue(0);
+
+    if (!isActive) return;
+
+    const entranceAnimation = Animated.stagger(120, [
       Animated.spring(chipAnim, {
         toValue: 1,
         tension: 70,
@@ -44,52 +63,60 @@ export const GoalInfo: React.FC = () => {
         friction: 8,
         useNativeDriver: true,
       }),
-      Animated.spring(pill1Anim, {
-        toValue: 1,
-        tension: 45,
-        friction: 7,
-        useNativeDriver: true,
-      }),
-      Animated.spring(pill2Anim, {
-        toValue: 1,
-        tension: 45,
-        friction: 7,
-        useNativeDriver: true,
-      }),
       Animated.spring(imageAnim, {
         toValue: 1,
         tension: 38,
         friction: 7,
         useNativeDriver: true,
       }),
-    ]).start();
+    ]);
 
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(floatAnim, {
+    entranceAnimation.start(({ finished }) => {
+      if (!finished) return;
+
+      // Start floating only after entrance animations finish.
+      floatLoopRef.current = Animated.loop(
+        Animated.sequence([
+          Animated.timing(floatAnim, {
+            toValue: 1,
+            duration: 2600,
+            easing: Easing.inOut(Easing.sin),
+            useNativeDriver: true,
+          }),
+          Animated.timing(floatAnim, {
+            toValue: 0,
+            duration: 2600,
+            easing: Easing.inOut(Easing.sin),
+            useNativeDriver: true,
+          }),
+        ]),
+      );
+
+      // Start shimmer only after entrance animations finish.
+      shimmerLoopRef.current = Animated.loop(
+        Animated.timing(shimmerAnim, {
           toValue: 1,
-          duration: 2600,
-          easing: Easing.inOut(Easing.sin),
+          duration: 2200,
+          easing: Easing.linear,
           useNativeDriver: true,
         }),
-        Animated.timing(floatAnim, {
-          toValue: 0,
-          duration: 2600,
-          easing: Easing.inOut(Easing.sin),
-          useNativeDriver: true,
-        }),
-      ]),
-    ).start();
+      );
 
-    Animated.loop(
-      Animated.timing(shimmerAnim, {
-        toValue: 1,
-        duration: 2200,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      }),
-    ).start();
-  }, []);
+      floatLoopRef.current.start();
+      shimmerLoopRef.current.start();
+    });
+
+    return () => {
+      entranceAnimation.stop();
+      floatLoopRef.current?.stop();
+      shimmerLoopRef.current?.stop();
+    };
+  }, [isActive]);
+
+  const imageEntranceY = imageAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [40, 0],
+  });
 
   const floatY = floatAnim.interpolate({
     inputRange: [0, 1],
@@ -98,7 +125,7 @@ export const GoalInfo: React.FC = () => {
 
   const shimmerX = shimmerAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [-SW * 0.6, SW * 0.6],
+    outputRange: [-SW * 0.35, SW * 0.35],
   });
 
   return (
@@ -170,7 +197,15 @@ export const GoalInfo: React.FC = () => {
               <View style={s.accentPill}>
                 <Text style={s.accentPillText}>Goals</Text>
                 <Animated.View
-                  style={[s.shimmer, { transform: [{ translateX: shimmerX }] }]}
+                  style={[
+                    s.shimmer,
+                    {
+                      transform: [
+                        { translateX: shimmerX },
+                        { skewX: "-20deg" },
+                      ],
+                    },
+                  ]}
                 />
               </View>
             </View>
@@ -181,7 +216,10 @@ export const GoalInfo: React.FC = () => {
           style={[
             s.subText,
             {
-              opacity: subAnim,
+              opacity: subAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, 0.62],
+              }),
               transform: [
                 {
                   translateY: subAnim.interpolate({
@@ -203,10 +241,7 @@ export const GoalInfo: React.FC = () => {
               opacity: imageAnim,
               transform: [
                 {
-                  translateY: imageAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [40, 0],
-                  }),
+                  translateY: Animated.add(imageEntranceY, floatY),
                 },
                 {
                   scale: imageAnim.interpolate({
@@ -362,8 +397,7 @@ const s = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: 40,
-    backgroundColor: "rgba(255,255,255,0.22)",
-    transform: [{ skewX: "-20deg" }],
+    backgroundColor: "rgba(255,255,255,0.28)",
   },
 
   subText: {
@@ -372,7 +406,6 @@ const s = StyleSheet.create({
     color: COLORS.textDark,
     textAlign: "center",
     lineHeight: 23,
-    opacity: 0.62,
     letterSpacing: 0.1,
     marginBottom: SPACING.md,
   },
@@ -417,7 +450,7 @@ const s = StyleSheet.create({
     width: SW * 0.75,
     height: SW * 0.75,
     borderRadius: SW * 0.375,
-
+    backgroundColor: GLOW_COLOR,
     top: SH * 0.04,
     alignSelf: "center",
   },

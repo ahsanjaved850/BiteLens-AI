@@ -14,41 +14,60 @@ import {
 
 const { width: SW, height: SH } = Dimensions.get("window");
 
-export const Exercise: React.FC = () => {
+interface ExerciseProps {
+  isActive?: boolean;
+}
+
+export const Exercise: React.FC<ExerciseProps> = ({ isActive = true }) => {
   const titleAnim = useRef(new Animated.Value(0)).current;
   const imageAnim = useRef(new Animated.Value(0)).current;
   const sourceAnim = useRef(new Animated.Value(0)).current;
   const cardAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.spring(titleAnim, {
-      toValue: 1,
-      tension: 65,
-      friction: 9,
-      useNativeDriver: true,
-    }).start(() => {
+    titleAnim.setValue(0);
+    imageAnim.setValue(0);
+    sourceAnim.setValue(0);
+    cardAnim.setValue(0);
+
+    if (!isActive) return;
+
+    const animation = Animated.sequence([
+      Animated.spring(titleAnim, {
+        toValue: 1,
+        tension: 65,
+        friction: 9,
+        useNativeDriver: true,
+      }),
+
       Animated.spring(imageAnim, {
         toValue: 1,
         tension: 42,
         friction: 7,
         useNativeDriver: true,
-      }).start(() => {
-        Animated.spring(sourceAnim, {
-          toValue: 1,
-          tension: 48,
-          friction: 8,
-          useNativeDriver: true,
-        }).start(() => {
-          Animated.spring(cardAnim, {
-            toValue: 1,
-            tension: 52,
-            friction: 8,
-            useNativeDriver: true,
-          }).start();
-        });
-      });
-    });
-  }, []);
+      }),
+
+      Animated.spring(sourceAnim, {
+        toValue: 1,
+        tension: 48,
+        friction: 8,
+        useNativeDriver: true,
+      }),
+
+      Animated.spring(cardAnim, {
+        toValue: 1,
+        tension: 52,
+        friction: 8,
+        useNativeDriver: true,
+      }),
+    ]);
+
+    animation.start();
+
+    return () => {
+      animation.stop();
+    };
+  }, [isActive]);
 
   return (
     <View style={s.root}>

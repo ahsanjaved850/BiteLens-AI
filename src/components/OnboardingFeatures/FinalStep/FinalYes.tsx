@@ -32,19 +32,50 @@ const STATEMENTS = [
 interface FinalYesProps {
   onValidationChange?: (isValid: boolean) => void;
   onComplete?: () => void;
+  isActive?: boolean;
 }
 
 export const FinalYes: React.FC<FinalYesProps> = ({
   onValidationChange,
   onComplete,
+  isActive,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const cardAnim = useRef(new Animated.Value(0)).current;
   const isAnimatingRef = useRef(false);
 
+  // Persist the last answered index and choice so we can restore them
+  // when the user navigates back to this slide after completing it.
+  const lastAnsweredIndexRef = useRef<number | null>(null);
+  const lastAnswerRef = useRef<boolean | null>(null);
+
+  // "Completed" means all 3 were answered and onComplete has fired.
+  const hasCompletedRef = useRef(false);
+
   const isComplete = currentIndex >= STATEMENTS.length;
   const isLastStatement = currentIndex === STATEMENTS.length - 1;
-  const currentStatement = STATEMENTS[currentIndex];
+  const currentStatement = !isComplete ? STATEMENTS[currentIndex] : null;
+
+  // When the slide becomes active again after having been completed,
+  // snap back to showing the last image with the previously chosen answer.
+  useEffect(() => {
+    if (
+      isActive &&
+      hasCompletedRef.current &&
+      lastAnsweredIndexRef.current !== null
+    ) {
+      setCurrentIndex(lastAnsweredIndexRef.current);
+      hasCompletedRef.current = false; // allow re-answering from here
+      // Re-run the entry animation for the restored card
+      cardAnim.setValue(0);
+      Animated.spring(cardAnim, {
+        toValue: 1,
+        tension: 50,
+        friction: 8,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [isActive]);
 
   useEffect(() => {
     onValidationChange?.(isComplete);
@@ -53,7 +84,6 @@ export const FinalYes: React.FC<FinalYesProps> = ({
   useEffect(() => {
     if (!isComplete) {
       cardAnim.setValue(0);
-
       Animated.spring(cardAnim, {
         toValue: 1,
         tension: 50,
@@ -68,28 +98,31 @@ export const FinalYes: React.FC<FinalYesProps> = ({
       if (isAnimatingRef.current || isComplete) return;
       isAnimatingRef.current = true;
 
+      // Remember what the user picked on this card
+      lastAnsweredIndexRef.current = currentIndex;
+      lastAnswerRef.current = answer;
+
       await Haptics.impactAsync(
         answer
           ? Haptics.ImpactFeedbackStyle.Medium
           : Haptics.ImpactFeedbackStyle.Light,
       );
 
-      // Animate the current card out for EVERY answer, including the last one
       Animated.timing(cardAnim, {
         toValue: 2,
         duration: 250,
         useNativeDriver: true,
       }).start(() => {
         isAnimatingRef.current = false;
-
-        setCurrentIndex((prev) => prev + 1); // marks valid via the isComplete effect
+        setCurrentIndex((prev) => prev + 1);
 
         if (isLastStatement) {
-          onComplete?.(); // auto-advance — no extra Continue tap needed
+          hasCompletedRef.current = true;
+          onComplete?.();
         }
       });
     },
-    [cardAnim, isComplete, isLastStatement, onComplete],
+    [cardAnim, isComplete, isLastStatement, onComplete, currentIndex],
   );
 
   const progressDots = STATEMENTS.map((_, i) => {
@@ -108,8 +141,7 @@ export const FinalYes: React.FC<FinalYesProps> = ({
     );
   });
 
-  // All 3 answered — mark valid so Continue button enables.
-  // User taps Continue → Completion slide. No summary shown.
+  // Still fully complete and not yet restored — render nothing.
   if (isComplete) return null;
 
   return (
@@ -164,7 +196,7 @@ export const FinalYes: React.FC<FinalYesProps> = ({
           ]}
         >
           <Image
-            source={currentStatement.image}
+            source={currentStatement!.image}
             style={styles.statementImage}
             resizeMode="contain"
           />
@@ -172,7 +204,12 @@ export const FinalYes: React.FC<FinalYesProps> = ({
 
         <View style={styles.buttonRow}>
           <TouchableOpacity
-            style={styles.noButton}
+            style={[
+              styles.noButton,
+              lastAnswerRef.current === false &&
+                currentIndex === lastAnsweredIndexRef.current &&
+                styles.noButtonSelected,
+            ]}
             onPress={() => handleAnswer(false)}
             activeOpacity={0.7}
           >
@@ -180,7 +217,12 @@ export const FinalYes: React.FC<FinalYesProps> = ({
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.yesButton}
+            style={[
+              styles.yesButton,
+              lastAnswerRef.current === true &&
+                currentIndex === lastAnsweredIndexRef.current &&
+                styles.yesButtonSelected,
+            ]}
             onPress={() => handleAnswer(true)}
             activeOpacity={0.7}
           >
@@ -288,5 +330,16 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "800",
     color: COLORS.white,
+  },
+
+  noButtonSelected: {
+    borderColor: COLORS.textDark,
+    borderWidth: 2.5,
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
+  },
+
+  yesButtonSelected: {
+    opacity: 0.85,
+    transform: [{ scale: 0.97 }],
   },
 });

@@ -2,17 +2,17 @@ import { ConfigContext, ExpoConfig } from "@expo/config";
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: "Orca AI",
+  name: "Orca",
   slug: "calai_vegan",
   scheme: "orca",
-  version: "1.1.2",
+  version: "1.1.5",
   orientation: "portrait",
   userInterfaceStyle: "light",
 
-  icon: "@/assets/images/icons/app-logo.png",
+  icon: "./assets/images/icons/app-logo.png",
 
   splash: {
-    image: "@/assets/images/icons/splashscreen.png",
+    image: "./assets/images/icons/splashscreen.png",
     resizeMode: "contain",
     backgroundColor: "#ffffff",
   },
@@ -21,7 +21,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     supportsTablet: true,
     bundleIdentifier: "com.nutritrackapp",
     usesAppleSignIn: true,
-    icon: "@/assets/images/icons/app-logo.png",
+    icon: "./assets/images/icons/app-logo.png",
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
       NSCameraUsageDescription:
@@ -35,13 +35,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     package: "com.nutritrackapp",
     versionCode: 1,
     adaptiveIcon: {
-      foregroundImage: "@/assets/images/icons/app-logo.png",
+      foregroundImage: "./assets/images/icons/app-logo.png",
       backgroundColor: "#ffffff",
     },
   },
 
   web: {
-    favicon: "@/assets/images/icons/app-logo.png",
+    favicon: "./assets/images/icons/app-logo.png",
   },
 
   plugins: [

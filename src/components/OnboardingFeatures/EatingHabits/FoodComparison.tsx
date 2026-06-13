@@ -14,45 +14,62 @@ import {
 
 const { width: SW, height: SH } = Dimensions.get("window");
 
-export const FoodComparison: React.FC = () => {
+interface FoodComparisonProps {
+  isActive?: boolean;
+}
+
+export const FoodComparison: React.FC<FoodComparisonProps> = ({
+  isActive = true,
+}) => {
   const titleAnim = useRef(new Animated.Value(0)).current;
   const imageAnim = useRef(new Animated.Value(0)).current;
-  const statsAnim = useRef(new Animated.Value(0)).current;
   const cardAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Step 1 – Headline slides in
-    Animated.spring(titleAnim, {
-      toValue: 1,
-      tension: 65,
-      friction: 9,
-      useNativeDriver: true,
-    }).start(() => {
-      // Step 2 – Image rises in after headline settles
+    // Reset every time slide becomes inactive/active.
+    // This prevents the animation from finishing before the user reaches the slide.
+    titleAnim.setValue(0);
+    imageAnim.setValue(0);
+    cardAnim.setValue(0);
+
+    if (!isActive) return;
+
+    const animation = Animated.sequence([
+      // Step 1 — Headline slides in
+      Animated.spring(titleAnim, {
+        toValue: 1,
+        tension: 65,
+        friction: 9,
+        useNativeDriver: true,
+      }),
+
+      Animated.delay(100),
+
+      // Step 2 — Image rises in after headline settles
       Animated.spring(imageAnim, {
         toValue: 1,
         tension: 42,
         friction: 7,
         useNativeDriver: true,
-      }).start(() => {
-        // Step 3 – Stat pills appear
-        Animated.spring(statsAnim, {
-          toValue: 1,
-          tension: 48,
-          friction: 8,
-          useNativeDriver: true,
-        }).start(() => {
-          // Step 4 – Insight card fades up last
-          Animated.spring(cardAnim, {
-            toValue: 1,
-            tension: 52,
-            friction: 8,
-            useNativeDriver: true,
-          }).start();
-        });
-      });
-    });
-  }, []);
+      }),
+
+      Animated.delay(120),
+
+      // Step 3 — Insight card fades up last
+      Animated.spring(cardAnim, {
+        toValue: 1,
+        tension: 52,
+        friction: 8,
+        useNativeDriver: true,
+      }),
+    ]);
+
+    animation.start();
+
+    return () => {
+      animation.stop();
+    };
+  }, [isActive, titleAnim, imageAnim, cardAnim]);
 
   return (
     <View style={s.root}>
@@ -74,17 +91,20 @@ export const FoodComparison: React.FC = () => {
       <View style={s.content}>
         {/* ── Headline ── */}
         <Animated.View
-          style={{
-            opacity: titleAnim,
-            transform: [
-              {
-                translateY: titleAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [32, 0],
-                }),
-              },
-            ],
-          }}
+          style={[
+            s.headerWrap,
+            {
+              opacity: titleAnim,
+              transform: [
+                {
+                  translateY: titleAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [32, 0],
+                  }),
+                },
+              ],
+            },
+          ]}
         >
           <Text style={s.headline}>
             Learn to make{"\n"}
@@ -117,7 +137,7 @@ export const FoodComparison: React.FC = () => {
         >
           <Image
             source={require("@/assets/images/Onboarding/comparison.png")}
-            resizeMode="cover"
+            resizeMode="contain"
             style={s.image}
           />
         </Animated.View>
@@ -140,6 +160,7 @@ export const FoodComparison: React.FC = () => {
           ]}
         >
           <Ionicons name="nutrition" size={18} color={COLORS.primary} />
+
           <Text style={s.insightText}>
             See exactly what's in your food —{" "}
             <Text style={s.insightBold}>calories, macros & hidden sugars</Text>{" "}
@@ -165,6 +186,10 @@ const s = StyleSheet.create({
   },
 
   /* Headline */
+  headerWrap: {
+    width: "100%",
+    alignItems: "center",
+  },
   headline: {
     fontSize: 32,
     fontWeight: "700",
@@ -182,43 +207,13 @@ const s = StyleSheet.create({
     width: SW * 0.96,
     height: SH * 0.47,
     marginVertical: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 40,
   },
   image: {
     width: "100%",
     height: "120%",
-    padding: 12,
-  },
-
-  /* Stats */
-  statsRow: {
-    flexDirection: "row",
-    gap: 12,
-    width: "100%",
-  },
-  statPill: {
-    flex: 1,
-    backgroundColor: "rgba(255,255,255,0.68)",
-    borderRadius: 14,
-    paddingVertical: 9,
-    paddingHorizontal: 10,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "rgba(230,185,150,0.4)",
-  },
-  statValue: {
-    fontSize: 20,
-    fontWeight: "800",
-    color: COLORS.primary,
-    letterSpacing: -0.5,
-    includeFontPadding: false,
-  },
-  statLabel: {
-    marginTop: 2,
-    fontSize: 10,
-    fontWeight: "600",
-    color: COLORS.textSecondary,
-    textAlign: "center",
-    lineHeight: 13,
   },
 
   /* Insight card */

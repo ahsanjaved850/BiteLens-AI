@@ -5,10 +5,22 @@ import { Alert, Platform } from "react-native";
 
 interface AuthProps {
   onLogin?: () => void;
+  onAuthStart?: () => void;
+  onAuthError?: () => void;
   mode?: "signin" | "signup";
 }
 
-export function Auth({ onLogin, mode = "signin" }: AuthProps) {
+const waitForOverlayFrame = () =>
+  new Promise<void>((resolve) => {
+    requestAnimationFrame(() => resolve());
+  });
+
+export function Auth({
+  onLogin,
+  onAuthStart,
+  onAuthError,
+  mode = "signin",
+}: AuthProps) {
   if (Platform.OS !== "ios") {
     return null;
   }
@@ -36,6 +48,14 @@ export function Auth({ onLogin, mode = "signin" }: AuthProps) {
 
           if (!credential.identityToken) {
             throw new Error("No identityToken.");
+          }
+
+          // Do not show this before signInAsync, because the native Apple sheet
+          // owns the screen. Start it immediately after Apple returns and before
+          // Supabase/finalize API work begins.
+          if (isSignup) {
+            onAuthStart?.();
+            await waitForOverlayFrame();
           }
 
           const {
@@ -72,8 +92,12 @@ export function Auth({ onLogin, mode = "signin" }: AuthProps) {
             }
           }
 
+          // Keep the signup overlay visible after this. The auth listener/router
+          // should take the user to Home and unmount LoginScreen.
           onLogin?.();
         } catch (e: any) {
+          if (isSignup) onAuthError?.();
+
           if (e?.code === "ERR_REQUEST_CANCELED") return;
 
           console.error("Apple auth error:", e?.message || e);

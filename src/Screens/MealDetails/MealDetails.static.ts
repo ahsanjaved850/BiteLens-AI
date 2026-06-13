@@ -1,4 +1,5 @@
 import { NUTRITION_ICONS } from "@/src/Screens/Home/Home.static";
+
 export interface NutrientConfig {
   label: string;
   value: string;
@@ -77,6 +78,12 @@ export const ALERT_MESSAGES = {
     message: "Failed to delete meal. Please try again.",
     buttonText: "OK",
   },
+  RECALC_ERROR: {
+    title: "Recalculation Failed",
+    message:
+      "Could not recalculate the portion. Please check your connection and try again.",
+    buttonText: "OK",
+  },
 } as const;
 
 export const SECTION_TITLES = {
@@ -89,9 +96,8 @@ export const SECTION_TITLES = {
 export const UI_TEXT = {
   TOTAL_CALORIES: "Total Calories",
   NO_INGREDIENTS: "No ingredients available",
-  AI_NOTICE:
-    "Nutritional information and ingredients are AI-generated estimates",
   ERROR_NOT_FOUND: "Meal not found",
+  EDIT_PORTION: "Edit Portion",
 } as const;
 
 export const UNIT_SUFFIX = {

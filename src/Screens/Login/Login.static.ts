@@ -81,6 +81,16 @@ export const APP_INFO = {
   TAGLINE: "Your AI Nutrition Assistant",
 } as const;
 
+export const SIGNUP_PROGRESS = {
+  TITLE: "Setting things up",
+  CAPTION: "This only takes a moment",
+  STEPS: [
+    "Creating your account",
+    "Saving your personalized plan",
+    "Preparing your dashboard",
+  ],
+} as const;
+
 export const PASSWORD_TOGGLE_ICONS = {
   SHOW: "👁️",
   HIDE: "👁️‍🗨️",

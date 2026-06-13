@@ -50,7 +50,6 @@ export const mealDetailStyles = StyleSheet.create({
     height: "100%",
     resizeMode: "cover",
   },
-  // Gradient overlay on top of image for text readability
   imageGradientOverlay: {
     position: "absolute",
     bottom: 0,
@@ -127,7 +126,6 @@ export const mealDetailStyles = StyleSheet.create({
     borderColor: "rgba(240,222,208,0.8)",
   },
 
-  // ─── Pull-up tab card (sits just below image, overlaps slightly) ──────
   pullUpCard: {
     backgroundColor: C.bg,
     marginHorizontal: 0,
@@ -247,7 +245,7 @@ export const mealDetailStyles = StyleSheet.create({
     flex: 1,
     backgroundColor: C.bgCard,
     borderRadius: 22,
-    paddingTop: 16, // remove the 0, give it proper top padding
+    paddingTop: 16,
     paddingBottom: 16,
     paddingHorizontal: 12,
     alignItems: "center",
@@ -258,7 +256,7 @@ export const mealDetailStyles = StyleSheet.create({
     elevation: 4,
     borderWidth: 1,
     borderColor: C.border,
-    overflow: "hidden", // keep this so the glow clips nicely
+    overflow: "hidden",
   },
   macroCardAccent: {
     width: 40,
@@ -267,7 +265,7 @@ export const mealDetailStyles = StyleSheet.create({
     marginBottom: 12,
     alignItems: "center",
     justifyContent: "center",
-    opacity: 0.18, // will be overridden inline anyway, just a base
+    opacity: 0.18,
   },
   macroIcon3d: {
     width: 52,
@@ -345,7 +343,6 @@ export const mealDetailStyles = StyleSheet.create({
     fontWeight: "500",
     marginTop: 1,
   },
-  // Value shown as a pill
   nutrientValuePill: {
     backgroundColor: C.primaryLight,
     paddingHorizontal: 12,
@@ -364,8 +361,6 @@ export const mealDetailStyles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: C.primaryLight,
-    marginHorizontal: 20,
-    marginTop: 20,
     padding: 16,
     borderRadius: 18,
     gap: 12,

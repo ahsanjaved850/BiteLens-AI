@@ -129,6 +129,7 @@ export const Home = () => {
     value: number,
     goal: number,
     iconKey: keyof typeof NUTRITION_ICONS,
+    unit: string = "g",
   ) => {
     const percentage = Math.min((value / goal) * 100, 100);
     const progressColor = getProgressColor(value, goal);
@@ -142,7 +143,10 @@ export const Home = () => {
         />
         <Text style={homeStyles.nutrientsLabel}>{label}</Text>
         <Text style={homeStyles.nutrientsValue}>{Math.round(value)}</Text>
-        <Text style={homeStyles.nutrientsTotal}>of {Math.round(goal)}g</Text>
+        <Text style={homeStyles.nutrientsTotal}>
+          of {Math.round(goal)}
+          {unit}
+        </Text>
         <View style={homeStyles.nutrientsProgress}>
           <View
             style={[
@@ -391,6 +395,7 @@ export const Home = () => {
                   todayNutrition.sodium,
                   initialDetails?.sodium || 0,
                   MACRO_CARDS_CONFIG.SODIUM.iconKey,
+                  "mg",
                 )}
                 {renderMacroCard(
                   MACRO_CARDS_CONFIG.FIBER.label,
@@ -413,8 +418,8 @@ export const Home = () => {
                 <Text style={homeStyles.emptyStateIcon}>
                   <Image
                     style={{
-                      width: 65,
-                      height: 44,
+                      width: 85,
+                      height: 58,
                     }}
                     source={NUTRITION_ICONS.food}
                   />

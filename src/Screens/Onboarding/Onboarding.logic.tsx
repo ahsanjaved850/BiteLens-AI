@@ -1,4 +1,4 @@
-import { presentPaywall } from "@/src/utils/presentPaywall";
+import { presentPaywall } from "@/src/utils/paywall/presentPaywall";
 import { requestAppReview } from "@/src/utils/requestReview";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";

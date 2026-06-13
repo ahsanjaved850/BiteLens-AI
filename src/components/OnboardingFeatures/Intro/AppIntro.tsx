@@ -1,6 +1,6 @@
 import { COLORS, SPACING } from "@/src/Screens/Onboarding/Onboarding.style";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   Animated,
   Dimensions,
@@ -19,10 +19,12 @@ const IMAGES = [
   require("@/assets/images/Onboarding/intro3.png"),
 ] as const;
 
-const SLIDE_DURATION = 1000;
-const FADE_DURATION = 250;
+// How long each image is fully visible before the crossfade begins
+const HOLD_DURATION = 1800;
+// Duration of the opacity crossfade between images
+const FADE_DURATION = 600;
 
-//  Floating ambient orb
+// ─── Floating ambient orb ────────────────────────────────────────────────────
 const FloatingOrb: React.FC<{
   size: number;
   top: number;
@@ -81,36 +83,66 @@ const FloatingOrb: React.FC<{
   );
 };
 
-//  Props
+// ─── Props ───────────────────────────────────────────────────────────────────
 interface AppIntroProps {
   isActive?: boolean;
 }
 
-//  Main component
+// ─── Main component ──────────────────────────────────────────────────────────
 export const AppIntro: React.FC<AppIntroProps> = ({ isActive = true }) => {
-  // Entrance anims — each element fires separately
+  // Entrance anims
   const eyebrowAnim = useRef(new Animated.Value(0)).current;
   const headline1Anim = useRef(new Animated.Value(0)).current;
   const headline2Anim = useRef(new Animated.Value(0)).current;
-  const subtitleAnim = useRef(new Animated.Value(0)).current;
   const frameAnim = useRef(new Animated.Value(0)).current;
   const trustAnim = useRef(new Animated.Value(0)).current;
 
-  // Image crossfade
-  const currentOpacity = useRef(new Animated.Value(1)).current;
-  const nextOpacity = useRef(new Animated.Value(0)).current;
-  // Subtle breathing scale on the image
+  // Subtle breathing scale on the image frame
   const imageScale = useRef(new Animated.Value(1)).current;
 
-  const [currentIdx, setCurrentIdx] = useState(0);
-  const [nextIdx, setNextIdx] = useState(1);
-  const [showNext, setShowNext] = useState(false);
+  // Three persistent opacity values — one per image slot.
+  // We keep all three images mounted permanently to avoid decode-on-mount
+  // stutter. Only opacities change during transitions.
+  const opacities = useRef([
+    new Animated.Value(1), // intro1 starts fully visible
+    new Animated.Value(0),
+    new Animated.Value(0),
+  ]).current;
 
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Which slot is currently "active" (fully visible). Stored in a ref so the
+  // crossfade scheduler never needs to re-subscribe to state changes.
+  const activeIdxRef = useRef(0);
+
+  const cycleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const breatheRef = useRef<Animated.CompositeAnimation | null>(null);
+  const fadeRef = useRef<Animated.CompositeAnimation | null>(null);
 
-  //  Breathing scale loop
+  // ── Helpers ────────────────────────────────────────────────────────────────
+
+  const stopAll = () => {
+    if (cycleTimeoutRef.current) {
+      clearTimeout(cycleTimeoutRef.current);
+      cycleTimeoutRef.current = null;
+    }
+    if (breatheRef.current) {
+      breatheRef.current.stop();
+      breatheRef.current = null;
+    }
+    if (fadeRef.current) {
+      fadeRef.current.stop();
+      fadeRef.current = null;
+    }
+  };
+
+  const resetImages = () => {
+    activeIdxRef.current = 0;
+    opacities[0].setValue(1);
+    opacities[1].setValue(0);
+    opacities[2].setValue(0);
+  };
+
   const startBreathe = () => {
+    imageScale.setValue(1);
     breatheRef.current = Animated.loop(
       Animated.sequence([
         Animated.timing(imageScale, {
@@ -130,20 +162,64 @@ export const AppIntro: React.FC<AppIntroProps> = ({ isActive = true }) => {
     breatheRef.current.start();
   };
 
-  //  Entrance sequence
-  useEffect(() => {
-    if (!isActive) return;
+  // Cross-fade from the current active image to the next one, then schedule
+  // the following transition. Uses recursive setTimeout so there is never
+  // an interval firing mid-animation.
+  const scheduleCycle = () => {
+    cycleTimeoutRef.current = setTimeout(() => {
+      const from = activeIdxRef.current;
+      const to = (from + 1) % IMAGES.length;
 
-    // Reset all
+      // Animate: fade next in, fade current out simultaneously.
+      fadeRef.current = Animated.parallel([
+        Animated.timing(opacities[to], {
+          toValue: 1,
+          duration: FADE_DURATION,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacities[from], {
+          toValue: 0,
+          duration: FADE_DURATION,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ]);
+
+      fadeRef.current.start(({ finished }) => {
+        if (!finished) return; // interrupted — don't schedule next
+        activeIdxRef.current = to;
+        // Schedule the next crossfade only after the current one fully settles
+        scheduleCycle();
+      });
+    }, HOLD_DURATION);
+  };
+
+  // ── Entrance sequence + image loop ────────────────────────────────────────
+  useEffect(() => {
+    if (!isActive) {
+      stopAll();
+      imageScale.setValue(1);
+      resetImages();
+      eyebrowAnim.setValue(0);
+      headline1Anim.setValue(0);
+      headline2Anim.setValue(0);
+      frameAnim.setValue(0);
+      trustAnim.setValue(0);
+      return;
+    }
+
+    // Reset everything before starting fresh
+    stopAll();
+    resetImages();
     eyebrowAnim.setValue(0);
     headline1Anim.setValue(0);
     headline2Anim.setValue(0);
-    subtitleAnim.setValue(0);
     frameAnim.setValue(0);
     trustAnim.setValue(0);
+    imageScale.setValue(1);
 
-    Animated.sequence([
-      // 1. Eyebrow tag
+    const introAnimation = Animated.sequence([
       Animated.spring(eyebrowAnim, {
         toValue: 1,
         tension: 60,
@@ -151,7 +227,6 @@ export const AppIntro: React.FC<AppIntroProps> = ({ isActive = true }) => {
         useNativeDriver: true,
       }),
       Animated.delay(40),
-      // 2. First headline line
       Animated.spring(headline1Anim, {
         toValue: 1,
         tension: 52,
@@ -159,7 +234,6 @@ export const AppIntro: React.FC<AppIntroProps> = ({ isActive = true }) => {
         useNativeDriver: true,
       }),
       Animated.delay(30),
-      // 3. Second headline line (accent)
       Animated.spring(headline2Anim, {
         toValue: 1,
         tension: 52,
@@ -167,14 +241,6 @@ export const AppIntro: React.FC<AppIntroProps> = ({ isActive = true }) => {
         useNativeDriver: true,
       }),
       Animated.delay(30),
-      // 4. Subtitle
-      Animated.timing(subtitleAnim, {
-        toValue: 1,
-        duration: 320,
-        useNativeDriver: true,
-      }),
-      Animated.delay(100),
-      // 5. Image frame rises in
       Animated.spring(frameAnim, {
         toValue: 1,
         tension: 42,
@@ -182,68 +248,27 @@ export const AppIntro: React.FC<AppIntroProps> = ({ isActive = true }) => {
         useNativeDriver: true,
       }),
       Animated.delay(220),
-      // 6. Trust line last
       Animated.timing(trustAnim, {
         toValue: 1,
         duration: 360,
         useNativeDriver: true,
       }),
-    ]).start(() => startBreathe());
-  }, [isActive]);
+    ]);
 
-  //  Crossfade image cycle
-  useEffect(() => {
-    if (!isActive) {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      if (breatheRef.current) breatheRef.current.stop();
-      currentOpacity.setValue(1);
-      nextOpacity.setValue(0);
-      imageScale.setValue(1);
-      setCurrentIdx(0);
-      setNextIdx(1);
-      setShowNext(false);
-      return;
-    }
+    introAnimation.start(({ finished }) => {
+      if (!finished) return;
+      startBreathe();
+      // Start image cycle immediately on the same frame the entrance ends —
+      // no state bridge, no render gap.
+      scheduleCycle();
+    });
 
-    let step = 0;
-    const totalSteps = IMAGES.length - 1;
-
-    const cycle = () => {
-      step++;
-      setNextIdx((cur) => (cur + 1) % IMAGES.length);
-      setShowNext(true);
-      nextOpacity.setValue(0);
-
-      Animated.parallel([
-        Animated.timing(nextOpacity, {
-          toValue: 1,
-          duration: FADE_DURATION,
-          useNativeDriver: true,
-        }),
-        Animated.timing(currentOpacity, {
-          toValue: 0,
-          duration: FADE_DURATION,
-          useNativeDriver: true,
-        }),
-      ]).start(() => {
-        setCurrentIdx((cur) => (cur + 1) % IMAGES.length);
-        currentOpacity.setValue(1);
-        nextOpacity.setValue(0);
-        setShowNext(false);
-
-        if (step >= totalSteps && intervalRef.current) {
-          clearInterval(intervalRef.current);
-          intervalRef.current = null;
-        }
-      });
-    };
-
-    intervalRef.current = setInterval(cycle, SLIDE_DURATION);
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      introAnimation.stop();
     };
   }, [isActive]);
 
+  // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <View style={s.root}>
       <StatusBar
@@ -251,7 +276,6 @@ export const AppIntro: React.FC<AppIntroProps> = ({ isActive = true }) => {
         backgroundColor={COLORS.backgroundGradientTop}
       />
 
-      {/*  Single seamless background gradient matching the app flow  */}
       <LinearGradient
         colors={[
           COLORS.backgroundGradientTop,
@@ -262,7 +286,6 @@ export const AppIntro: React.FC<AppIntroProps> = ({ isActive = true }) => {
         style={StyleSheet.absoluteFill}
       />
 
-      {/*  Ambient orbs — warmth & depth, never distracting  */}
       <FloatingOrb
         size={200}
         top={50}
@@ -289,7 +312,7 @@ export const AppIntro: React.FC<AppIntroProps> = ({ isActive = true }) => {
       />
 
       <View style={s.content}>
-        {/*  Eyebrow — centered brand tag  */}
+        {/* Eyebrow */}
         <Animated.View
           style={[
             s.eyebrowWrap,
@@ -312,7 +335,7 @@ export const AppIntro: React.FC<AppIntroProps> = ({ isActive = true }) => {
           </View>
         </Animated.View>
 
-        {/*  Headline — two lines, centered, reveal one by one  */}
+        {/* Headline */}
         <View style={s.headlineBlock}>
           <Animated.Text
             style={[
@@ -353,7 +376,7 @@ export const AppIntro: React.FC<AppIntroProps> = ({ isActive = true }) => {
           </Animated.Text>
         </View>
 
-        {/*  Image frame — hero element, maximum presence  */}
+        {/* Image frame — all three images are always mounted, only opacity changes */}
         <Animated.View
           style={[
             s.frameOuter,
@@ -371,23 +394,22 @@ export const AppIntro: React.FC<AppIntroProps> = ({ isActive = true }) => {
             },
           ]}
         >
-          {/* Soft primary-color glow behind image — no harsh shadow */}
           <View style={s.glowHalo} />
 
-          {/* Clean image container — no bottom gradient cutting it off */}
           <View style={s.imageWrap}>
-            <Animated.Image
-              source={IMAGES[currentIdx]}
-              resizeMode="contain"
-              style={[s.image, { opacity: currentOpacity }]}
-            />
-            {showNext && (
+            {IMAGES.map((src, idx) => (
               <Animated.Image
-                source={IMAGES[nextIdx]}
+                key={idx}
+                source={src}
                 resizeMode="contain"
-                style={[s.image, s.imageOverlay, { opacity: nextOpacity }]}
+                style={[
+                  s.image,
+                  // First image is the base layer; subsequent images stack on top
+                  idx > 0 && s.imageOverlay,
+                  { opacity: opacities[idx] },
+                ]}
               />
-            )}
+            ))}
           </View>
         </Animated.View>
       </View>
@@ -395,8 +417,7 @@ export const AppIntro: React.FC<AppIntroProps> = ({ isActive = true }) => {
   );
 };
 
-//  Styles
-// Image occupies most of the lower screen — it's the hero
+// ─── Styles ──────────────────────────────────────────────────────────────────
 const IMAGE_H = SH * 0.52;
 
 const s = StyleSheet.create({
@@ -412,7 +433,6 @@ const s = StyleSheet.create({
     paddingTop: SPACING.lg,
   },
 
-  //  Eyebrow — centered pill tag
   eyebrowWrap: {
     marginBottom: SPACING.sm,
   },
@@ -421,14 +441,10 @@ const s = StyleSheet.create({
     alignItems: "center",
     gap: 6,
     backgroundColor: COLORS.primary,
-    // ~10% opacity background — uses the pill approach instead of a bar
-    // so it reads clearly centered without needing left-alignment
     opacity: 0.9,
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 20,
-    // Slight transparency so gradient shows through
-    // Override opacity per-child so text stays fully opaque
   },
   eyebrowDot: {
     width: 5,
@@ -445,7 +461,6 @@ const s = StyleSheet.create({
     textTransform: "uppercase",
   },
 
-  //  Headline — centered, bold, two-line reveal
   headlineBlock: {
     alignItems: "center",
     marginBottom: SPACING.xs ?? 6,
@@ -462,7 +477,6 @@ const s = StyleSheet.create({
     color: COLORS.primary,
   },
 
-  //  Subtitle — centered, directly under headline
   subtitle: {
     fontSize: 14,
     fontWeight: "500",
@@ -474,30 +488,25 @@ const s = StyleSheet.create({
     paddingHorizontal: SPACING.md,
   },
 
-  //  Image frame
   frameOuter: {
-    width: SW * 0.88, // wider — hero deserves the space
-    height: IMAGE_H, // taller — SH * 0.52 vs previous 0.46
+    width: SW * 0.88,
+    height: IMAGE_H,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: SPACING.sm,
   },
-  // Glow uses primary color at very low opacity — warm, not shadowy
   glowHalo: {
     position: "absolute",
     width: SW * 0.7,
     height: IMAGE_H * 0.65,
     borderRadius: SW * 0.35,
     backgroundColor: COLORS.primary,
-    opacity: 0.07, // subtle warmth, not a dark shadow
+    opacity: 0.07,
     transform: [{ scaleX: 1.08 }, { scaleY: 0.8 }],
   },
   imageWrap: {
     width: "100%",
     height: "115%",
-    // No overflow hidden — lets the image breathe naturally
-    // No borderRadius cutting the screenshot
-    // No bottom LinearGradient — removed per request
   },
   image: {
     width: "100%",

@@ -13,13 +13,26 @@ import {
 
 const { width: SW, height: SH } = Dimensions.get("window");
 
-export const ManualTrack: React.FC = () => {
+interface ManualTrackProps {
+  isActive?: boolean;
+}
+
+export const ManualTrack: React.FC<ManualTrackProps> = ({
+  isActive = true,
+}) => {
   const titleAnim = useRef(new Animated.Value(0)).current;
   const imageAnim = useRef(new Animated.Value(0)).current;
   const statsAnim = useRef(new Animated.Value(0)).current;
   const cardAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    titleAnim.setValue(0);
+    imageAnim.setValue(0);
+    statsAnim.setValue(0);
+    cardAnim.setValue(0);
+
+    if (!isActive) return;
+
     // Step 1 – Headline slides in
     Animated.spring(titleAnim, {
       toValue: 1,
@@ -51,7 +64,14 @@ export const ManualTrack: React.FC = () => {
         });
       });
     });
-  }, []);
+
+    return () => {
+      titleAnim.stopAnimation();
+      imageAnim.stopAnimation();
+      statsAnim.stopAnimation();
+      cardAnim.stopAnimation();
+    };
+  }, [isActive]);
 
   return (
     <View style={s.root}>
@@ -86,8 +106,8 @@ export const ManualTrack: React.FC = () => {
           }}
         >
           <Text style={s.headline}>
-            No more manual tracking {"\n"} Orca ensures
-            <Text style={s.headlineAccent}> Accuracy {"\n"}and Speed</Text>
+            No more manual tracking
+            <Text style={s.headlineAccent}> Orca ensures Speed, Accuracy</Text>
           </Text>
         </Animated.View>
         {/* ── Image ── */}

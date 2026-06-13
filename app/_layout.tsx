@@ -1,4 +1,4 @@
-import { configureRevenueCat } from "@/src/utils/revenuecat";
+import { configureRevenueCat } from "@/src/utils/paywall/revenuecat";
 import { Stack } from "expo-router";
 import { useEffect } from "react";
 

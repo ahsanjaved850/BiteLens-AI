@@ -111,7 +111,7 @@ serve(async (req: any) => {
               - Fat (g): 25–30% of calories ÷ 9
               - Carbs (g): remaining calories ÷ 4
               - Sugar (g): ≤10% of total calories ÷ 4
-              - Sodium (g): 150–230 based on goal
+              - Sodium (mg): 1500–2300 based on goal
               - Fiber (g): 25–38 based on gender and calorie intake
 
             Return ONLY this JSON:
@@ -123,7 +123,7 @@ serve(async (req: any) => {
               "carbs": "250",
               "fat": "67",
               "sugar": "50",
-              "sodium": "230",
+              "sodium": "2300",
               "fiber": "30"
             }`,
           },

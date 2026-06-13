@@ -1,16 +1,16 @@
 import { COLORS, SPACING } from "@/src/Screens/Onboarding/Onboarding.style";
-import { saveOnboardingData } from "@/src/utils/onboardingStorage";
+import { saveOnboardingData } from "@/src/utils/onboarding/onboardingStorage";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-  Image,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Image,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 interface FitnessGoalProps {

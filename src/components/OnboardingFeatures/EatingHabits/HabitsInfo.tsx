@@ -14,15 +14,31 @@ import {
 
 const { width: SW, height: SH } = Dimensions.get("window");
 
-export const HabitsInfo: React.FC = () => {
+interface HabitsInfoProps {
+  isActive?: boolean;
+}
+
+export const HabitsInfo: React.FC<HabitsInfoProps> = ({ isActive = true }) => {
   const chipAnim = useRef(new Animated.Value(0)).current;
   const headlineAnim = useRef(new Animated.Value(0)).current;
   const subAnim = useRef(new Animated.Value(0)).current;
   const imageAnim = useRef(new Animated.Value(0)).current;
   const shimmerAnim = useRef(new Animated.Value(0)).current;
 
+  const shimmerLoopRef = useRef<Animated.CompositeAnimation | null>(null);
+
   useEffect(() => {
-    Animated.stagger(100, [
+    shimmerLoopRef.current?.stop();
+
+    chipAnim.setValue(0);
+    headlineAnim.setValue(0);
+    subAnim.setValue(0);
+    imageAnim.setValue(0);
+    shimmerAnim.setValue(0);
+
+    if (!isActive) return;
+
+    const entranceAnimation = Animated.stagger(120, [
       Animated.spring(chipAnim, {
         toValue: 1,
         tension: 70,
@@ -47,21 +63,39 @@ export const HabitsInfo: React.FC = () => {
         friction: 7,
         useNativeDriver: true,
       }),
-    ]).start();
+    ]);
 
-    Animated.loop(
-      Animated.timing(shimmerAnim, {
-        toValue: 1,
-        duration: 2200,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      }),
-    ).start();
-  }, []);
+    entranceAnimation.start(({ finished }) => {
+      if (!finished) return;
+
+      shimmerLoopRef.current = Animated.loop(
+        Animated.sequence([
+          Animated.timing(shimmerAnim, {
+            toValue: 1,
+            duration: 2200,
+            easing: Easing.linear,
+            useNativeDriver: true,
+          }),
+          Animated.timing(shimmerAnim, {
+            toValue: 0,
+            duration: 0,
+            useNativeDriver: true,
+          }),
+        ]),
+      );
+
+      shimmerLoopRef.current.start();
+    });
+
+    return () => {
+      entranceAnimation.stop();
+      shimmerLoopRef.current?.stop();
+    };
+  }, [isActive]);
 
   const shimmerX = shimmerAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [-SW * 0.6, SW * 0.6],
+    outputRange: [-SW * 0.35, SW * 0.35],
   });
 
   return (
@@ -133,7 +167,15 @@ export const HabitsInfo: React.FC = () => {
               <View style={s.accentPill}>
                 <Text style={s.accentPillText}>Habits</Text>
                 <Animated.View
-                  style={[s.shimmer, { transform: [{ translateX: shimmerX }] }]}
+                  style={[
+                    s.shimmer,
+                    {
+                      transform: [
+                        { translateX: shimmerX },
+                        { skewX: "-20deg" },
+                      ],
+                    },
+                  ]}
                 />
               </View>
             </View>
@@ -144,7 +186,10 @@ export const HabitsInfo: React.FC = () => {
           style={[
             s.subText,
             {
-              opacity: subAnim,
+              opacity: subAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, 0.62],
+              }),
               transform: [
                 {
                   translateY: subAnim.interpolate({
@@ -325,7 +370,6 @@ const s = StyleSheet.create({
     bottom: 0,
     width: 40,
     backgroundColor: "rgba(255,255,255,0.22)",
-    transform: [{ skewX: "-20deg" }],
   },
 
   subText: {
@@ -334,7 +378,6 @@ const s = StyleSheet.create({
     color: COLORS.textDark,
     textAlign: "center",
     lineHeight: 23,
-    opacity: 0.62,
     letterSpacing: 0.1,
     marginBottom: SPACING.md,
   },

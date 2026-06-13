@@ -1,11 +1,11 @@
 import { getInitialDetails } from "@/backend/getData";
 import { updateDailyIntake } from "@/backend/sendData";
+import { useDailyReset } from "@/src/utils/hooks/useDailyReset";
 import {
   fetchUserMeals,
   getTodayNutrition,
   MealData,
 } from "@/src/utils/supabase";
-import { useDailyReset } from "@/src/utils/useDailyReset";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import * as Haptics from "expo-haptics";
 import { useCallback, useEffect, useRef, useState } from "react";

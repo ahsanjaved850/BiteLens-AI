@@ -1,13 +1,18 @@
-import { Auth } from "@/src/utils/auth.native";
+import { Auth } from "@/src/utils/auth/auth.native";
 import { LinearGradient } from "expo-linear-gradient";
-import React from "react";
+import { useRouter } from "expo-router";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Animated,
+  Easing,
   Keyboard,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   ScrollView,
   StatusBar,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -25,17 +30,251 @@ import {
   LoginScreenProps,
   PASSWORD_TOGGLE_ICONS,
   PLACEHOLDERS,
+  SIGNUP_PROGRESS,
   TOGGLE_LINKS,
   TOGGLE_TEXTS,
 } from "./Login.static";
 import { COLORS, loginStyles } from "./login.style";
 
+// ─── Signup progress overlay ──────────────────────────────────────────────────
+// Covers the gap between signup submit → API calls / onboarding-data sync →
+// navigation to Home. The Modal is ALWAYS mounted (visibility toggled via the
+// `visible` prop) so it reliably appears above the keyboard and nav stack.
+const RING = 96;
+
+const SignupProgressOverlay: React.FC<{ visible: boolean }> = ({ visible }) => {
+  const spin = useRef(new Animated.Value(0)).current;
+  const pulse = useRef(new Animated.Value(0)).current;
+  const stepFade = useRef(new Animated.Value(1)).current;
+  const [stepIndex, setStepIndex] = useState(0);
+  const stepRef = useRef(0);
+
+  useEffect(() => {
+    if (!visible) return;
+    stepRef.current = 0;
+    setStepIndex(0);
+    stepFade.setValue(0);
+
+    Animated.timing(stepFade, {
+      toValue: 1,
+      duration: 350,
+      delay: 150,
+      useNativeDriver: true,
+    }).start();
+
+    const spinLoop = Animated.loop(
+      Animated.timing(spin, {
+        toValue: 1,
+        duration: 1300,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }),
+    );
+    const pulseLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulse, {
+          toValue: 1,
+          duration: 1100,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulse, {
+          toValue: 0,
+          duration: 1100,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+    spinLoop.start();
+    pulseLoop.start();
+
+    // Cycle through steps every 1.7s, then hold on the last one
+    const interval = setInterval(() => {
+      if (stepRef.current >= SIGNUP_PROGRESS.STEPS.length - 1) return;
+      Animated.timing(stepFade, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }).start(() => {
+        stepRef.current += 1;
+        setStepIndex(stepRef.current);
+        Animated.timing(stepFade, {
+          toValue: 1,
+          duration: 280,
+          useNativeDriver: true,
+        }).start();
+      });
+    }, 1700);
+
+    return () => {
+      clearInterval(interval);
+      spinLoop.stop();
+      pulseLoop.stop();
+      spin.setValue(0);
+      pulse.setValue(0);
+    };
+  }, [visible]);
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      statusBarTranslucent
+      onRequestClose={() => {}}
+    >
+      <View style={ols.root}>
+        <LinearGradient
+          colors={[
+            COLORS.gradientTop,
+            COLORS.gradientMid,
+            COLORS.gradientBottom,
+          ]}
+          locations={[0, 0.4, 1]}
+          style={StyleSheet.absoluteFill}
+        />
+
+        <Text style={ols.wordmark}>orca</Text>
+
+        <View style={ols.ringWrap}>
+          <Animated.View
+            style={[
+              ols.ringGlow,
+              {
+                opacity: pulse.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0.3, 0.8],
+                }),
+                transform: [
+                  {
+                    scale: pulse.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0.9, 1.12],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          />
+          <View style={ols.ringTrack} />
+          <Animated.View
+            style={[
+              ols.ringArc,
+              {
+                transform: [
+                  {
+                    rotate: spin.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: ["0deg", "360deg"],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          />
+        </View>
+
+        <Text style={ols.title}>{SIGNUP_PROGRESS.TITLE}</Text>
+
+        <Animated.Text style={[ols.step, { opacity: stepFade }]}>
+          {SIGNUP_PROGRESS.STEPS[stepIndex]}
+        </Animated.Text>
+
+        <View style={ols.dotsRow}>
+          {SIGNUP_PROGRESS.STEPS.map((_, i) => (
+            <View key={i} style={[ols.dot, i <= stepIndex && ols.dotActive]} />
+          ))}
+        </View>
+
+        <Text style={ols.caption}>{SIGNUP_PROGRESS.CAPTION}</Text>
+      </View>
+    </Modal>
+  );
+};
+
+const ols = StyleSheet.create({
+  root: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 32,
+    backgroundColor: COLORS.gradientTop,
+  },
+  wordmark: {
+    fontSize: 38,
+    fontWeight: "700",
+    color: COLORS.textDark,
+    letterSpacing: -1.5,
+    marginBottom: 36,
+  },
+  ringWrap: {
+    width: RING,
+    height: RING,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 32,
+  },
+  ringGlow: {
+    position: "absolute",
+    width: RING + 40,
+    height: RING + 40,
+    borderRadius: (RING + 40) / 2,
+    backgroundColor: "rgba(244,123,32,0.12)",
+  },
+  ringTrack: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: RING / 2,
+    borderWidth: 4.5,
+    borderColor: "rgba(244,123,32,0.14)",
+  },
+  ringArc: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: RING / 2,
+    borderWidth: 4.5,
+    borderTopColor: COLORS.primary,
+    borderRightColor: "rgba(244,123,32,0.45)",
+    borderBottomColor: "transparent",
+    borderLeftColor: "transparent",
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "800",
+    color: COLORS.textDark,
+    letterSpacing: -0.6,
+    marginBottom: 10,
+  },
+  step: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: COLORS.primary,
+    marginBottom: 18,
+    minHeight: 20,
+    textAlign: "center",
+  },
+  dotsRow: { flexDirection: "row", gap: 7, marginBottom: 22 },
+  dot: {
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
+    backgroundColor: "rgba(244,123,32,0.18)",
+  },
+  dotActive: { backgroundColor: COLORS.primary },
+  caption: {
+    fontSize: 13,
+    fontWeight: "500",
+    color: COLORS.textLight,
+  },
+});
+
 export function LoginScreen({ onLogin, mode = "signin" }: LoginScreenProps) {
+  const router = useRouter();
   const {
     email,
     password,
     newUser,
     loading,
+    signingUp,
     showPassword,
     focusedField,
     errors,
@@ -43,6 +282,8 @@ export function LoginScreen({ onLogin, mode = "signin" }: LoginScreenProps) {
     setEmail,
     setPassword,
     handleSignInSignUp,
+    handleSocialAuthStart,
+    handleSocialAuthError,
     handleToggleSignInForm,
     handleTogglePasswordVisibility,
     handleFocus,
@@ -74,6 +315,18 @@ export function LoginScreen({ onLogin, mode = "signin" }: LoginScreenProps) {
               keyboardShouldPersistTaps="handled"
             >
               <View style={loginStyles.contentContainer}>
+                {/* Back button — sign-in screen only, routes to WelcomeScreen */}
+                {mode === "signin" && (
+                  <TouchableOpacity
+                    style={loginStyles.backButton}
+                    onPress={() => router.replace("/auth/welcome")}
+                    activeOpacity={0.7}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    <Text style={loginStyles.backButtonText}>←</Text>
+                  </TouchableOpacity>
+                )}
+
                 {/* Logo */}
                 <View style={loginStyles.logoContainer}>
                   <Text style={loginStyles.wordmark}>orca</Text>
@@ -201,6 +454,8 @@ export function LoginScreen({ onLogin, mode = "signin" }: LoginScreenProps) {
 
                   <View style={loginStyles.appleButtonContainer}>
                     <Auth
+                      onAuthStart={handleSocialAuthStart}
+                      onAuthError={handleSocialAuthError}
                       onLogin={onLogin}
                       mode={newUser ? "signup" : "signin"}
                     />
@@ -232,6 +487,9 @@ export function LoginScreen({ onLogin, mode = "signin" }: LoginScreenProps) {
           </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
       </LinearGradient>
+
+      {/* Full-screen progress overlay — only ever triggered by signup paths */}
+      <SignupProgressOverlay visible={signingUp} />
     </SafeAreaView>
   );
 }

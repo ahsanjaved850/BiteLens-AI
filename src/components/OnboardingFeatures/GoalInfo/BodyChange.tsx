@@ -19,45 +19,64 @@ const STAT_ITEMS = [
   { value: "3w", label: "avg. visible\nbody change" },
 ];
 
-export const BodyChange: React.FC = () => {
+interface BodyChangeProps {
+  isActive?: boolean;
+}
+
+export const BodyChange: React.FC<BodyChangeProps> = ({ isActive = true }) => {
   const titleAnim = useRef(new Animated.Value(0)).current;
   const imageAnim = useRef(new Animated.Value(0)).current;
   const statsAnim = useRef(new Animated.Value(0)).current;
   const cardAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Step 1 – Headline slides in
-    Animated.spring(titleAnim, {
-      toValue: 1,
-      tension: 65,
-      friction: 9,
-      useNativeDriver: true,
-    }).start(() => {
+    titleAnim.setValue(0);
+    imageAnim.setValue(0);
+    statsAnim.setValue(0);
+    cardAnim.setValue(0);
+
+    if (!isActive) return;
+
+    const animation = Animated.sequence([
+      // Step 1 – Headline slides in
+      Animated.spring(titleAnim, {
+        toValue: 1,
+        tension: 65,
+        friction: 9,
+        useNativeDriver: true,
+      }),
+
       // Step 2 – Image rises in after headline settles
       Animated.spring(imageAnim, {
         toValue: 1,
         tension: 42,
         friction: 7,
         useNativeDriver: true,
-      }).start(() => {
-        // Step 3 – Stat pills appear
-        Animated.spring(statsAnim, {
-          toValue: 1,
-          tension: 48,
-          friction: 8,
-          useNativeDriver: true,
-        }).start(() => {
-          // Step 4 – Insight card fades up last
-          Animated.spring(cardAnim, {
-            toValue: 1,
-            tension: 52,
-            friction: 8,
-            useNativeDriver: true,
-          }).start();
-        });
-      });
-    });
-  }, []);
+      }),
+
+      // Step 3 – Stat pills appear
+      Animated.spring(statsAnim, {
+        toValue: 1,
+        tension: 48,
+        friction: 8,
+        useNativeDriver: true,
+      }),
+
+      // Step 4 – Insight card fades up last
+      Animated.spring(cardAnim, {
+        toValue: 1,
+        tension: 52,
+        friction: 8,
+        useNativeDriver: true,
+      }),
+    ]);
+
+    animation.start();
+
+    return () => {
+      animation.stop();
+    };
+  }, [isActive]);
 
   return (
     <View style={s.root}>

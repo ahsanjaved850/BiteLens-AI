@@ -8,14 +8,12 @@ import { useMealDetails } from "./MealDetails.logic";
 import { MACROS_CONFIG, SECTION_TITLES, UI_TEXT } from "./MealDetails.static";
 import { mealDetailStyles } from "./mealDetails.style";
 
-// Per-macro top accent colors — matches macro brand colors
 const MACRO_ACCENT_COLORS: Record<string, string> = {
   protein: "#EF4444",
   carbs: "#3B82F6",
   fat: "#F59E0B",
 };
 
-// Nutrient sublabels for extra context
 const NUTRIENT_SUBLABELS: Record<string, string> = {
   Sugar: "Simple carbs",
   Sodium: "Salt content",
@@ -45,8 +43,19 @@ export const MealDetails = () => {
     meal.calories > 600
       ? "High calorie"
       : meal.calories > 300
-        ? "Moderate"
+        ? "Moderate calories"
         : "Light meal";
+
+  // Current nutrition shape passed to the sheet
+  const currentNutrition = {
+    calories: meal.calories,
+    protein: meal.protein,
+    carbs: meal.carbs,
+    fat: meal.fat,
+    sugar: meal.sugar,
+    sodium: meal.sodium,
+    fiber: meal.fiber,
+  };
 
   return (
     <View style={mealDetailStyles.container}>
@@ -54,11 +63,12 @@ export const MealDetails = () => {
         style={mealDetailStyles.scrollView}
         contentContainerStyle={[
           mealDetailStyles.contentContainer,
-          { paddingBottom: insets.bottom + 48 },
+          // Extra bottom padding so content clears the Edit Portion button
+          { paddingBottom: insets.bottom + 100 },
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── Hero Image with gradient overlay + meal name on image ── */}
+        {/* ── Hero Image ── */}
         <View style={mealDetailStyles.imageContainer}>
           {meal.meal_image ? (
             <Image
@@ -72,14 +82,10 @@ export const MealDetails = () => {
               </View>
             </View>
           )}
-
-          {/* Dark gradient so white text is legible on any image */}
           <LinearGradient
             colors={["transparent", "rgba(15,26,34,0.72)"]}
             style={mealDetailStyles.imageGradientOverlay}
           />
-
-          {/* Meal name + time rendered ON the image */}
           <View style={mealDetailStyles.heroTextOverlay}>
             <Text style={mealDetailStyles.heroMealName} numberOfLines={2}>
               {meal.name}
@@ -97,12 +103,12 @@ export const MealDetails = () => {
           </View>
         </View>
 
-        {/* ── Pull-up card with handle ── */}
+        {/* ── Pull-up card ── */}
         <View style={mealDetailStyles.pullUpCard}>
           <View style={mealDetailStyles.pullUpHandle} />
         </View>
 
-        {/* ── Calories Hero Card — orange full-width ── */}
+        {/* ── Calories Hero Card ── */}
         <View style={mealDetailStyles.caloriesCard}>
           <View style={mealDetailStyles.caloriesIconContainer}>
             <Image
@@ -138,7 +144,6 @@ export const MealDetails = () => {
           <View style={mealDetailStyles.macroGrid}>
             {MACROS_CONFIG.map((macro) => (
               <View key={macro.key} style={mealDetailStyles.macroCard}>
-                {/* Colored glow circle behind the icon — replaces the top bar */}
                 <View
                   style={{
                     width: 58,
@@ -182,7 +187,6 @@ export const MealDetails = () => {
                 ]}
               >
                 <View style={mealDetailStyles.nutrientLeft}>
-                  {/* Icon inside a warm rounded square */}
                   <View style={mealDetailStyles.nutrientIconWrapper}>
                     <Image
                       source={NUTRITION_ICONS[nutrient.iconKey]}
@@ -199,8 +203,6 @@ export const MealDetails = () => {
                     </Text>
                   </View>
                 </View>
-
-                {/* Value as a pill */}
                 <View style={mealDetailStyles.nutrientValuePill}>
                   <Text style={mealDetailStyles.nutrientValue}>
                     {nutrient.value}
@@ -212,12 +214,6 @@ export const MealDetails = () => {
         </View>
 
         {/* ── AI Notice — premium badge style ── */}
-        <View style={mealDetailStyles.aiNotice}>
-          <View style={mealDetailStyles.aiNoticeBadge}>
-            <Ionicons name="sparkles" size={17} color="#F47B20" />
-          </View>
-          <Text style={mealDetailStyles.aiNoticeText}>{UI_TEXT.AI_NOTICE}</Text>
-        </View>
       </ScrollView>
 
       {/* ── Back Button ── */}
