@@ -1,4 +1,4 @@
-import { sendImageToAI } from "@/src/utils/sendImageToAI";
+import { sendImageToAI } from "@/src/utils/openaicalls/sendImageToAI";
 import {
   saveMealToDatabase,
   supabase,

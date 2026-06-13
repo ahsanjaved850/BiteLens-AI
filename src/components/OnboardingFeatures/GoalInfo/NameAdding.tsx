@@ -1,15 +1,15 @@
 import { COLORS, SPACING } from "@/src/Screens/Onboarding/Onboarding.style";
-import { saveOnboardingData } from "@/src/utils/onboardingStorage";
+import { saveOnboardingData } from "@/src/utils/onboarding/onboardingStorage";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
 } from "react-native";
 
 interface NameAddingProps {

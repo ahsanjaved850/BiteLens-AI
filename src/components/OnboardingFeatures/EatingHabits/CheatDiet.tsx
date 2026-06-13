@@ -13,13 +13,24 @@ import {
 
 const { width: SW, height: SH } = Dimensions.get("window");
 
-export const CheatDiet: React.FC = () => {
+interface CheatDietProps {
+  isActive?: boolean;
+}
+
+export const CheatDiet: React.FC<CheatDietProps> = ({ isActive = true }) => {
   const titleAnim = useRef(new Animated.Value(0)).current;
   const imageAnim = useRef(new Animated.Value(0)).current;
   const statsAnim = useRef(new Animated.Value(0)).current;
   const cardAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    titleAnim.setValue(0);
+    imageAnim.setValue(0);
+    statsAnim.setValue(0);
+    cardAnim.setValue(0);
+
+    if (!isActive) return;
+
     // Step 1 – Headline slides in
     Animated.spring(titleAnim, {
       toValue: 1,
@@ -51,7 +62,14 @@ export const CheatDiet: React.FC = () => {
         });
       });
     });
-  }, []);
+
+    return () => {
+      titleAnim.stopAnimation();
+      imageAnim.stopAnimation();
+      statsAnim.stopAnimation();
+      cardAnim.stopAnimation();
+    };
+  }, [isActive]);
 
   return (
     <View style={s.root}>

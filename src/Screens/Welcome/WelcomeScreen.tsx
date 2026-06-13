@@ -20,7 +20,7 @@ import { Slide3 } from "./Slide3";
 const { width: SCREEN_W } = Dimensions.get("window");
 
 const SLIDE_COUNT = 3;
-const AUTO_ADVANCE_MS = 1500;
+const AUTO_ADVANCE_MS = 4000;
 
 interface Props {
   startIndex?: number;

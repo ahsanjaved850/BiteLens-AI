@@ -1,18 +1,18 @@
 import {
-  getInitialDetails,
-  getProfile,
-  getWeightLogs,
+    getInitialDetails,
+    getProfile,
+    getWeightLogs,
 } from "@/backend/getData";
 import { logWeight, updateWeightStats } from "@/backend/sendData";
 import { dataAnalysis } from "@/src/utils/dataAnalysis";
 import * as Haptics from "expo-haptics";
 import { useEffect, useState } from "react";
 import {
-  BMI_CATEGORY_COLORS,
-  InitialDetailsData,
-  ModalType,
-  ProfileData,
-  WeightLog,
+    BMI_CATEGORY_COLORS,
+    InitialDetailsData,
+    ModalType,
+    ProfileData,
+    WeightLog,
 } from "./Data.static";
 
 export const useData = () => {

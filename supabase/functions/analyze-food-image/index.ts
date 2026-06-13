@@ -7,22 +7,15 @@ const corsHeaders = {
 };
 
 serve(async (req: any) => {
-  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    // Get the OpenAI API key from environment variables (set in Supabase dashboard)
     const openaiKey = Deno.env.get("OPENAI_API_KEY");
+    if (!openaiKey) throw new Error("OpenAI API key not configured");
 
-    if (!openaiKey) {
-      throw new Error("OpenAI API key not configured");
-    }
-
-    // Parse the request body
     const { base64Image } = await req.json();
-
     if (!base64Image) {
       return new Response(JSON.stringify({ error: "Image data is required" }), {
         status: 400,
@@ -30,7 +23,6 @@ serve(async (req: any) => {
       });
     }
 
-    // Call OpenAI API
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -42,62 +34,66 @@ serve(async (req: any) => {
         messages: [
           {
             role: "system",
-            content: `You are a certified nutrition expert and food scientist specializing in visual food analysis.
-            Your job is to accurately identify dishes from images and estimate their nutritional content based on:
-            - Visible portion size and plate/bowl dimensions as reference
-            - Cooking method (fried, steamed, grilled, baked, raw)
-            - Ingredient density and visible quantities
-            - Standard serving sizes from nutrition databases (USDA, FDA)
-            Always return valid JSON only. No markdown, no explanation, no extra text.`,
+            content: `You are a certified dietitian and food scientist with deep expertise in visual portion estimation and nutritional analysis. You have memorized USDA FoodData Central, FDA nutrition labels, and restaurant nutrition databases.
+
+Your estimates must reflect real-world database values — not guesses. Always return valid JSON only. No markdown, no explanation, no extra text.`,
           },
           {
             role: "user",
             content: [
               {
                 type: "text",
-                text: `Analyze this food image and return accurate nutritional estimates.
+                text: `Analyze this food image with the precision of a registered dietitian.
 
-                ANALYSIS STEPS:
-                1. Identify the dish/meal name precisely (e.g. "Grilled Chicken Caesar Salad" not just "Salad")
-                2. Estimate portion size using visual cues (plate size, utensils, packaging)
-                3. Identify all visible ingredients and estimate their quantities
-                4. Calculate total nutrition based on ingredients + cooking method:
-                  - Calories: account for oils/butter if fried or sautéed
-                  - Protein (g): sum from all protein sources
-                  - Carbs (g): include starches, bread, rice, sauces
-                  - Fats (g): include cooking oil, dressings, fatty meats
-                  - Sugar (g): natural + added sugars
-                  - Sodium (mg): account for sauces, seasoning, processed items
-                  - Fiber (g): from vegetables, legumes, whole grains
-                5. List all identifiable ingredients
+                PORTION DETECTION RULES:
+                1. Use visual reference cues to estimate portion size: plate diameter (~25cm standard dinner plate), hand size, packaging, utensils, or any other visible objects.
+                2. Identify the most natural countable unit for this food:
+                  - Discrete items → count them (e.g. 3 cookies, 2 slices, 6 nuggets)
+                  - Packaged food → use package size (e.g. 1 bag 30g, 1 bottle 500ml)
+                  - Plated meals → estimate weight in grams (e.g. 350g pasta)
+                  - Beverages → estimate in ml
+                3. Be specific: "2 slices toast" not "1 serving"; "340g steak" not "1 plate"
 
-                If the image is unclear or not food, return:
-                {
-                  "name": "Unidentified",
-                  "calories": "0",
-                  "protein": "0",
-                  "carbs": "0",
-                  "fats": "0",
-                  "sugar": "0",
-                  "sodium": "0",
-                  "fiber": "0",
-                  "ingredients": []
-                }
+                NUTRITION ACCURACY RULES:
+                - Base ALL values on USDA FoodData Central or known restaurant/brand nutrition data
+                - Calories: must be mathematically consistent with protein×4 + carbs×4 + fat×9 (±10% for fiber/alcohol)
+                - Carbs: total carbohydrates in grams
+                - Sugar: must be ≤ carbs (sugar is a subset of total carbs), in grams
+                - Fiber: must be ≤ carbs, in grams
+                - Sodium: in MILLIGRAMS (mg), not grams — typical range: 100–3000mg per meal
+                - Fat: total fat in grams
+                - Protein: in grams
+
+                CALCULATION:
+                - perUnitNutrition = nutrition for exactly 1 of the detectedUnit
+                - Total fields = perUnitNutrition × detectedQuantity
+                - All values must be plain numbers — no units inside JSON values
+
+                If image is unclear or not food, return zeros and name "Unidentified".
 
                 Return ONLY this JSON:
                 {
-                  "name": "Name of the dish/meal",
-                  "calories": "150",
-                  "protein": "8",
-                  "carbs": "20",
-                  "fats": "5",
-                  "sugar": "3",
-                  "sodium": "200",
-                  "fiber": "4",
-                  "ingredients": ["ingredient 1", "ingredient 2", "ingredient 3"]
-                }
-
-                Important: Use only numbers in the JSON values, no units.`,
+                  "name": "Precise dish name (e.g. Grilled Chicken Caesar Salad, not just Salad)",
+                  "detectedQuantity": 2,
+                  "detectedUnit": "slices",
+                  "perUnitNutrition": {
+                    "calories": 120,
+                    "protein": 4,
+                    "carbs": 22,
+                    "fat": 2,
+                    "sugar": 3,
+                    "sodium": 180,
+                    "fiber": 1
+                  },
+                  "calories": 240,
+                  "protein": 8,
+                  "carbs": 44,
+                  "fats": 4,
+                  "sugar": 6,
+                  "sodium": 360,
+                  "fiber": 2,
+                  "ingredients": ["ingredient 1", "ingredient 2"]
+                }`,
               },
               {
                 type: "image_url",
@@ -109,7 +105,7 @@ serve(async (req: any) => {
             ],
           },
         ],
-        max_tokens: 400,
+        max_tokens: 600,
         temperature: 0.1,
       }),
     });
@@ -122,12 +118,8 @@ serve(async (req: any) => {
 
     const data = await response.json();
     const content = data.choices[0]?.message?.content;
+    if (!content) throw new Error("No content received from OpenAI API");
 
-    if (!content) {
-      throw new Error("No content received from OpenAI API");
-    }
-
-    // Clean the response
     const cleanedContent = content
       .replace(/```json\n?/g, "")
       .replace(/```\n?/g, "")
@@ -135,23 +127,49 @@ serve(async (req: any) => {
 
     const parsed = JSON.parse(cleanedContent);
 
-    // Validate response
     if (!parsed.calories || !parsed.protein || !parsed.carbs || !parsed.fats) {
       throw new Error("Missing required nutrition fields in response");
     }
-    console.log(cleanedContent);
-    // Ensure values are strings
+
+    // Build perUnitNutrition — fallback to total/1 if AI didn't return it
+    const perUnit = parsed.perUnitNutrition ?? {
+      calories: parsed.calories,
+      protein: parsed.protein,
+      carbs: parsed.carbs,
+      fat: parsed.fats,
+      sugar: parsed.sugar,
+      sodium: parsed.sodium,
+      fiber: parsed.fiber,
+    };
+
     const nutritionData = {
       name: String(parsed.name),
+      // Flat fields — backward compatible with existing MealData shape
       calories: String(parsed.calories),
       protein: String(parsed.protein),
       carbs: String(parsed.carbs),
       fats: String(parsed.fats),
-      sugar: String(parsed.sugar),
-      sodium: String(parsed.sodium),
-      fiber: String(parsed.fiber),
-      ingredients: parsed.ingredients,
+      sugar: String(parsed.sugar ?? "0"),
+      sodium: String(parsed.sodium ?? "0"),
+      fiber: String(parsed.fiber ?? "0"),
+      ingredients: parsed.ingredients ?? [],
+      // New portion fields
+      portion_data: {
+        detectedQuantity: Number(parsed.detectedQuantity ?? 1),
+        detectedUnit: String(parsed.detectedUnit ?? "serving"),
+        perUnitNutrition: {
+          calories: Number(perUnit.calories),
+          protein: Number(perUnit.protein),
+          carbs: Number(perUnit.carbs),
+          fat: Number(perUnit.fat ?? perUnit.fats ?? 0),
+          sugar: Number(perUnit.sugar ?? 0),
+          sodium: Number(perUnit.sodium ?? 0),
+          fiber: Number(perUnit.fiber ?? 0),
+        },
+      },
     };
+
+    console.log("analyze-food-image result:", JSON.stringify(nutritionData));
 
     return new Response(JSON.stringify(nutritionData), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

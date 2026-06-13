@@ -26,17 +26,27 @@ const STATEMENTS = [
 interface RelateStatementsProps {
   onValidationChange?: (isValid: boolean) => void;
   onComplete?: () => void;
+  isActive?: boolean;
 }
 
 export const RelateStatements: React.FC<RelateStatementsProps> = ({
   onValidationChange,
   onComplete,
+  isActive,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
 
   const cardAnim = useRef(new Animated.Value(0)).current;
   const isAnimatingRef = useRef(false);
+
+  // Persist the last answered index and choice so we can restore them
+  // when the user navigates back to this slide after completing it.
+  const lastAnsweredIndexRef = useRef<number | null>(null);
+  const lastAnswerRef = useRef<boolean | null>(null);
+
+  // Flag set when onComplete has fired — used to detect "returning" state.
+  const hasCompletedRef = useRef(false);
 
   const currentStatement = STATEMENTS[currentIndex];
   const isLastStatement = currentIndex === STATEMENTS.length - 1;
@@ -48,6 +58,28 @@ export const RelateStatements: React.FC<RelateStatementsProps> = ({
   useEffect(() => {
     onValidationChangeRef.current?.(isComplete);
   }, [isComplete]);
+
+  // When the slide becomes active again after having been completed,
+  // snap back to showing the last image with the previously chosen answer.
+  useEffect(() => {
+    if (
+      isActive &&
+      hasCompletedRef.current &&
+      lastAnsweredIndexRef.current !== null
+    ) {
+      setIsComplete(false);
+      setCurrentIndex(lastAnsweredIndexRef.current);
+      hasCompletedRef.current = false;
+      // Re-run entry animation for the restored card
+      cardAnim.setValue(0);
+      Animated.spring(cardAnim, {
+        toValue: 1,
+        tension: 50,
+        friction: 8,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [isActive]);
 
   useEffect(() => {
     cardAnim.setValue(0);
@@ -65,13 +97,16 @@ export const RelateStatements: React.FC<RelateStatementsProps> = ({
       if (isAnimatingRef.current || isComplete) return;
       isAnimatingRef.current = true;
 
+      // Remember what the user picked on this card
+      lastAnsweredIndexRef.current = currentIndex;
+      lastAnswerRef.current = answer;
+
       await Haptics.impactAsync(
         answer
           ? Haptics.ImpactFeedbackStyle.Medium
           : Haptics.ImpactFeedbackStyle.Light,
       );
 
-      // Animate the current card out for EVERY answer, including the last one
       Animated.timing(cardAnim, {
         toValue: 2,
         duration: 250,
@@ -80,16 +115,18 @@ export const RelateStatements: React.FC<RelateStatementsProps> = ({
         isAnimatingRef.current = false;
 
         if (isLastStatement) {
-          setIsComplete(true); // marks page valid via the existing effect
-          onComplete?.(); // auto-advance — no extra Continue tap needed
+          hasCompletedRef.current = true;
+          setIsComplete(true);
+          onComplete?.();
           return;
         }
 
-        setCurrentIndex((prev) => prev + 1); // fades the next image in
+        setCurrentIndex((prev) => prev + 1);
       });
     },
-    [cardAnim, isLastStatement, isComplete, onComplete],
+    [cardAnim, isLastStatement, isComplete, onComplete, currentIndex],
   );
+
   const progressDots = STATEMENTS.map((_, i) => {
     const isAnswered = isComplete || i < currentIndex;
     const isCurrent = !isComplete && i === currentIndex;
@@ -166,7 +203,12 @@ export const RelateStatements: React.FC<RelateStatementsProps> = ({
         {!isComplete && (
           <View style={styles.buttonRow}>
             <TouchableOpacity
-              style={styles.noButton}
+              style={[
+                styles.noButton,
+                lastAnswerRef.current === false &&
+                  currentIndex === lastAnsweredIndexRef.current &&
+                  styles.noButtonSelected,
+              ]}
               onPress={() => handleAnswer(false)}
               activeOpacity={0.7}
             >
@@ -174,7 +216,12 @@ export const RelateStatements: React.FC<RelateStatementsProps> = ({
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.yesButton}
+              style={[
+                styles.yesButton,
+                lastAnswerRef.current === true &&
+                  currentIndex === lastAnsweredIndexRef.current &&
+                  styles.yesButtonSelected,
+              ]}
               onPress={() => handleAnswer(true)}
               activeOpacity={0.7}
             >
@@ -280,5 +327,16 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "700",
     color: COLORS.white,
+  },
+
+  noButtonSelected: {
+    borderColor: COLORS.textDark,
+    borderWidth: 2.5,
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
+  },
+
+  yesButtonSelected: {
+    opacity: 0.85,
+    transform: [{ scale: 0.97 }],
   },
 });

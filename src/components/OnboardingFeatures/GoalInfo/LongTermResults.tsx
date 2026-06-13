@@ -19,47 +19,71 @@ const STAT_ITEMS = [
   { value: "3×", label: "better retention\nwith Orca plans" },
 ];
 
-export const LongTermResults: React.FC = () => {
+interface LongTermResultsProps {
+  isActive?: boolean;
+}
+
+export const LongTermResults: React.FC<LongTermResultsProps> = ({
+  isActive = true,
+}) => {
   const headerAnim = useRef(new Animated.Value(0)).current;
-  const badgeAnim = useRef(new Animated.Value(0)).current;
   const imageAnim = useRef(new Animated.Value(0)).current;
   const statsAnim = useRef(new Animated.Value(0)).current;
   const cardAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.stagger(110, [
+    // Always reset first.
+    // This is important because onboarding/carousel screens often mount slides early.
+    headerAnim.setValue(0);
+    imageAnim.setValue(0);
+    statsAnim.setValue(0);
+    cardAnim.setValue(0);
+
+    // Do not run animation until this slide is actually active/visible.
+    if (!isActive) return;
+
+    const animation = Animated.sequence([
       Animated.spring(headerAnim, {
         toValue: 1,
         tension: 65,
         friction: 9,
         useNativeDriver: true,
       }),
-      Animated.spring(badgeAnim, {
-        toValue: 1,
-        tension: 55,
-        friction: 8,
-        useNativeDriver: true,
-      }),
+
+      Animated.delay(90),
+
       Animated.spring(imageAnim, {
         toValue: 1,
         tension: 42,
         friction: 7,
         useNativeDriver: true,
       }),
+
+      Animated.delay(90),
+
       Animated.spring(statsAnim, {
         toValue: 1,
         tension: 48,
         friction: 8,
         useNativeDriver: true,
       }),
+
+      Animated.delay(90),
+
       Animated.spring(cardAnim, {
         toValue: 1,
         tension: 52,
         friction: 8,
         useNativeDriver: true,
       }),
-    ]).start();
-  }, []);
+    ]);
+
+    animation.start();
+
+    return () => {
+      animation.stop();
+    };
+  }, [isActive, headerAnim, imageAnim, statsAnim, cardAnim]);
 
   return (
     <View style={s.root}>
@@ -81,17 +105,20 @@ export const LongTermResults: React.FC = () => {
       <View style={s.content}>
         {/* ── Headline ── */}
         <Animated.View
-          style={{
-            opacity: headerAnim,
-            transform: [
-              {
-                translateY: headerAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [22, 0],
-                }),
-              },
-            ],
-          }}
+          style={[
+            s.headerWrap,
+            {
+              opacity: headerAnim,
+              transform: [
+                {
+                  translateY: headerAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [22, 0],
+                  }),
+                },
+              ],
+            },
+          ]}
         >
           <Text style={s.headline}>
             Real progress,{"\n"}
@@ -127,7 +154,6 @@ export const LongTermResults: React.FC = () => {
             resizeMode="cover"
             style={s.graphImage}
           />
-          {/* Graph inner label */}
         </Animated.View>
 
         {/* ── Stat pills row ── */}
@@ -175,6 +201,7 @@ export const LongTermResults: React.FC = () => {
           <View style={s.insightIconWrap}>
             <Ionicons name="bulb" size={18} color={COLORS.primary} />
           </View>
+
           <Text style={s.insightText}>
             Avoid the <Text style={s.insightBold}>81% bounce-back risk</Text> of
             unsustainable diets. Orca builds habits that actually stick.
@@ -191,26 +218,6 @@ const s = StyleSheet.create({
     backgroundColor: COLORS.backgroundGradientTop,
   },
 
-  /* Decorative blobs */
-  blobTopRight: {
-    position: "absolute",
-    top: -60,
-    right: -70,
-    width: 210,
-    height: 210,
-    borderRadius: 105,
-    backgroundColor: "rgba(255, 180, 130, 0.18)",
-  },
-  blobBottomLeft: {
-    position: "absolute",
-    bottom: 80,
-    left: -80,
-    width: 180,
-    height: 180,
-    borderRadius: 90,
-    backgroundColor: "rgba(255, 200, 160, 0.14)",
-  },
-
   content: {
     flex: 1,
     alignItems: "center",
@@ -219,24 +226,9 @@ const s = StyleSheet.create({
     gap: 10,
   },
 
-  /* Eyebrow badge */
-  eyebrowBadge: {
-    flexDirection: "row",
+  headerWrap: {
+    width: "100%",
     alignItems: "center",
-    gap: 5,
-    backgroundColor: "rgba(255,255,255,0.72)",
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderWidth: 1,
-    borderColor: "rgba(230, 180, 140, 0.55)",
-    alignSelf: "center",
-  },
-  eyebrowText: {
-    fontSize: 11,
-    fontWeight: "700",
-    color: COLORS.primary,
-    letterSpacing: 1.1,
   },
 
   /* Headline */
@@ -266,25 +258,7 @@ const s = StyleSheet.create({
   graphImage: {
     width: "100%",
     height: "100%",
-    padding: 10,
-  },
-  graphLabel: {
-    position: "absolute",
-    bottom: 12,
-    right: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    backgroundColor: COLORS.primary,
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-  },
-  graphLabelText: {
-    fontSize: 11,
-    fontWeight: "700",
-    color: "#fff",
-    letterSpacing: 0.3,
+    padding: 8,
   },
 
   /* Stats row */

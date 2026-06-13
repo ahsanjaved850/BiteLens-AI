@@ -46,7 +46,7 @@ const EMPTY_NUTRITION: TodayNutrition = {
   fiber: 0,
 };
 
-// ─── Upload meal image ────────────────────────────────────────────────────
+//  Upload meal image
 export const uploadMealImage = async (
   imageUri: string,
   userId: string,
@@ -77,7 +77,7 @@ export const uploadMealImage = async (
   }
 };
 
-// ─── Save meal ────────────────────────────────────────────────────────────
+//  Save meal
 export const saveMealToDatabase = async (mealData: MealData): Promise<void> => {
   try {
     const {
@@ -107,7 +107,7 @@ export const saveMealToDatabase = async (mealData: MealData): Promise<void> => {
   }
 };
 
-// ─── Fetch meals for a date (defaults to today) ───────────────────────────
+//  Fetch meals for a date (defaults to today)
 // Pass "YYYY-MM-DD" to fetch a historical date's meal list.
 export const fetchUserMeals = async (date?: string): Promise<MealData[]> => {
   try {
@@ -139,9 +139,7 @@ export const fetchUserMeals = async (date?: string): Promise<MealData[]> => {
   }
 };
 
-// ─── Get nutrition totals for a date (defaults to today) ──────────────────
-// Uses the `date` column on daily_intake — exact match.
-// Returns all zeros when no data exists for that date (new day = fresh start).
+//  Get nutrition totals for a date (defaults to today)
 export const getTodayNutrition = async (
   date?: string,
 ): Promise<TodayNutrition> => {
@@ -161,7 +159,7 @@ export const getTodayNutrition = async (
         "total_calories, total_carbs, total_protein, total_fat, total_sugar, total_sodium, total_fiber",
       )
       .eq("id", user.id)
-      .eq("date", targetDate) // ← exact date column match, not created_at range
+      .eq("date", targetDate)
       .maybeSingle();
 
     if (error) throw error;
@@ -182,6 +180,7 @@ export const getTodayNutrition = async (
   }
 };
 
+//  Delete meal
 export const deleteMeal = async (mealData: MealData): Promise<void> => {
   try {
     const {
@@ -196,16 +195,14 @@ export const deleteMeal = async (mealData: MealData): Promise<void> => {
       "T",
     )[0];
 
-    // 1. Delete the meal row — use meal_id, not id
     const { error: deleteError } = await supabase
       .from("daily_meals")
       .delete()
-      .eq("meal_id", mealData.id) // 👈 was "id", now "meal_id"
+      .eq("meal_id", mealData.id)
       .eq("user_id", userId);
 
     if (deleteError) throw deleteError;
 
-    // 2. Fetch current daily_intake totals
     const { data: intake, error: fetchError } = await supabase
       .from("daily_intake")
       .select(
@@ -218,7 +215,6 @@ export const deleteMeal = async (mealData: MealData): Promise<void> => {
     if (fetchError) throw fetchError;
     if (!intake) return;
 
-    // 3. Decrement totals
     const { error: updateError } = await supabase
       .from("daily_intake")
       .update({

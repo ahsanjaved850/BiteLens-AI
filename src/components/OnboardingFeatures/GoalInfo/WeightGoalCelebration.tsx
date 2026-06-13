@@ -139,8 +139,8 @@ export const WeightGoalCelebration: React.FC = () => {
 
   const headline =
     diff > 0
-      ? `${action} ${diffText} is a\nchallenging goal.\nYou can do it!`
-      : `Maintaining your weight\nis a great goal.\nLet's do it!`;
+      ? `${action} ${diffText} is a challenging goal. You can do it!`
+      : `Maintaining your weight is a great goal. Let's do it!`;
 
   useEffect(() => {
     Animated.stagger(180, [

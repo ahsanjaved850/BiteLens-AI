@@ -65,6 +65,7 @@ export function OnboardingScreen() {
               : undefined
           }
           isSubmitting={index === PAGES.length - 1 ? isFinishing : false}
+          onUnlockPress={index === PAGES.length - 1 ? handleNext : undefined}
         />
       </View>
     );

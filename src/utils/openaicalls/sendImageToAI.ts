@@ -1,4 +1,4 @@
-import { supabase } from "./supabase";
+import { supabase } from "@/src/utils/supabase";
 
 export type NutritionData = {
   name: string;
@@ -13,7 +13,7 @@ export type NutritionData = {
 };
 
 export const sendImageToAI = async (
-  base64Image: string
+  base64Image: string,
 ): Promise<NutritionData> => {
   if (!base64Image) {
     throw new Error("Image data is empty");
@@ -24,7 +24,7 @@ export const sendImageToAI = async (
       "analyze-food-image",
       {
         body: { base64Image },
-      }
+      },
     );
 
     if (error) {

@@ -4,47 +4,79 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
   Easing,
+  Image,
   StatusBar,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 
-// ─── Stats data ────────────────────────────────────────────────────────────
+//  Stats data
 const STATS = [
   { value: 97, label: "of users feel more in control\nof their eating habits" },
   { value: 91, label: "of users achieved noticeable\nhealth gains in 30 days" },
   { value: 89, label: "of users saw real progress\nin their very first month" },
 ] as const;
 
-// ─── Animated counter ──────────────────────────────────────────────────────
-const useCountUp = (target: number, duration: number, delay: number) => {
+interface SocialProofStatsProps {
+  isActive?: boolean;
+}
+
+//  Animated counter
+const useCountUp = (
+  target: number,
+  duration: number,
+  delay: number,
+  shouldStart: boolean,
+) => {
   const [val, setVal] = useState(0);
+
   useEffect(() => {
-    const t = setTimeout(() => {
+    let frame: number | null = null;
+
+    if (!shouldStart) {
+      setVal(0);
+      return;
+    }
+
+    const timeout = setTimeout(() => {
       const start = Date.now();
+
       const tick = () => {
-        const p = Math.min((Date.now() - start) / duration, 1);
-        const eased = 1 - Math.pow(1 - p, 3);
+        const progress = Math.min((Date.now() - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+
         setVal(Math.round(eased * target));
-        if (p < 1) requestAnimationFrame(tick);
+
+        if (progress < 1) {
+          frame = requestAnimationFrame(tick);
+        }
       };
-      requestAnimationFrame(tick);
+
+      frame = requestAnimationFrame(tick);
     }, delay);
-    return () => clearTimeout(t);
-  }, []);
+
+    return () => {
+      clearTimeout(timeout);
+      if (frame !== null) {
+        cancelAnimationFrame(frame);
+      }
+    };
+  }, [target, duration, delay, shouldStart]);
+
   return val;
 };
 
-// ─── Single stat row ───────────────────────────────────────────────────────
+//  Single stat row
 const StatRow: React.FC<{
   value: number;
   label: string;
   delay: number;
   rowAnim: Animated.Value;
+  shouldCount: boolean;
   isLast?: boolean;
-}> = ({ value, label, delay, rowAnim, isLast }) => {
-  const displayed = useCountUp(value, 1200, delay);
+}> = ({ value, label, delay, rowAnim, shouldCount, isLast }) => {
+  const displayed = useCountUp(value, 1200, delay, shouldCount);
 
   return (
     <Animated.View
@@ -64,52 +96,63 @@ const StatRow: React.FC<{
         },
       ]}
     >
-      {/* Big percentage number */}
       <View style={s.statNumWrap}>
         <Text style={s.statNum}>{displayed}</Text>
         <Text style={s.statPct}>%</Text>
       </View>
 
-      {/* Description */}
       <Text style={s.statLabel}>{label}</Text>
     </Animated.View>
   );
 };
 
-// ─── Main Component ────────────────────────────────────────────────────────
-export const SocialProofStats: React.FC = () => {
+//  Main Component
+export const SocialProofStats: React.FC<SocialProofStatsProps> = ({
+  isActive = true,
+}) => {
   const titleAnim = useRef(new Animated.Value(0)).current;
   const cardAnim = useRef(new Animated.Value(0)).current;
   const footerAnim = useRef(new Animated.Value(0)).current;
+  const peopleAnim = useRef(new Animated.Value(0)).current;
   const rowAnims = useRef(STATS.map(() => new Animated.Value(0))).current;
 
+  const [shouldCountNumbers, setShouldCountNumbers] = useState(false);
+
+  const resetAnimations = () => {
+    titleAnim.setValue(0);
+    cardAnim.setValue(0);
+    footerAnim.setValue(0);
+    peopleAnim.setValue(0);
+    rowAnims.forEach((anim) => anim.setValue(0));
+    setShouldCountNumbers(false);
+  };
+
   useEffect(() => {
-    // UI entrance — native driver
-    Animated.stagger(140, [
+    resetAnimations();
+
+    if (!isActive) return;
+
+    const animation = Animated.sequence([
       Animated.spring(titleAnim, {
         toValue: 1,
         tension: 50,
         friction: 8,
         useNativeDriver: true,
       }),
+
+      Animated.delay(80),
+
       Animated.spring(cardAnim, {
         toValue: 1,
         tension: 44,
         friction: 8,
         useNativeDriver: true,
       }),
-      Animated.spring(footerAnim, {
-        toValue: 1,
-        tension: 48,
-        friction: 8,
-        useNativeDriver: true,
-      }),
-    ]).start();
 
-    // Row slide-ins — staggered, native driver
-    const t = setTimeout(() => {
+      Animated.delay(120),
+
       Animated.stagger(
-        200,
+        180,
         rowAnims.map((anim) =>
           Animated.timing(anim, {
             toValue: 1,
@@ -118,11 +161,36 @@ export const SocialProofStats: React.FC = () => {
             useNativeDriver: true,
           }),
         ),
-      ).start();
-    }, 400);
+      ),
 
-    return () => clearTimeout(t);
-  }, []);
+      Animated.delay(120),
+
+      Animated.parallel([
+        Animated.timing(footerAnim, {
+          toValue: 1,
+          duration: 360,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.spring(peopleAnim, {
+          toValue: 1,
+          tension: 48,
+          friction: 8,
+          useNativeDriver: true,
+        }),
+      ]),
+    ]);
+
+    animation.start(({ finished }) => {
+      if (!finished) return;
+      setShouldCountNumbers(true);
+    });
+
+    return () => {
+      animation.stop();
+      setShouldCountNumbers(false);
+    };
+  }, [isActive]);
 
   return (
     <View style={s.root}>
@@ -142,7 +210,6 @@ export const SocialProofStats: React.FC = () => {
       />
 
       <View style={s.content}>
-        {/* ── Title ── */}
         <Animated.Text
           style={[
             s.title,
@@ -162,7 +229,6 @@ export const SocialProofStats: React.FC = () => {
           Orca was made for people{"\n"}just like you!
         </Animated.Text>
 
-        {/* ── Stats card ── */}
         <Animated.View
           style={[
             s.card,
@@ -175,13 +241,22 @@ export const SocialProofStats: React.FC = () => {
                     outputRange: [0.94, 1],
                   }),
                 },
+                {
+                  translateY: cardAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [20, 0],
+                  }),
+                },
               ],
             },
           ]}
         >
-          {/* Thumbs up badge — top right */}
           <View style={s.thumbBadge}>
-            <Text style={s.thumbEmoji}>👍</Text>
+            <Image
+              source={require("@/assets/images/Onboarding/people.png")}
+              style={s.thumbImage}
+              resizeMode="contain"
+            />
           </View>
 
           {STATS.map((stat, i) => (
@@ -189,27 +264,41 @@ export const SocialProofStats: React.FC = () => {
               key={i}
               value={stat.value}
               label={stat.label}
-              delay={500 + i * 200}
+              delay={i * 180}
               rowAnim={rowAnims[i]}
+              shouldCount={shouldCountNumbers}
               isLast={i === STATS.length - 1}
             />
           ))}
         </Animated.View>
 
-        {/* ── Validation note ── */}
-        <Animated.Text style={[s.footnote, { opacity: footerAnim }]}>
-          Validated by independent surveys and real user testimonials
-        </Animated.Text>
-
-        {/* ── People illustration / image ── */}
-        <Animated.View
+        <Animated.Text
           style={[
-            s.peopleWrap,
+            s.footnote,
             {
               opacity: footerAnim,
               transform: [
                 {
                   translateY: footerAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [12, 0],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          Validated by independent surveys and real user testimonials
+        </Animated.Text>
+
+        <Animated.View
+          style={[
+            s.peopleWrap,
+            {
+              opacity: peopleAnim,
+              transform: [
+                {
+                  translateY: peopleAnim.interpolate({
                     inputRange: [0, 1],
                     outputRange: [30, 0],
                   }),
@@ -218,7 +307,6 @@ export const SocialProofStats: React.FC = () => {
             },
           ]}
         >
-          {/* Diverse avatars rendered as emoji crowd — replace with your image if available */}
           <View style={s.avatarRow}>
             {["👩🏿", "👨🏻‍🦱", "👩🏽", "👩🏾", "👨🏽‍🦳", "👩🏻‍🦰", "👨🏾"].map((em, i) => (
               <View
@@ -239,7 +327,7 @@ export const SocialProofStats: React.FC = () => {
   );
 };
 
-// ─── Styles ────────────────────────────────────────────────────────────────
+//  Styles
 const s = StyleSheet.create({
   root: {
     flex: 1,
@@ -250,8 +338,6 @@ const s = StyleSheet.create({
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.lg,
   },
-
-  // Title
   title: {
     fontSize: 28,
     fontWeight: "700",
@@ -261,8 +347,6 @@ const s = StyleSheet.create({
     marginBottom: SPACING.xl,
     textAlign: "center",
   },
-
-  // Stats card
   card: {
     backgroundColor: "#FFFAF6",
     borderRadius: 28,
@@ -279,16 +363,14 @@ const s = StyleSheet.create({
     elevation: 6,
     overflow: "visible",
   },
-
-  // Thumbs up badge — top right corner of card
   thumbBadge: {
     position: "absolute",
     top: -20,
     right: SPACING.lg,
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: "#FFF3E8",
+    width: 62,
+    height: 62,
+    borderRadius: 36,
+    backgroundColor: "#fefefe",
     borderWidth: 2,
     borderColor: "#F0DED0",
     alignItems: "center",
@@ -299,11 +381,10 @@ const s = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
-  thumbEmoji: {
-    fontSize: 26,
+  thumbImage: {
+    width: 62,
+    height: 62,
   },
-
-  // Stat row
   statRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -322,7 +403,7 @@ const s = StyleSheet.create({
   statNum: {
     fontSize: 52,
     fontWeight: "700",
-    color: COLORS.primary, // brand orange — replaces reference's green
+    color: COLORS.primary,
     letterSpacing: -2,
     lineHeight: 58,
   },
@@ -340,8 +421,6 @@ const s = StyleSheet.create({
     color: COLORS.textSecondary,
     lineHeight: 21,
   },
-
-  // Footnote
   footnote: {
     fontSize: 13,
     fontWeight: "500",
@@ -350,8 +429,6 @@ const s = StyleSheet.create({
     lineHeight: 20,
     marginBottom: SPACING.lg,
   },
-
-  // Avatar crowd
   peopleWrap: {
     alignItems: "center",
     flex: 1,

@@ -66,6 +66,18 @@ export const loginStyles = StyleSheet.create({
     paddingBottom: 24,
   },
 
+  // ── Back button
+  backButton: {
+    alignSelf: "flex-start",
+    marginBottom: 8,
+    padding: 4,
+  },
+  backButtonText: {
+    fontSize: 28,
+    color: COLORS.textDark,
+    lineHeight: 32,
+  },
+
   // ── Logo wordmark
   logoContainer: {
     alignItems: "center",

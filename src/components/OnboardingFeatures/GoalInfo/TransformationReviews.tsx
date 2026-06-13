@@ -14,7 +14,7 @@ import {
 
 const { width: SW } = Dimensions.get("window");
 
-// ─── Review data ───────────────────────────────────────────────────────────
+// Review data
 const REVIEWS = [
   {
     image: require("@/assets/images/Onboarding/review1.png"),
@@ -25,7 +25,7 @@ const REVIEWS = [
   },
   {
     image: require("@/assets/images/Onboarding/review2.png"),
-    name: "Sarah M.",
+    name: "Natalie R.",
     quote:
       "The AI scan is insane. I just snap my meal and it does the rest. Game changer.",
     stars: 5,
@@ -39,7 +39,7 @@ const REVIEWS = [
   },
   {
     image: require("@/assets/images/Onboarding/review4.png"),
-    name: "Natalie R.",
+    name: "Sarah M.",
     quote:
       "Simple, fast, and accurate. My macros have never been this on point.",
     stars: 5,
@@ -48,9 +48,18 @@ const REVIEWS = [
 
 const CARD_W = SW * 0.72;
 const CARD_GAP = 14;
-const SCROLL_INTERVAL_MS = 2800;
+const SCROLL_INTERVAL_MS = 2500;
 
-// ─── Star Row ──────────────────────────────────────────────────────────────
+type TransformationReviewsProps = {
+  /**
+   * Pass true only when this onboarding slide is currently visible.
+   * Example:
+   * <TransformationReviews isActive={currentSlideIndex === 3} />
+   */
+  isActive?: boolean;
+};
+
+// Star Row
 const Stars: React.FC<{ count: number }> = ({ count }) => (
   <View style={s.starsRow}>
     {Array.from({ length: count }).map((_, i) => (
@@ -61,37 +70,104 @@ const Stars: React.FC<{ count: number }> = ({ count }) => (
   </View>
 );
 
-// ─── Main Component ────────────────────────────────────────────────────────
-export const TransformationReviews: React.FC = () => {
+// Main Component
+export const TransformationReviews: React.FC<TransformationReviewsProps> = ({
+  isActive = true,
+}) => {
   const scrollRef = useRef<ScrollView>(null);
+
   const [activeIndex, setActiveIndex] = useState(0);
+
   const headerAnim = useRef(new Animated.Value(0)).current;
+  const dotsAnim = useRef(new Animated.Value(0)).current;
 
-  // Entrance animation for header
-  useEffect(() => {
-    Animated.spring(headerAnim, {
-      toValue: 1,
-      tension: 50,
-      friction: 8,
-      useNativeDriver: true,
-    }).start();
-  }, []);
+  const cardAnims = useRef(REVIEWS.map(() => new Animated.Value(0))).current;
 
-  // Auto-scroll right to left every SCROLL_INTERVAL_MS
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveIndex((prev) => {
-        const next = (prev + 1) % REVIEWS.length;
-        scrollRef.current?.scrollTo({
-          x: next * (CARD_W + CARD_GAP),
-          animated: true,
-        });
-        return next;
+  const resetAnimations = () => {
+    headerAnim.setValue(0);
+    dotsAnim.setValue(0);
+
+    cardAnims.forEach((anim) => {
+      anim.setValue(0);
+    });
+
+    setActiveIndex(0);
+
+    requestAnimationFrame(() => {
+      scrollRef.current?.scrollTo({
+        x: 0,
+        animated: false,
       });
-    }, SCROLL_INTERVAL_MS);
+    });
+  };
 
-    return () => clearInterval(interval);
-  }, []);
+  // Entrance animation: content shows one by one when this slide becomes active
+  useEffect(() => {
+    if (!isActive) {
+      resetAnimations();
+      return;
+    }
+
+    const animation = Animated.sequence([
+      Animated.spring(headerAnim, {
+        toValue: 1,
+        tension: 50,
+        friction: 8,
+        useNativeDriver: true,
+      }),
+
+      Animated.stagger(
+        160,
+        cardAnims.map((anim) =>
+          Animated.spring(anim, {
+            toValue: 1,
+            tension: 45,
+            friction: 8,
+            useNativeDriver: true,
+          }),
+        ),
+      ),
+
+      Animated.timing(dotsAnim, {
+        toValue: 1,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+    ]);
+
+    animation.start();
+
+    return () => {
+      animation.stop();
+    };
+  }, [isActive]);
+
+  // Auto-scroll only when this slide is active
+  useEffect(() => {
+    if (!isActive) return;
+
+    let interval: ReturnType<typeof setInterval>;
+
+    const timeout = setTimeout(() => {
+      interval = setInterval(() => {
+        setActiveIndex((prev) => {
+          const next = (prev + 1) % REVIEWS.length;
+
+          scrollRef.current?.scrollTo({
+            x: next * (CARD_W + CARD_GAP),
+            animated: true,
+          });
+
+          return next;
+        });
+      }, SCROLL_INTERVAL_MS);
+    }, 1800);
+
+    return () => {
+      clearTimeout(timeout);
+      if (interval) clearInterval(interval);
+    };
+  }, [isActive]);
 
   return (
     <View style={s.root}>
@@ -100,7 +176,6 @@ export const TransformationReviews: React.FC = () => {
         backgroundColor={COLORS.backgroundGradientTop}
       />
 
-      {/* Peach → cream → white gradient */}
       <LinearGradient
         colors={[
           COLORS.backgroundGradientTop,
@@ -111,7 +186,7 @@ export const TransformationReviews: React.FC = () => {
         style={StyleSheet.absoluteFill}
       />
 
-      {/* ── Header ── */}
+      {/* Header */}
       <Animated.View
         style={[
           s.header,
@@ -121,20 +196,24 @@ export const TransformationReviews: React.FC = () => {
               {
                 translateY: headerAnim.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [20, 0],
+                  outputRange: [24, 0],
                 }),
               },
             ],
           },
         ]}
       >
-        <Text style={s.title}>They did it So can{"\n"} You</Text>
+        <Text style={s.headline}>
+          They did it,{"\n"}
+          <Text style={s.headlineAccent}>So can You.</Text>
+        </Text>
+
         <Text style={s.subtitle}>
-          Join community of users who transformed their health with Us
+          Join a community of users who transformed their health with Us
         </Text>
       </Animated.View>
 
-      {/* ── Scrolling Review Cards ── */}
+      {/* Scrolling Review Cards */}
       <ScrollView
         ref={scrollRef}
         horizontal
@@ -147,82 +226,129 @@ export const TransformationReviews: React.FC = () => {
           const idx = Math.round(
             e.nativeEvent.contentOffset.x / (CARD_W + CARD_GAP),
           );
-          setActiveIndex(idx);
+
+          const safeIndex = Math.max(0, Math.min(idx, REVIEWS.length - 1));
+          setActiveIndex(safeIndex);
         }}
       >
-        {REVIEWS.map((review, i) => (
-          <View key={i} style={[s.card, i === activeIndex && s.cardActive]}>
-            {/* Before/After transformation image */}
-            <View style={s.imageWrap}>
-              <Image source={review.image} style={s.image} resizeMode="cover" />
-            </View>
+        {REVIEWS.map((review, i) => {
+          const isCardActive = i === activeIndex;
 
-            {/* Review content */}
-            <View style={s.reviewBody}>
-              <Stars count={review.stars} />
-              <Text style={s.quote}>"{review.quote}"</Text>
-              <View style={s.reviewer}>
-                <View style={s.reviewerDot} />
-                <Text style={s.reviewerName}>{review.name}</Text>
+          return (
+            <Animated.View
+              key={i}
+              style={[
+                s.card,
+                isCardActive && s.cardActive,
+                {
+                  opacity: cardAnims[i].interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, isCardActive ? 1 : 0.75],
+                  }),
+                  transform: [
+                    {
+                      translateY: cardAnims[i].interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [36, 0],
+                      }),
+                    },
+                    {
+                      scale: cardAnims[i].interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.94, isCardActive ? 1 : 0.96],
+                      }),
+                    },
+                  ],
+                },
+              ]}
+            >
+              <View style={s.imageWrap}>
+                <Image
+                  source={review.image}
+                  style={s.image}
+                  resizeMode="cover"
+                />
               </View>
-            </View>
-          </View>
-        ))}
+
+              <View style={s.reviewBody}>
+                <Stars count={review.stars} />
+
+                <Text style={s.quote}>"{review.quote}"</Text>
+
+                <View style={s.reviewer}>
+                  <View style={s.reviewerDot} />
+                  <Text style={s.reviewerName}>{review.name}</Text>
+                </View>
+              </View>
+            </Animated.View>
+          );
+        })}
       </ScrollView>
 
-      {/* ── Dot indicators ── */}
-      <View style={s.dots}>
+      {/* Dot indicators */}
+      <Animated.View
+        style={[
+          s.dots,
+          {
+            opacity: dotsAnim,
+            transform: [
+              {
+                translateY: dotsAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [12, 0],
+                }),
+              },
+            ],
+          },
+        ]}
+      >
         {REVIEWS.map((_, i) => (
           <View
             key={i}
             style={[s.dot, i === activeIndex ? s.dotActive : s.dotInactive]}
           />
         ))}
-      </View>
+      </Animated.View>
     </View>
   );
 };
 
-// ─── Styles ────────────────────────────────────────────────────────────────
+// Styles
 const s = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: COLORS.backgroundGradientTop,
   },
 
-  // ─── Header ──────────────────────────────────────────────────────
   header: {
     alignItems: "center",
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.lg,
     marginBottom: SPACING.xl,
   },
-  badge: {
-    fontSize: 11,
-    fontWeight: "800",
-    color: COLORS.primary,
-    letterSpacing: 1.2,
-    textTransform: "uppercase",
-    marginBottom: SPACING.sm,
-  },
-  title: {
-    fontSize: 30,
+
+  headline: {
+    fontSize: 32,
     fontWeight: "700",
     color: COLORS.textDark,
     textAlign: "center",
-    letterSpacing: -0.8,
-    lineHeight: 38,
-    marginBottom: SPACING.sm,
+    letterSpacing: -1,
+    lineHeight: 42,
   },
+
+  headlineAccent: {
+    color: COLORS.primary,
+  },
+
   subtitle: {
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: "300",
     color: "black",
     textAlign: "center",
     lineHeight: 20,
+    marginTop: SPACING.sm,
   },
 
-  // ─── Scroll ───────────────────────────────────────────────────────
   scrollContent: {
     paddingLeft: (SW - CARD_W) / 2,
     paddingRight: (SW - CARD_W) / 2,
@@ -230,7 +356,6 @@ const s = StyleSheet.create({
     alignItems: "flex-start",
   },
 
-  // ─── Card ─────────────────────────────────────────────────────────
   card: {
     width: CARD_W,
     backgroundColor: "#FFFAF6",
@@ -243,67 +368,39 @@ const s = StyleSheet.create({
     shadowOpacity: 0.09,
     shadowRadius: 16,
     elevation: 5,
-    opacity: 0.75, // non-active cards slightly faded
-    transform: [{ scale: 0.96 }],
   },
+
   cardActive: {
-    opacity: 1,
-    transform: [{ scale: 1 }],
     borderColor: COLORS.primary,
     shadowOpacity: 0.16,
   },
 
-  // ─── Image ────────────────────────────────────────────────────────
   imageWrap: {
     width: "100%",
     height: CARD_W * 0.9,
     position: "relative",
   },
+
   image: {
     width: "100%",
     height: "100%",
   },
 
-  // Weight loss overlay badge — bottom-left of image
-  lossBadge: {
-    position: "absolute",
-    bottom: 12,
-    left: 12,
-    backgroundColor: COLORS.primary,
-    borderRadius: 20,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    shadowColor: "#C05010",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.4,
-    shadowRadius: 6,
-    elevation: 5,
-  },
-  lossValue: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#FFFFFF",
-    letterSpacing: -0.5,
-  },
-  lossDays: {
-    fontSize: 10,
-    fontWeight: "600",
-    color: "rgba(255,255,255,0.8)",
-  },
-
-  // ─── Review body ──────────────────────────────────────────────────
   reviewBody: {
     padding: 16,
     gap: 8,
   },
+
   starsRow: {
     flexDirection: "row",
     gap: 2,
   },
+
   star: {
     fontSize: 14,
     color: COLORS.primary,
   },
+
   quote: {
     fontSize: 13,
     fontWeight: "500",
@@ -311,25 +408,27 @@ const s = StyleSheet.create({
     lineHeight: 20,
     fontStyle: "italic",
   },
+
   reviewer: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
     marginTop: 4,
   },
+
   reviewerDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
     backgroundColor: COLORS.primary,
   },
+
   reviewerName: {
     fontSize: 13,
     fontWeight: "700",
     color: COLORS.textDark,
   },
 
-  // ─── Dots ─────────────────────────────────────────────────────────
   dots: {
     flexDirection: "row",
     justifyContent: "center",
@@ -338,14 +437,17 @@ const s = StyleSheet.create({
     marginTop: SPACING.lg,
     marginBottom: SPACING.md,
   },
+
   dot: {
     height: 8,
     borderRadius: 4,
   },
+
   dotActive: {
     width: 24,
     backgroundColor: COLORS.primary,
   },
+
   dotInactive: {
     width: 8,
     backgroundColor: "#F0DED0",

@@ -14,30 +14,27 @@ import {
 
 const { width: SW, height: SH } = Dimensions.get("window");
 
-const STAT_ITEMS = [
-  { value: "81%", label: "bounce back\nwith fad diets" },
-  { value: "3×", label: "better retention\nwith Orca plans" },
-];
+interface GraphProps {
+  isActive?: boolean;
+}
 
-export const Graph: React.FC = () => {
+export const Graph: React.FC<GraphProps> = ({ isActive = true }) => {
   const headerAnim = useRef(new Animated.Value(0)).current;
-  const badgeAnim = useRef(new Animated.Value(0)).current;
   const imageAnim = useRef(new Animated.Value(0)).current;
-  const statsAnim = useRef(new Animated.Value(0)).current;
   const cardAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.stagger(110, [
+    headerAnim.setValue(0);
+    imageAnim.setValue(0);
+    cardAnim.setValue(0);
+
+    if (!isActive) return;
+
+    const animation = Animated.stagger(110, [
       Animated.spring(headerAnim, {
         toValue: 1,
         tension: 65,
         friction: 9,
-        useNativeDriver: true,
-      }),
-      Animated.spring(badgeAnim, {
-        toValue: 1,
-        tension: 55,
-        friction: 8,
         useNativeDriver: true,
       }),
       Animated.spring(imageAnim, {
@@ -46,20 +43,20 @@ export const Graph: React.FC = () => {
         friction: 7,
         useNativeDriver: true,
       }),
-      Animated.spring(statsAnim, {
-        toValue: 1,
-        tension: 48,
-        friction: 8,
-        useNativeDriver: true,
-      }),
       Animated.spring(cardAnim, {
         toValue: 1,
         tension: 52,
         friction: 8,
         useNativeDriver: true,
       }),
-    ]).start();
-  }, []);
+    ]);
+
+    animation.start();
+
+    return () => {
+      animation.stop();
+    };
+  }, [isActive]);
 
   return (
     <View style={s.root}>

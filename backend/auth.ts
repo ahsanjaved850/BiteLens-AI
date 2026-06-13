@@ -1,8 +1,8 @@
 import { dataAnalysis } from "@/src/utils/dataAnalysis";
 import {
-  clearOnboardingData,
-  getOnboardingData,
-} from "@/src/utils/onboardingStorage";
+    clearOnboardingData,
+    getOnboardingData,
+} from "@/src/utils/onboarding/onboardingStorage";
 import { supabase } from "@/src/utils/supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Purchases from "react-native-purchases";

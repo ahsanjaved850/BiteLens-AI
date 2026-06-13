@@ -1,23 +1,23 @@
 import {
-  COLORS,
-  SHADOWS,
-  SPACING,
+    COLORS,
+    SHADOWS,
+    SPACING,
 } from "@/src/Screens/Onboarding/Onboarding.style";
 import { getSelectedBirthYear } from "@/src/components/OnboardingFeatures/GoalInfo/BirthYearPicker";
-import { saveOnboardingData } from "@/src/utils/onboardingStorage";
+import { saveOnboardingData } from "@/src/utils/onboarding/onboardingStorage";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-  Dimensions,
-  FlatList,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Dimensions,
+    FlatList,
+    NativeScrollEvent,
+    NativeSyntheticEvent,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 const { width: SW, height: SH } = Dimensions.get("window");
