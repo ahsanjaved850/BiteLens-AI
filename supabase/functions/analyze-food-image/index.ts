@@ -45,6 +45,11 @@ Your estimates must reflect real-world database values — not guesses. Always r
                 type: "text",
                 text: `Analyze this food image with the precision of a registered dietitian.
 
+                QUANTITY ANALYSIS (do this by carefully LOOKING at the image):
+                - Estimate the TOTAL quantity of the whole meal from what is actually visible — its overall size, how full the plate/bowl/container is, and the visible volume of food. Do not assume a default serving; read the real amount shown.
+                - Estimate the quantity of EACH individual ingredient separately, based on how much of it appears in the image (e.g. more rice than chicken, a small drizzle of oil). Judge each ingredient's portion from its visible area, thickness, and volume relative to the rest of the plate.
+                - Cross-check that the per-ingredient grams add up to roughly the total meal weight you estimated.
+
                 PORTION DETECTION RULES:
                 1. Use visual reference cues to estimate portion size: plate diameter (~25cm standard dinner plate), hand size, packaging, utensils, or any other visible objects.
                 2. Identify the most natural countable unit for this food:
@@ -92,8 +97,18 @@ Your estimates must reflect real-world database values — not guesses. Always r
                   "sugar": 6,
                   "sodium": 360,
                   "fiber": 2,
-                  "ingredients": ["ingredient 1", "ingredient 2"]
-                }`,
+                  "ingredients": [
+                    { "name": "Ingredient name", "grams": 50 },
+                    { "name": "Another ingredient", "grams": 20 }
+                  ]
+                }
+
+                INGREDIENT RULES:
+                - List the main components of the dish (aim for 3–8 key ingredients)
+                - Each ingredient must have a "name" (string) and "grams" (plain number, its estimated weight in grams within the whole dish)
+                - Base each ingredient's grams on its VISIBLE quantity in the image — how much of that specific ingredient is actually shown, not a generic recipe assumption
+                - The ingredient grams should roughly sum toward the total plated weight you estimated
+                - Use simple, readable names (e.g. "Grilled chicken", "White rice", "Olive oil")`,
               },
               {
                 type: "image_url",
@@ -131,6 +146,25 @@ Your estimates must reflect real-world database values — not guesses. Always r
       throw new Error("Missing required nutrition fields in response");
     }
 
+    // Normalize ingredients into a consistent { name, grams } shape. The model
+    // is asked for objects, but tolerate plain strings too (grams -> 0).
+    const ingredients = Array.isArray(parsed.ingredients)
+      ? parsed.ingredients
+          .map((item: any) => {
+            if (typeof item === "string") {
+              return { name: item.trim(), grams: 0 };
+            }
+            if (item && typeof item === "object") {
+              return {
+                name: String(item.name ?? "").trim(),
+                grams: Math.max(0, Math.round(Number(item.grams) || 0)),
+              };
+            }
+            return null;
+          })
+          .filter((item: any) => item && item.name.length > 0)
+      : [];
+
     // Build perUnitNutrition — fallback to total/1 if AI didn't return it
     const perUnit = parsed.perUnitNutrition ?? {
       calories: parsed.calories,
@@ -152,7 +186,7 @@ Your estimates must reflect real-world database values — not guesses. Always r
       sugar: String(parsed.sugar ?? "0"),
       sodium: String(parsed.sodium ?? "0"),
       fiber: String(parsed.fiber ?? "0"),
-      ingredients: parsed.ingredients ?? [],
+      ingredients,
       // New portion fields
       portion_data: {
         detectedQuantity: Number(parsed.detectedQuantity ?? 1),

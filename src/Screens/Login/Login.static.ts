@@ -1,5 +1,8 @@
 export interface LoginScreenProps {
   onLogin: () => void;
+  // Called when Apple Sign-In succeeds at the Apple/Supabase level but the
+  // user has no matching profile in our DB (i.e. they never signed up).
+  onNoAccount?: () => void;
   // "signin" — shows only login form, no signup toggle
   // "signup" — shows only signup form, no signin toggle
   mode?: "signin" | "signup";

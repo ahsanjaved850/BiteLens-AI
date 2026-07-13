@@ -100,6 +100,37 @@ export const UI_TEXT = {
   EDIT_PORTION: "Edit Portion",
 } as const;
 
+export const INGREDIENT_MODAL_TEXT = {
+  ADD_TITLE: "Add Ingredient",
+  ADD_SUBTITLE: "Add an item that's part of this meal.",
+  EDIT_TITLE: "Edit Ingredient",
+  EDIT_SUBTITLE: "Update this ingredient's name or amount.",
+  NAME_LABEL: "Ingredient Name",
+  NAME_PLACEHOLDER: "e.g. Grilled chicken",
+  GRAMS_LABEL: "Amount (grams)",
+  GRAMS_PLACEHOLDER: "Enter grams",
+} as const;
+
+export const INGREDIENT_ALERTS = {
+  DELETE_CONFIRM: {
+    title: "Remove Ingredient",
+    message: "Remove this ingredient from the meal?",
+    cancelText: "Cancel",
+    confirmText: "Remove",
+  },
+  SAVE_ERROR: {
+    title: "Error",
+    message: "Failed to save ingredient. Please try again.",
+    buttonText: "OK",
+  },
+  DELETE_ERROR: {
+    title: "Error",
+    message: "Failed to remove ingredient. Please try again.",
+    buttonText: "OK",
+  },
+  NAME_REQUIRED: "Please enter an ingredient name",
+} as const;
+
 export const UNIT_SUFFIX = {
   GRAMS: "g",
   MILLIGRAMS: "mg",

@@ -10,6 +10,11 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: { storage: AsyncStorage, autoRefreshToken: true, persistSession: true },
 });
 
+export interface Ingredient {
+  name: string;
+  grams: number;
+}
+
 export interface MealData {
   id: string;
   meal_id?: string;
@@ -22,7 +27,8 @@ export interface MealData {
   sugar: number;
   sodium: number;
   fiber: number;
-  ingredients: string[];
+  // Newer meals store { name, grams }; older meals may still hold plain strings.
+  ingredients: (Ingredient | string)[];
   meal_image: string;
 }
 
@@ -176,6 +182,51 @@ export const getTodayNutrition = async (
     };
   } catch (error) {
     console.error("Error in getTodayNutrition:", error);
+    throw error;
+  }
+};
+
+//  Update a meal's ingredients list along with its recalculated nutrition
+export const updateMealNutrition = async (
+  mealId: string,
+  ingredients: Ingredient[],
+  nutrition: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+    sugar: number;
+    sodium: number;
+    fiber: number;
+  },
+): Promise<void> => {
+  try {
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabase.auth.getSession();
+    if (sessionError || !session?.user)
+      throw new Error("User not authenticated or session missing");
+
+    const { error } = await supabase
+      .from("daily_meals")
+      .update({
+        ingredients,
+        // calories is a bigint column — must be a whole number
+        calories: Math.round(nutrition.calories),
+        protein: nutrition.protein,
+        carbs: nutrition.carbs,
+        fat: nutrition.fat,
+        sugar: nutrition.sugar,
+        sodium: nutrition.sodium,
+        fiber: nutrition.fiber,
+      })
+      .eq("meal_id", mealId)
+      .eq("user_id", session.user.id);
+
+    if (error) throw error;
+  } catch (error) {
+    console.error("Error in updateMealNutrition:", error);
     throw error;
   }
 };

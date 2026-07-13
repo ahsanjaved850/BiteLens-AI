@@ -63,11 +63,46 @@ export const deleteUserData = async () => {
   } = await supabase.auth.getUser();
   if (userError) throw userError;
   if (!user) throw new Error("Not authenticated");
-  await supabase.from("profile").delete().eq("id", user.id);
-  await supabase.from("initial_details").delete().eq("id", user.id);
-  await supabase.from("daily_meals").delete().eq("user_id", user.id);
-  await supabase.from("daily_intake").delete().eq("id", user.id);
-  await supabase.from("weight_logs").delete().eq("user_id", user.id);
+
+  const uid = user.id;
+
+  const { error: profileError } = await supabase
+    .from("profile")
+    .delete()
+    .eq("id", uid);
+  if (profileError)
+    throw new Error(`profile delete failed: ${profileError.message}`);
+
+  const { error: initialDetailsError } = await supabase
+    .from("initial_details")
+    .delete()
+    .eq("id", uid);
+  if (initialDetailsError)
+    throw new Error(
+      `initial_details delete failed: ${initialDetailsError.message}`,
+    );
+
+  const { error: mealsError } = await supabase
+    .from("daily_meals")
+    .delete()
+    .eq("user_id", uid);
+  if (mealsError)
+    throw new Error(`daily_meals delete failed: ${mealsError.message}`);
+
+  const { error: intakeError } = await supabase
+    .from("daily_intake")
+    .delete()
+    .eq("id", uid);
+  if (intakeError)
+    throw new Error(`daily_intake delete failed: ${intakeError.message}`);
+
+  const { error: weightLogsError } = await supabase
+    .from("weight_logs")
+    .delete()
+    .eq("user_id", uid);
+  if (weightLogsError)
+    throw new Error(`weight_logs delete failed: ${weightLogsError.message}`);
+
   return true;
 };
 

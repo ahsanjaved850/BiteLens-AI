@@ -5,7 +5,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   name: "Orca",
   slug: "calai_vegan",
   scheme: "orca",
-  version: "1.1.5",
+  version: "1.1.6",
   orientation: "portrait",
   userInterfaceStyle: "light",
 
