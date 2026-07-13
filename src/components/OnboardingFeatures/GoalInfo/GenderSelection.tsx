@@ -4,13 +4,13 @@ import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-    Image,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 interface GenderSelectionProps {
@@ -112,13 +112,13 @@ export const GenderSelection: React.FC<GenderSelectionProps> = ({
         contentContainerStyle={s.content}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── Header ── */}
+        {/*  Header  */}
         <View style={s.header}>
           <Text style={s.title}>{CONTENT.header.title}</Text>
           <Text style={s.subtitle}>{CONTENT.header.subtitle}</Text>
         </View>
 
-        {/* ── Gender Options ── */}
+        {/*  Gender Options  */}
         <View style={s.optionsContainer}>
           {CONTENT.options.map((option) => {
             const isSelected = gender === option.label;
@@ -208,7 +208,7 @@ const s = StyleSheet.create({
     paddingTop: SPACING.sm,
   },
 
-  // ─── Header ──────────────────────────────────────────────────────
+  //  Header
   header: {
     alignItems: "center",
     marginTop: SPACING.lg,
@@ -238,7 +238,7 @@ const s = StyleSheet.create({
     lineHeight: 22,
   },
 
-  // ─── Options ─────────────────────────────────────────────────────
+  //  Options
   optionsContainer: {
     gap: SPACING.lg,
     marginTop: 180,
@@ -280,7 +280,7 @@ const s = StyleSheet.create({
   },
   optionLabel: {
     fontSize: 17,
-    fontWeight: "700",
+    fontWeight: "600",
     color: COLORS.textDark,
     letterSpacing: -0.3,
     marginBottom: 3,
@@ -307,7 +307,7 @@ const s = StyleSheet.create({
     fontWeight: "800",
   },
 
-  // ─── Hint ────────────────────────────────────────────────────────
+  //  Hint
   hint: {
     fontSize: 12,
     fontWeight: "500",

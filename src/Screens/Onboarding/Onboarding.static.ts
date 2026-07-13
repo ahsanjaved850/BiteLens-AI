@@ -200,12 +200,12 @@ export const INITIAL_PAGE_VALIDATION: PageValidationState = {
   46: false,
 
   47: true, // FinalYes : static display
-  48: true, // Completion : auto-animates
+  48: false, // Completion : auto-animates
 };
 
 export const BUTTON_TEXT = {
   NEXT: "Continue",
-  GET_STARTED: "Get Started 🚀",
+  GET_STARTED: "Get Started",
   BACK: "←",
 } as const;
 

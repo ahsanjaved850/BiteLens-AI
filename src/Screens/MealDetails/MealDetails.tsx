@@ -1,11 +1,25 @@
 import { NUTRITION_ICONS } from "@/src/Screens/Home/Home.static";
-import { Ionicons } from "@expo/vector-icons";
+import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  Image,
+  Modal,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useMealDetails } from "./MealDetails.logic";
-import { MACROS_CONFIG, SECTION_TITLES, UI_TEXT } from "./MealDetails.static";
+import {
+  INGREDIENT_MODAL_TEXT,
+  MACROS_CONFIG,
+  SECTION_TITLES,
+  UI_TEXT,
+} from "./MealDetails.static";
 import { mealDetailStyles } from "./mealDetails.style";
 
 const MACRO_ACCENT_COLORS: Record<string, string> = {
@@ -14,15 +28,44 @@ const MACRO_ACCENT_COLORS: Record<string, string> = {
   fat: "#F59E0B",
 };
 
-const NUTRIENT_SUBLABELS: Record<string, string> = {
-  Sugar: "Simple carbs",
-  Sodium: "Salt content",
-  Fiber: "Dietary",
-};
+// Cycled per-chip so the ingredient tags read colorful yet on-brand —
+// all pulled from the app's existing accent palette.
+const INGREDIENT_CHIP_COLORS = [
+  "#F47B20",
+  "#EF4444",
+  "#3B82F6",
+  "#F59E0B",
+  "#2ECC71",
+  "#8B5CF6",
+];
 
 export const MealDetails = () => {
-  const { meal, handleBack, handleDelete, formatTime, getNutrients } =
-    useMealDetails();
+  const {
+    meal,
+    handleBack,
+    handleDelete,
+    formatTime,
+    getNutrients,
+    getIngredients,
+    ingredientEditMode,
+    toggleIngredientEditMode,
+    ingredientFormVisible,
+    ingredientFormMode,
+    openAddIngredientForm,
+    openEditIngredientForm,
+    closeIngredientForm,
+    ingredientNameInput,
+    setIngredientNameInput,
+    ingredientGramsInput,
+    setIngredientGramsInput,
+    ingredientNameFocused,
+    setIngredientNameFocused,
+    ingredientGramsFocused,
+    setIngredientGramsFocused,
+    recalculatingNutrition,
+    handleSaveIngredient,
+    handleDeleteIngredient,
+  } = useMealDetails();
 
   const insets = useSafeAreaInsets();
 
@@ -39,6 +82,8 @@ export const MealDetails = () => {
   }
 
   const nutrients = getNutrients();
+  const ingredients = getIngredients();
+  const totalGrams = ingredients.reduce((sum, item) => sum + item.grams, 0);
   const calorieGoalHint =
     meal.calories > 600
       ? "High calorie"
@@ -113,7 +158,7 @@ export const MealDetails = () => {
           <View style={mealDetailStyles.caloriesIconContainer}>
             <Image
               source={NUTRITION_ICONS.calories}
-              style={{ width: 46, height: 46 }}
+              style={{ width: 32, height: 32 }}
               resizeMode="contain"
             />
           </View>
@@ -136,27 +181,19 @@ export const MealDetails = () => {
         {/* ── Macronutrients ── */}
         <View style={mealDetailStyles.section}>
           <View style={mealDetailStyles.sectionHeader}>
-            <View style={mealDetailStyles.sectionDot} />
-            <Text style={mealDetailStyles.sectionTitle}>
-              {SECTION_TITLES.MACRONUTRIENTS}
-            </Text>
+            <View style={mealDetailStyles.sectionHeaderLeft}>
+              <View style={mealDetailStyles.sectionDot} />
+              <Text style={mealDetailStyles.sectionTitle}>
+                {SECTION_TITLES.MACRONUTRIENTS}
+              </Text>
+            </View>
           </View>
           <View style={mealDetailStyles.macroGrid}>
             {MACROS_CONFIG.map((macro) => (
               <View key={macro.key} style={mealDetailStyles.macroCard}>
-                <View
-                  style={{
-                    width: 58,
-                    height: 58,
-                    borderRadius: 19,
-                    opacity: 0.12,
-                    position: "absolute",
-                    top: 12,
-                  }}
-                />
                 <Image
                   source={NUTRITION_ICONS[macro.iconKey]}
-                  style={[mealDetailStyles.macroIcon3d, { marginTop: 4 }]}
+                  style={mealDetailStyles.macroIcon3d}
                   resizeMode="contain"
                 />
                 <Text style={mealDetailStyles.macroLabel}>{macro.label}</Text>
@@ -172,44 +209,156 @@ export const MealDetails = () => {
         {/* ── Additional Nutrients ── */}
         <View style={mealDetailStyles.section}>
           <View style={mealDetailStyles.sectionHeader}>
-            <View style={mealDetailStyles.sectionDot} />
-            <Text style={mealDetailStyles.sectionTitle}>
-              {SECTION_TITLES.ADDITIONAL_NUTRIENTS}
-            </Text>
+            <View style={mealDetailStyles.sectionHeaderLeft}>
+              <View style={mealDetailStyles.sectionDot} />
+              <Text style={mealDetailStyles.sectionTitle}>
+                {SECTION_TITLES.ADDITIONAL_NUTRIENTS}
+              </Text>
+            </View>
           </View>
           <View style={mealDetailStyles.nutrientsList}>
             {nutrients.map((nutrient, index) => (
-              <View
-                key={index}
-                style={[
-                  mealDetailStyles.nutrientRow,
-                  index === nutrients.length - 1 && { borderBottomWidth: 0 },
-                ]}
-              >
+              <View key={index} style={mealDetailStyles.nutrientRow}>
                 <View style={mealDetailStyles.nutrientLeft}>
-                  <View style={mealDetailStyles.nutrientIconWrapper}>
-                    <Image
-                      source={NUTRITION_ICONS[nutrient.iconKey]}
-                      style={mealDetailStyles.nutrientIcon3d}
-                      resizeMode="contain"
-                    />
-                  </View>
-                  <View>
-                    <Text style={mealDetailStyles.nutrientLabel}>
-                      {nutrient.label}
-                    </Text>
-                    <Text style={mealDetailStyles.nutrientSubLabel}>
-                      {NUTRIENT_SUBLABELS[nutrient.label] ?? ""}
-                    </Text>
-                  </View>
-                </View>
-                <View style={mealDetailStyles.nutrientValuePill}>
-                  <Text style={mealDetailStyles.nutrientValue}>
-                    {nutrient.value}
+                  <Image
+                    source={NUTRITION_ICONS[nutrient.iconKey]}
+                    style={mealDetailStyles.nutrientIcon3d}
+                    resizeMode="contain"
+                  />
+                  <Text style={mealDetailStyles.nutrientLabel}>
+                    {nutrient.label}
                   </Text>
                 </View>
+                <Text style={mealDetailStyles.nutrientValue}>
+                  {nutrient.value}
+                </Text>
               </View>
             ))}
+          </View>
+        </View>
+
+        {/* ── Ingredients ── */}
+        <View style={mealDetailStyles.section}>
+          <View style={mealDetailStyles.sectionHeader}>
+            <View style={mealDetailStyles.sectionHeaderLeft}>
+              <View style={mealDetailStyles.sectionDot} />
+              <Text style={mealDetailStyles.sectionTitle}>
+                {SECTION_TITLES.INGREDIENTS}
+              </Text>
+            </View>
+            <View
+              style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
+            >
+              {totalGrams > 0 && (
+                <View style={mealDetailStyles.ingredientCountPill}>
+                  <Text style={mealDetailStyles.ingredientCountText}>
+                    {"Total : "}
+                    {totalGrams}
+                    <Text style={mealDetailStyles.ingredientCountUnit}>g</Text>
+                  </Text>
+                </View>
+              )}
+              <TouchableOpacity
+                style={mealDetailStyles.ingredientEditButton}
+                onPress={toggleIngredientEditMode}
+                activeOpacity={0.75}
+              >
+                {ingredientEditMode ? (
+                  <FontAwesome5 name="check" size={13} color="#F47B20" solid />
+                ) : (
+                  <Ionicons name="create-outline" size={22} color="#F47B20" />
+                )}
+              </TouchableOpacity>
+              {ingredientEditMode && (
+                <TouchableOpacity
+                  style={mealDetailStyles.ingredientEditButton}
+                  onPress={openAddIngredientForm}
+                  activeOpacity={0.75}
+                >
+                  <FontAwesome5 name="plus" size={13} color="#F47B20" solid />
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+          <View style={mealDetailStyles.ingredientsContainer}>
+            {recalculatingNutrition && (
+              <View style={mealDetailStyles.ingredientsRecalcOverlay}>
+                <ActivityIndicator size="small" color="#F47B20" />
+                <Text style={mealDetailStyles.ingredientsRecalcText}>
+                  Updating nutrition...
+                </Text>
+              </View>
+            )}
+            {ingredients.length > 0 ? (
+              ingredients.map((ingredient, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={[
+                    mealDetailStyles.ingredientRow,
+                    index === ingredients.length - 1 && {
+                      borderBottomWidth: 0,
+                    },
+                  ]}
+                  onPress={() =>
+                    ingredientEditMode && openEditIngredientForm(index)
+                  }
+                  activeOpacity={ingredientEditMode ? 0.6 : 1}
+                >
+                  <View style={mealDetailStyles.ingredientLeft}>
+                    <View
+                      style={[
+                        mealDetailStyles.ingredientDot,
+                        {
+                          backgroundColor:
+                            INGREDIENT_CHIP_COLORS[
+                              index % INGREDIENT_CHIP_COLORS.length
+                            ],
+                        },
+                      ]}
+                    />
+                    <Text
+                      style={mealDetailStyles.ingredientName}
+                      numberOfLines={1}
+                    >
+                      {ingredient.name}
+                    </Text>
+                  </View>
+                  {ingredient.grams > 0 && (
+                    <View
+                      style={[
+                        mealDetailStyles.ingredientGramPill,
+                        ingredientEditMode &&
+                          mealDetailStyles.ingredientGramPillEditable,
+                      ]}
+                    >
+                      <Text style={mealDetailStyles.ingredientGramText}>
+                        {ingredient.grams}g
+                      </Text>
+                    </View>
+                  )}
+                  {ingredientEditMode && (
+                    <TouchableOpacity
+                      style={mealDetailStyles.ingredientDeleteButton}
+                      onPress={() => handleDeleteIngredient(index)}
+                      activeOpacity={0.7}
+                    >
+                      <Ionicons
+                        name="trash-outline"
+                        size={16}
+                        color="#EF4444"
+                      />
+                    </TouchableOpacity>
+                  )}
+                </TouchableOpacity>
+              ))
+            ) : (
+              <View style={mealDetailStyles.noIngredientsWrap}>
+                <Text style={mealDetailStyles.noIngredientsEmoji}>🥗</Text>
+                <Text style={mealDetailStyles.noIngredientsText}>
+                  {UI_TEXT.NO_INGREDIENTS}
+                </Text>
+              </View>
+            )}
           </View>
         </View>
 
@@ -244,6 +393,89 @@ export const MealDetails = () => {
       >
         <Ionicons name="trash-outline" size={20} color="#FFFFFF" />
       </TouchableOpacity>
+
+      {/* ── Add / Edit Ingredient Modal ── */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={ingredientFormVisible}
+        onRequestClose={closeIngredientForm}
+      >
+        <View style={mealDetailStyles.modalOverlay}>
+          <View style={mealDetailStyles.modalContent}>
+            <Text style={mealDetailStyles.modalTitle}>
+              {ingredientFormMode === "add"
+                ? INGREDIENT_MODAL_TEXT.ADD_TITLE
+                : INGREDIENT_MODAL_TEXT.EDIT_TITLE}
+            </Text>
+            <Text style={mealDetailStyles.modalSubtitle}>
+              {ingredientFormMode === "add"
+                ? INGREDIENT_MODAL_TEXT.ADD_SUBTITLE
+                : INGREDIENT_MODAL_TEXT.EDIT_SUBTITLE}
+            </Text>
+
+            <View style={mealDetailStyles.inputContainer}>
+              <Text style={mealDetailStyles.inputLabel}>
+                {INGREDIENT_MODAL_TEXT.NAME_LABEL}
+              </Text>
+              <TextInput
+                style={[
+                  mealDetailStyles.textInput,
+                  ingredientNameFocused && mealDetailStyles.textInputFocused,
+                ]}
+                placeholder={INGREDIENT_MODAL_TEXT.NAME_PLACEHOLDER}
+                placeholderTextColor="#B0BECA"
+                value={ingredientNameInput}
+                onChangeText={setIngredientNameInput}
+                onFocus={() => setIngredientNameFocused(true)}
+                onBlur={() => setIngredientNameFocused(false)}
+                autoFocus
+              />
+            </View>
+
+            <View style={mealDetailStyles.inputContainer}>
+              <Text style={mealDetailStyles.inputLabel}>
+                {INGREDIENT_MODAL_TEXT.GRAMS_LABEL}
+              </Text>
+              <TextInput
+                style={[
+                  mealDetailStyles.textInput,
+                  ingredientGramsFocused && mealDetailStyles.textInputFocused,
+                ]}
+                placeholder={INGREDIENT_MODAL_TEXT.GRAMS_PLACEHOLDER}
+                placeholderTextColor="#B0BECA"
+                keyboardType="number-pad"
+                value={ingredientGramsInput}
+                onChangeText={setIngredientGramsInput}
+                onFocus={() => setIngredientGramsFocused(true)}
+                onBlur={() => setIngredientGramsFocused(false)}
+              />
+            </View>
+
+            <View style={mealDetailStyles.modalButtonRow}>
+              <TouchableOpacity
+                onPress={closeIngredientForm}
+                style={mealDetailStyles.modalCancelButton}
+                activeOpacity={0.7}
+              >
+                <Text style={mealDetailStyles.modalCancelButtonText}>
+                  Cancel
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={handleSaveIngredient}
+                style={mealDetailStyles.modalConfirmButton}
+                activeOpacity={0.75}
+              >
+                <Text style={mealDetailStyles.modalConfirmButtonText}>
+                  Save
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };

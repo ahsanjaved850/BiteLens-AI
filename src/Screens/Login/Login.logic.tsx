@@ -9,7 +9,11 @@ import {
   ValidationErrors,
 } from "./Login.static";
 
-export const useLogin = ({ onLogin, mode = "signin" }: LoginScreenProps) => {
+export const useLogin = ({
+  onLogin,
+  onNoAccount,
+  mode = "signin",
+}: LoginScreenProps) => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   // Initialize from mode prop — signup screen starts locked to signup
@@ -121,6 +125,14 @@ export const useLogin = ({ onLogin, mode = "signin" }: LoginScreenProps) => {
     setSigningUp(false);
   };
 
+  // Passthrough: called by <Auth /> when Apple signin succeeds at the
+  // Apple/Supabase level but no matching profile exists in our DB.
+  // The session has already been signed out inside auth.native.tsx before
+  // this fires, so we just forward to the parent's handler.
+  const handleNoAccount = () => {
+    onNoAccount?.();
+  };
+
   const handleToggleSignInForm = () => {
     setNewUser((prev) => !prev);
     setErrors({});
@@ -158,6 +170,7 @@ export const useLogin = ({ onLogin, mode = "signin" }: LoginScreenProps) => {
     handleSignInSignUp,
     handleSocialAuthStart,
     handleSocialAuthError,
+    handleNoAccount,           // ← new: forwarded to <Auth onNoAccount={} />
     handleToggleSignInForm,
     handleTogglePasswordVisibility,
     handleFocus,

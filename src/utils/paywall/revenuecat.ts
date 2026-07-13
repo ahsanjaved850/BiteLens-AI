@@ -2,7 +2,7 @@ import { Platform } from "react-native";
 import Purchases, { LOG_LEVEL } from "react-native-purchases";
 
 const API_KEYS = {
-  apple: process.env.EXPO_PUBLIC_REVENUECAT_APPLE_KEY!,
+  apple: process.env.EXPO_PUBLIC_REVENUECAT_APPLE_KEY,
 };
 
 export const configureRevenueCat = async () => {

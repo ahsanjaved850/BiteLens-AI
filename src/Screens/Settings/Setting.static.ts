@@ -7,7 +7,7 @@ export interface ProfileData {
   target_weight?: number;
 }
 
-export const APP_VERSION = "Orca AI v1.1.0";
+export const APP_VERSION = "Orca v1.1.5";
 
 export const WEIGHT_UNIT = "kg";
 export const HEIGHT_UNIT = "cm";

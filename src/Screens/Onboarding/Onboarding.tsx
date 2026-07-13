@@ -66,6 +66,11 @@ export function OnboardingScreen() {
           }
           isSubmitting={index === PAGES.length - 1 ? isFinishing : false}
           onUnlockPress={index === PAGES.length - 1 ? handleNext : undefined}
+          onCTAReady={
+            index === PAGES.length - 1
+              ? () => handleUpdateValidation(PAGES.length - 1, true)
+              : undefined
+          }
         />
       </View>
     );

@@ -1,13 +1,13 @@
+import { deleteUserData } from "@/backend/getData";
 import { dataAnalysis } from "@/src/utils/dataAnalysis";
 import {
-    clearOnboardingData,
-    getOnboardingData,
+  clearOnboardingData,
+  getOnboardingData,
 } from "@/src/utils/onboarding/onboardingStorage";
 import { supabase } from "@/src/utils/supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Purchases from "react-native-purchases";
 
-// Sign In
 export const signIn = async (email: string, password: string) => {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
@@ -15,8 +15,26 @@ export const signIn = async (email: string, password: string) => {
   });
   if (error) throw error;
 
+  const { data: profile, error: profileError } = await supabase
+    .from("profile")
+    .select("onboarding")
+    .eq("id", data.user.id)
+    .maybeSingle();
+
+  if (profileError) {
+    await supabase.auth.signOut();
+    throw profileError;
+  }
+
+  if (!profile || profile.onboarding !== true) {
+    await supabase.auth.signOut();
+    throw new Error("No account found for this email. Please sign up first.");
+  }
+
   await AsyncStorage.setItem("session", JSON.stringify(data.session));
 
+  // Returning user signin — transfer any anonymous RC session to real user ID.
+  // This is safe to call even if RC already has the correct user ID.
   try {
     await Purchases.logIn(data.user.id);
   } catch (e) {
@@ -54,17 +72,12 @@ export const finalizeNewAccount = async (user: {
     throw profileError;
   }
 
-  // ── ADDED: seed first weight_logs entry from onboarding weight ──
   if (od.weight) {
     const { error: weightLogError } = await supabase
       .from("weight_logs")
-      .insert({
-        user_id: user.id,
-        weight: od.weight.toString(),
-      });
+      .insert({ user_id: user.id, weight: od.weight.toString() });
 
     if (weightLogError) {
-      // Non-fatal — log but don't block signup
       console.warn("Initial weight log failed:", weightLogError.message);
     }
   }
@@ -91,7 +104,6 @@ export const finalizeNewAccount = async (user: {
     }
   }
 
-  //  Mark onboarding complete
   const { error: onboardingError } = await supabase
     .from("profile")
     .update({ onboarding: true })
@@ -101,18 +113,30 @@ export const finalizeNewAccount = async (user: {
     console.warn("Onboarding flag update failed:", onboardingError.message);
   }
 
-  //  Link RevenueCat purchase to permanent UUID
   try {
     await Purchases.logIn(user.id);
-  } catch (e) {
-    console.warn("RevenueCat logIn failed (sign up):", e);
+    console.log("RevenueCat: purchase transferred to", user.id);
+  } catch (e: any) {
+    const message: string = e?.message ?? String(e);
+    const code: number = e?.code ?? e?.userInfo?.code ?? -1;
+
+    if (message.includes("already another active subscriber") || code === 7) {
+      // Sandbox / TestFlight duplicate receipt — safe to ignore.
+      // The entitlement is still valid on the original RC identity.
+      console.warn(
+        "RevenueCat: receipt already linked (error 7) — continuing:",
+        message,
+      );
+    } else {
+      // Any other RC error — log it but still do not block the user.
+      console.error("RevenueCat logIn failed (finalize):", message);
+    }
   }
 
-  //  Clear AsyncStorage onboarding scratch keys
   await clearOnboardingData();
 };
 
-//  Sign Up (email + password)
+// Sign Up (email + password)
 export const signUp = async (email: string, password: string) => {
   const { data, error } = await supabase.auth.signUp({ email, password });
   if (error) throw error;
@@ -121,11 +145,58 @@ export const signUp = async (email: string, password: string) => {
   if (!user) throw new Error("Sign up succeeded but no user returned.");
 
   await finalizeNewAccount(user);
-
   return user;
 };
 
-//  Sign Out
+export const deleteAuthUser = async (): Promise<void> => {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    throw new Error("No active session — cannot delete auth user.");
+  }
+
+  const supabaseUrl = "https://zfwtxejwsuqibjjolfmh.supabase.co";
+
+  const response = await fetch(`${supabaseUrl}/functions/v1/delete-user`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(
+      body?.error ??
+        `delete-user Edge Function failed with status ${response.status}`,
+    );
+  }
+};
+
+export const deleteAccount = async (): Promise<void> => {
+  // 1. Delete all Supabase table rows
+  await deleteUserData();
+
+  // 2. Log out of RevenueCat BEFORE deleting the auth user.
+  //    Resets RC to an anonymous ID so a future signup can
+  //    alias and restore the purchase without error 7.
+  try {
+    await Purchases.logOut();
+  } catch (e) {
+    console.warn("RevenueCat logOut failed (delete account):", e);
+  }
+
+  // 3. Delete from auth.users via Edge Function
+  await deleteAuthUser();
+
+  // 4. Clear local session
+  await signOut();
+};
+
+// Sign Out
 export const signOut = async () => {
   await AsyncStorage.removeItem("session");
   await supabase.auth.signOut();
@@ -136,7 +207,7 @@ export const signOut = async () => {
   }
 };
 
-//  Helpers
+// Helpers
 export const getSession = async () => {
   const sessionStr = await AsyncStorage.getItem("session");
   if (sessionStr) {

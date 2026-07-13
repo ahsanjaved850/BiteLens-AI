@@ -73,7 +73,7 @@ export const sendInitialDetails = async (
 ) => {
   const userId = await getCurrentUser();
   const { data, error } = await supabase
-    .from("initial-details")
+    .from("initial_details")
     .upsert(
       {
         id: userId,
@@ -180,6 +180,68 @@ export const updateDailyIntake = async (
   }
 
   return data;
+};
+
+// Applies a nutrition delta (new - old) to a specific day's daily_intake row.
+// Used when a meal's ingredients are edited after the fact — the meal's own
+// totals are recalculated separately, this keeps that day's running totals
+// (used across Home/Data) consistent with the change.
+export const adjustDailyIntakeForMealChange = async (
+  date: string,
+  delta: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+    sugar: number;
+    sodium: number;
+    fiber: number;
+  },
+) => {
+  const userId = await getCurrentUser();
+
+  const { data: existing, error: fetchError } = await supabase
+    .from("daily_intake")
+    .select("*")
+    .eq("id", userId)
+    .eq("date", date)
+    .maybeSingle();
+
+  if (fetchError) {
+    console.error("Error fetching existing intake:", fetchError.message);
+    throw fetchError;
+  }
+
+  const row = {
+    id: userId,
+    date,
+    total_calories: Math.max(
+      0,
+      Number(existing?.total_calories || 0) + delta.calories,
+    ),
+    total_carbs: Math.max(0, Number(existing?.total_carbs || 0) + delta.carbs),
+    total_protein: Math.max(
+      0,
+      Number(existing?.total_protein || 0) + delta.protein,
+    ),
+    total_fat: Math.max(0, Number(existing?.total_fat || 0) + delta.fat),
+    total_sugar: Math.max(0, Number(existing?.total_sugar || 0) + delta.sugar),
+    total_sodium: Math.max(
+      0,
+      Number(existing?.total_sodium || 0) + delta.sodium,
+    ),
+    total_fiber: Math.max(0, Number(existing?.total_fiber || 0) + delta.fiber),
+    created_at: new Date().toISOString(),
+  };
+
+  const { error } = await supabase
+    .from("daily_intake")
+    .upsert(row, { onConflict: "id,date", ignoreDuplicates: false });
+
+  if (error) {
+    console.error("Error adjusting daily intake:", error.message);
+    throw error;
+  }
 };
 
 export const updateOnboading = async (onboarding: boolean) => {

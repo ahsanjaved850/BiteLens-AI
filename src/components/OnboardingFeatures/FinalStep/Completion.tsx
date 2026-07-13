@@ -71,6 +71,9 @@ type CompletionProps = {
   onAnimationComplete?: () => void;
   isSubmitting?: boolean;
   onUnlockPress?: () => void;
+  // Fired once when the LoadingScreen finishes and phase moves to "ready".
+  // The parent uses this to enable the CTA button.
+  onCTAReady?: () => void;
 };
 
 const PARTICLE_COLORS = [
@@ -2607,6 +2610,7 @@ export const Completion: React.FC<CompletionProps> = ({
   onAnimationComplete,
   isSubmitting = false,
   onUnlockPress,
+  onCTAReady,
 }) => {
   // Four phases — loading runs automatically, ready waits for CTA,
   // unlocking fires after paywall success, celebration is the finale.
@@ -2661,6 +2665,9 @@ export const Completion: React.FC<CompletionProps> = ({
           onComplete={() => {
             hasLoadedRef.current = true;
             setPhase("ready");
+            // Tell the parent the loading animation is done — it will enable
+            // the CTA button by flipping pageValidation[48] to true.
+            onCTAReady?.();
           }}
         />
       )}

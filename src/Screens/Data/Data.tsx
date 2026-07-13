@@ -232,15 +232,36 @@ export const DataOverview = () => {
                 </Text>
               </View>
 
-              <View style={dataStyles.progressBarContainer}>
-                <View style={dataStyles.progressBar}>
-                  <View
+              <View style={dataStyles.progressTrackWrap}>
+                <View style={dataStyles.progressTrackBase}>
+                  <LinearGradient
+                    colors={["#FDBA74", "#F47B20"]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
                     style={[
-                      dataStyles.progressBarFill,
-                      { width: `${progress}%` },
+                      dataStyles.progressTrackFill,
+                      { width: `${Math.min(progress, 100)}%` },
                     ]}
                   />
                 </View>
+
+                {/* "You are here" marker — walks toward the goal as progress increases */}
+                <View
+                  style={[
+                    dataStyles.progressMarker,
+                    { left: `${Math.min(Math.max(progress, 4), 96)}%` },
+                  ]}
+                >
+                  <View style={dataStyles.progressMarkerDot}>
+                    <Ionicons name="walk" size={12} color="#FFFFFF" />
+                  </View>
+                </View>
+
+                {/* Goal flag — the destination the marker is heading toward */}
+                <View style={dataStyles.progressFlag}>
+                  <Ionicons name="flag" size={14} color="#F47B20" />
+                </View>
+
                 <Text style={dataStyles.progressPercentage}>
                   {weightDifference} {WEIGHT_UNIT} to go
                 </Text>

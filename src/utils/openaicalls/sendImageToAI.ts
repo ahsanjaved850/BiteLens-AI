@@ -1,4 +1,4 @@
-import { supabase } from "@/src/utils/supabase";
+import { Ingredient, supabase } from "@/src/utils/supabase";
 
 export type NutritionData = {
   name: string;
@@ -9,7 +9,7 @@ export type NutritionData = {
   sugar: string;
   sodium: string;
   fiber: string;
-  ingredients: string[];
+  ingredients: Ingredient[];
 };
 
 export const sendImageToAI = async (
@@ -46,7 +46,22 @@ export const sendImageToAI = async (
       sugar: String(data.sugar),
       sodium: String(data.sodium),
       fiber: String(data.fiber),
-      ingredients: [],
+      // The edge function returns ingredients as { name, grams } objects.
+      // Normalize defensively (tolerate legacy plain strings) instead of
+      // dropping them (this was previously hardcoded to []).
+      ingredients: Array.isArray(data.ingredients)
+        ? data.ingredients
+            .map((item: any): Ingredient => {
+              if (typeof item === "string") {
+                return { name: item.trim(), grams: 0 };
+              }
+              return {
+                name: String(item?.name ?? "").trim(),
+                grams: Math.max(0, Math.round(Number(item?.grams) || 0)),
+              };
+            })
+            .filter((item: Ingredient) => item.name.length > 0)
+        : [],
     };
 
     console.log("Nutrition data received:", nutritionData);

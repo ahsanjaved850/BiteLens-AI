@@ -1,5 +1,5 @@
-import { signOut } from "@/backend/auth";
-import { deleteUserData, getProfile } from "@/backend/getData";
+import { deleteAccount } from "@/backend/auth";
+import { getProfile } from "@/backend/getData";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -18,7 +18,6 @@ export const useSetting = () => {
   const fetchProfile = async (showRefreshing = false) => {
     try {
       if (showRefreshing) setRefreshing(true);
-
       const data = await getProfile();
       setProfile(data);
     } catch (err: any) {
@@ -34,12 +33,14 @@ export const useSetting = () => {
 
   const handleDeleteAccount = async () => {
     try {
-      await deleteUserData();
-      await signOut();
-      router.replace("/auth/");
-    } catch (err) {
-      console.log("Error deleting account: ", err);
-      Alert.alert("Error", "Failed to delete account. Please try again.");
+      await deleteAccount();
+      router.replace("/auth/welcome");
+    } catch (err: any) {
+      console.error("Error deleting account:", err);
+      Alert.alert(
+        "Delete Failed",
+        err?.message || "Failed to delete account. Please try again.",
+      );
     }
   };
 
